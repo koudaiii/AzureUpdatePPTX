@@ -1,0 +1,10 @@
+#!/bin/bash
+
+## check docker azureupdatepptx image exists
+if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
+  echo "docker image azureupdatepptx is not exists"
+  exit 1
+fi
+
+## run docker container
+docker run -it -p 8501:80 azureupdatepptx
