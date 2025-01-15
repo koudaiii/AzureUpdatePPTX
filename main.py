@@ -50,7 +50,7 @@ if st.button('PPTX 生成'):
 
     # PPTX の保存先を一時ファイルに指定
     pptx_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_prs = Presentation("gpstemplate.pptx")
+    tmp_prs = Presentation("template/gpstemplate.pptx")
     prs = tmp_prs
 
     # スライドに関する諸々の初期設定
@@ -88,7 +88,7 @@ if st.button('PPTX 生成'):
         for key in result.keys():
             print(f"{key} : {result[key]}")
         logging.info("***** End of Recode *****")
-        
+
         st.write('以下の Azure Update の情報をスライドに追加しています。')
         st.write(result["title"])
         st.write(result["summary"])
@@ -128,7 +128,7 @@ if st.button('PPTX 生成'):
         p.text = "公開日: " + datetime.strptime(pubDate, '%Y-%m-%dT%H:%M:%S').strftime('%Y年%m月%d日')
         p.level = 2
         print("\n")
-    
+
     # PPTX を保存
     prs.save(pptx_file.name)
     st.write('PPTX 生成完了')
@@ -150,7 +150,7 @@ if st.button('PPTX 生成'):
     with open(pptx_file.name, "rb") as data:
         blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
         st.write('PPTX を Azure Storage にアップロードしました。')
-        
+
         # blob client から account key を取得
         account_key = blob_service_client.credential.account_key
 
@@ -163,7 +163,7 @@ if st.button('PPTX 生成'):
             permission=BlobSasPermissions(read=True),
             expiry=datetime.now(timezone.utc) + timedelta(hours=1)
         )
-        
+
         sas_url = blob_client.url + "?" + sas_token
 
         # SAS URL でダウンロードボタンを作成
