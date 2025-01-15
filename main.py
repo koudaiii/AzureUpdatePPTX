@@ -135,7 +135,7 @@ if st.button('PPTX 生成'):
 
     #　.env の Azure Storage の設定を読み込み
     azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-    container_name = os.getenv("CONTAINER_NAME")
+    container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
 
     # Azure Storage に接続
     blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
