@@ -27,5 +27,5 @@ echo ""
 echo "Success!"
 echo "docker image azureupdatepptx is built"
 
-## notify user to run script/server
-echo "Run 'script/server' to start the server"
+## notify user to run script/docker-server
+echo "Run 'script/docker-server' to start the server"
