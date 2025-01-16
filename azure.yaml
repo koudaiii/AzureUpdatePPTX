@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: azure-update-pptx
+metadata:
+    template: azd-init@1.11.1
+services:
+    azure-update-pptx:
+        project: .
+        host: containerapp
+        language: python
+        docker:
+            path: Dockerfile
