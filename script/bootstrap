@@ -1,31 +1,22 @@
 #!/bin/bash
 
-## check docker installed
-if ! type "docker" > /dev/null; then
-  echo "docker is not installed"
+## check python installed
+if ! type "python" > /dev/null; then
+  echo "python is not installed"
   exit 1
 fi
 
-## check docker daemon running
-if ! docker info > /dev/null; then
-  echo "docker daemon is not running"
+## check python version
+if ! python --version | grep "Python 3.12" > /dev/null; then
+  echo "python version is not 3.12"
   exit 1
 fi
 
-## build docker image
-docker build -t azureupdatepptx .
-
-## check docker image exists
-if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
-  echo "docker image azureupdatepptx is not exists"
+## check pip installed
+if ! type "pip" > /dev/null; then
+  echo "pip is not installed"
   exit 1
 fi
 
-
-## notify task is done
-echo ""
-echo "Success!"
-echo "docker image azureupdatepptx is built"
-
-## notify user to run script/server
-echo "Run 'script/server' to start the server"
+## install python packages
+pip install -r requirements.txt

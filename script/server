@@ -1,10 +1,10 @@
 #!/bin/bash
 
-## check docker azureupdatepptx image exists
-if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
-  echo "docker image azureupdatepptx is not exists"
+## Check streamlit is installed
+if ! command -v streamlit > /dev/null; then
+  echo "streamlit is not installed"
   exit 1
 fi
 
-## run docker container
-docker run -it -p 8501:80 azureupdatepptx
+## Start the server
+streamlit run main.py --server.port=8501 --server.enableCORS=false

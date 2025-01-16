@@ -1,0 +1,31 @@
+#!/bin/bash
+
+## check docker installed
+if ! type "docker" > /dev/null; then
+  echo "docker is not installed"
+  exit 1
+fi
+
+## check docker daemon running
+if ! docker info > /dev/null; then
+  echo "docker daemon is not running"
+  exit 1
+fi
+
+## build docker image
+docker build -t azureupdatepptx .
+
+## check docker image exists
+if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
+  echo "docker image azureupdatepptx is not exists"
+  exit 1
+fi
+
+
+## notify task is done
+echo ""
+echo "Success!"
+echo "docker image azureupdatepptx is built"
+
+## notify user to run script/server
+echo "Run 'script/server' to start the server"
