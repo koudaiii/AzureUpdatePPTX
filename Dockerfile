@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["streamlit", "run", "main.py", "--server.port=80", "--server.enableCORS=false"]
+CMD ["script/server"]
