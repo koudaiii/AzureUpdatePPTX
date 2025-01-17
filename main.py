@@ -112,7 +112,7 @@ if st.button('PPTX 生成'):
         st.write(result["title"])
         st.write(result["summary"])
 
-        #スライドマスタの3番目にあるレイアウト（社内テンプレではタイトルと箇条書きテキスト）を選択
+        # スライドマスタの3番目にあるレイアウト（社内テンプレではタイトルと箇条書きテキスト）を選択
         main_layout = prs.slide_layouts[2]
 
         # スライドを一枚追加
@@ -120,13 +120,13 @@ if st.button('PPTX 生成'):
         title_shape = slide.shapes.title
         title_shape.text = result["title"]
 
-        #title_shapeのフォントサイズを26ptにする
+        # title_shapeのフォントサイズを26ptにする
         title_shape.text_frame.paragraphs[0].font.size = Pt(26)
 
-        #body_shape にプレースホルダー 1 を割り当て
+        # body_shape にプレースホルダー 1 を割り当て
         body_shape = slide.placeholders[10]
 
-        #プレースホルダー1に諸々のコンテンツを流し込み
+        # プレースホルダー1に諸々のコンテンツを流し込み
         p = body_shape.text_frame.add_paragraph()
         p.text = result["summary"]
         p.level = 0
@@ -156,7 +156,7 @@ if st.button('PPTX 生成'):
         with open(pptx_file.name, "rb") as f:
             st.download_button("Download PPTX", f.read(), file_name=save_name)
 
-        #　.env の Azure Storage の設定を読み込み
+        # .env の Azure Storage の設定を読み込み
         azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
         container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
 
