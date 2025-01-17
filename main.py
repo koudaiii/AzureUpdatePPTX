@@ -15,6 +15,7 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, g
 
 import tempfile
 import logging
+import html
 
 st.title('Azure Update PPTX Generator')
 
@@ -97,7 +98,7 @@ if st.button('PPTX 生成'):
     # 3枚目以降（Azure Update の情報をスライドに追加)
     for url in urls:
         print("\n")
-        logging.info("***** Begin of Recode *****")
+        logging.info("***** Begin of Record *****")
         result = azup.read_and_summary(url)
         # result の中身をログに出力
         logging.debug(result)
@@ -151,46 +152,48 @@ if st.button('PPTX 生成'):
     prs.save(pptx_file.name)
     st.write('PPTX 生成完了')
 
-    with open(pptx_file.name, "rb") as f:
-        st.download_button("Download PPTX", f.read(), file_name=save_name)
+    try:
+        with open(pptx_file.name, "rb") as f:
+            st.download_button("Download PPTX", f.read(), file_name=save_name)
 
-    #　.env の Azure Storage の設定を読み込み
-    azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-    container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
+        #　.env の Azure Storage の設定を読み込み
+        azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+        container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
 
-    if azurestorageconstr != "":
-        # Azure Storage に接続
-        blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
-        container_client = blob_service_client.get_container_client(container_name)
+        if azurestorageconstr:
+            # Azure Storage に接続
+            blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
+            container_client = blob_service_client.get_container_client(container_name)
 
-        # 保存先のコンテナが存在しない場合は作成
-        if not container_client.exists():
-            container_client.create_container()
-            st.write('コンテナを新規作成しました。')
+            # 保存先のコンテナが存在しない場合は作成
+            if not container_client.exists():
+                container_client.create_container()
+                st.write('コンテナを新規作成しました。')
 
-        # 一時ファイルから Azure Storage にアップロード
-        with open(pptx_file.name, "rb") as data:
-            blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
-            st.write('PPTX を Azure Storage にアップロードしました。')
+            # 一時ファイルから Azure Storage にアップロード
+            with open(pptx_file.name, "rb") as data:
+                blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
+                st.write('PPTX を Azure Storage にアップロードしました。')
 
-            # blob client から account key を取得
-            account_key = blob_service_client.credential.account_key
+                # account key を環境変数から取得
+                account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
 
-            # いまアップロードした PPTX にアクセス可能な SAS URL を生成
-            sas_token = generate_blob_sas(
-                account_name=blob_service_client.account_name,
-                container_name=container_name,
-                blob_name=save_name,
-                account_key=account_key,
-                permission=BlobSasPermissions(read=True),
-                expiry=datetime.now(timezone.utc) + timedelta(hours=1)
-            )
+                # いまアップロードした PPTX にアクセス可能な SAS URL を生成
+                sas_token = generate_blob_sas(
+                    account_name=blob_service_client.account_name,
+                    container_name=container_name,
+                    blob_name=save_name,
+                    account_key=account_key,
+                    permission=BlobSasPermissions(read=True),
+                    expiry=datetime.now(timezone.utc) + timedelta(hours=1)
+                )
 
-            sas_url = blob_client.url + "?" + sas_token
+                sas_url = blob_client.url + "?" + sas_token
 
-            # SAS URL でダウンロードボタンを作成
-            st.write('以下のリンクからダウンロードしてください。')
-            st.markdown(f'<a href="{sas_url}" download="{save_name}">Download {save_name}</a>', unsafe_allow_html=True)
-    pptx_file.close()
-    # 一時ファイルを削除
-    os.remove(pptx_file.name)
+                # SAS URL でダウンロードボタンを作成
+                st.write('以下のリンクからダウンロードしてください。')
+                st.markdown(f'<a href="{sas_url}" download="{save_name}">Download {save_name}</a>', unsafe_allow_html=True)
+    finally:
+        pptx_file.close()
+        # 一時ファイルを削除
+        os.remove(pptx_file.name)
