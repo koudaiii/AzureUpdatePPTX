@@ -158,38 +158,39 @@ if st.button('PPTX 生成'):
     azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
     container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
 
-    # Azure Storage に接続
-    blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
-    container_client = blob_service_client.get_container_client(container_name)
+    if azurestorageconstr != "":
+        # Azure Storage に接続
+        blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
+        container_client = blob_service_client.get_container_client(container_name)
 
-    # 保存先のコンテナが存在しない場合は作成
-    if not container_client.exists():
-        container_client.create_container()
-        st.write('コンテナを新規作成しました。')
+        # 保存先のコンテナが存在しない場合は作成
+        if not container_client.exists():
+            container_client.create_container()
+            st.write('コンテナを新規作成しました。')
 
-    # 一時ファイルから Azure Storage にアップロード
-    with open(pptx_file.name, "rb") as data:
-        blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
-        st.write('PPTX を Azure Storage にアップロードしました。')
+        # 一時ファイルから Azure Storage にアップロード
+        with open(pptx_file.name, "rb") as data:
+            blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
+            st.write('PPTX を Azure Storage にアップロードしました。')
 
-        # blob client から account key を取得
-        account_key = blob_service_client.credential.account_key
+            # blob client から account key を取得
+            account_key = blob_service_client.credential.account_key
 
-        # いまアップロードした PPTX にアクセス可能な SAS URL を生成
-        sas_token = generate_blob_sas(
-            account_name=blob_service_client.account_name,
-            container_name=container_name,
-            blob_name=save_name,
-            account_key=account_key,
-            permission=BlobSasPermissions(read=True),
-            expiry=datetime.now(timezone.utc) + timedelta(hours=1)
-        )
+            # いまアップロードした PPTX にアクセス可能な SAS URL を生成
+            sas_token = generate_blob_sas(
+                account_name=blob_service_client.account_name,
+                container_name=container_name,
+                blob_name=save_name,
+                account_key=account_key,
+                permission=BlobSasPermissions(read=True),
+                expiry=datetime.now(timezone.utc) + timedelta(hours=1)
+            )
 
-        sas_url = blob_client.url + "?" + sas_token
+            sas_url = blob_client.url + "?" + sas_token
 
-        # SAS URL でダウンロードボタンを作成
-        st.write('以下のリンクからダウンロードしてください。')
-        st.markdown(f'<a href="{sas_url}" download="{save_name}">Download {save_name}</a>', unsafe_allow_html=True)
+            # SAS URL でダウンロードボタンを作成
+            st.write('以下のリンクからダウンロードしてください。')
+            st.markdown(f'<a href="{sas_url}" download="{save_name}">Download {save_name}</a>', unsafe_allow_html=True)
     pptx_file.close()
     # 一時ファイルを削除
     os.remove(pptx_file.name)
