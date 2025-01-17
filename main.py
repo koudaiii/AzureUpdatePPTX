@@ -14,9 +14,6 @@ st.title('Azure Update PPTX Generator')
 # 何日前までのアップデートを取得するか streamlit で指定
 days = st.slider('何日前までのアップデートを取得しますか？', 1, 30, 7)
 
-# スライド作者名設定
-slide_auther = st.text_input('スライドの作者名を入力してください。', 'Takashi Okawa')
-
 # スライドのファイル名の拡張子なしの文字列を入力
 name_prefix = st.text_input('スライドのファイル名を拡張子なしで入力してください。', 'AzureUpdates')
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
@@ -41,10 +38,6 @@ if st.button('PPTX 生成'):
     # 初期設定
     # スライドタイトルテキスト
     slide_title = "Azure Updates"
-    # スライドの発行者名
-    # slide_auther = "Takashi Okawa"
-    # スライドの保存ファイル名
-    # save_name = "AzureUpdates.pptx"
 
     # PPTX の保存先を一時ファイルに指定
     pptx_file = tempfile.NamedTemporaryFile(delete=False)
@@ -65,7 +58,6 @@ if st.button('PPTX 生成'):
     title_shape.text = slide_title
     date_ph.text = today
     auth_ph = slide.placeholders[12]
-    auth_ph.text = slide_auther
 
     # 2枚目(スライドレイアウト ID 27 のプレースホルダーに、いつからいつまでの情報が入っているか記載)
     section_title_slide_layout = prs.slide_layouts[27]
