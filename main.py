@@ -1,20 +1,17 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
 import azureupdatehelper as azup
 import random
+import os
+import tempfile
+import logging
 from pptx import Presentation
 from pptx.util import Inches, Pt, Cm
 from datetime import datetime, timedelta, timezone
 from time import mktime
-import os
-
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
-
-import tempfile
-import logging
+from dotenv import load_dotenv
+load_dotenv()
 
 st.title('Azure Update PPTX Generator')
 
