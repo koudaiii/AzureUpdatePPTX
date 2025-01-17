@@ -15,7 +15,6 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, g
 
 import tempfile
 import logging
-import html
 
 st.title('Azure Update PPTX Generator')
 
