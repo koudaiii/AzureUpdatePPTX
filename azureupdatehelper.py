@@ -51,7 +51,9 @@ def read_and_summary(url):
     logging.debug(target_url)
 
     # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
-    headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"}
+    headers = {
+        "User-Agent": "Safari/605.1.15"
+    }
 
     # URL からデータをダウンロード
     response = requests.get(target_url, headers=headers)
