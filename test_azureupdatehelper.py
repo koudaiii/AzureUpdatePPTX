@@ -2,12 +2,11 @@ import unittest
 from unittest.mock import patch, MagicMock
 import azureupdatehelper
 import os
-from datetime import datetime
-from unittest.mock import patch
+
 
 class TestAzureUpdateHelper(unittest.TestCase):
     def test_placeholder(self):
-      self.assertTrue(True)
+        self.assertTrue(True)
 
     @patch('azureupdatehelper.client.chat.completions.create')
     @patch('azureupdatehelper.requests.get')
@@ -44,6 +43,7 @@ class TestAzureUpdateHelper(unittest.TestCase):
         self.assertEqual(result['publishedDate'], '2023-01-01T00:00:00Z')
         self.assertEqual(result['updatedDate'], '2023-01-02T00:00:00Z')
         self.assertEqual(result['summary'], 'Summary of the update.')
+
 
 class TestEnvironmentCheck(unittest.TestCase):
     @patch.dict(os.environ, {
@@ -90,6 +90,7 @@ class TestEnvironmentCheck(unittest.TestCase):
     }, clear=True)
     def test_environment_check_missing_deployment_name(self):
         self.assertFalse(azureupdatehelper.environment_check())
+
 
 if __name__ == '__main__':
     unittest.main()
