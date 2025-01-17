@@ -7,4 +7,4 @@ if ! command -v streamlit > /dev/null; then
 fi
 
 ## Start the server
-exec streamlit run main.py --server.port=80 --server.enableCORS=false
+exec streamlit run main.py --server.port=8000 --server.enableCORS=false
