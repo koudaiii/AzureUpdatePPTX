@@ -34,6 +34,7 @@ systemprompt = ("渡されたデータに含まれている Azure のアップ�
 # 過去 N 日分、の計算をするために、現在時刻の取得
 now = datetime.now()
 
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(url):
     # url からクエリ文字列を取得してリスト化する
