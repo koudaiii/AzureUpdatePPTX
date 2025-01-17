@@ -32,9 +32,7 @@ class TestAzureUpdateHelper(unittest.TestCase):
       expected_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/abc123"
       mock_get.assert_called_once_with(
         expected_url,
-        headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                   "AppleWebKit/605.1.15 (KHTML, like Gecko) "
-                   "Version/14.0.3 Safari/605.1.15"}
+        headers={"User-Agent": "Safari/605.1.15"}
       )
 
     self.assertEqual(result['url'], url)
