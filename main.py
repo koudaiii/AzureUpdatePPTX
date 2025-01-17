@@ -27,7 +27,7 @@ slide_auther = st.text_input('スライドの作者名を入力してくださ�
 
 # スライドのファイル名の拡張子なしの文字列を入力
 name_prefix = st.text_input('スライドのファイル名を拡張子なしで入力してください。', 'AzureUpdates')
-#ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
+# ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
@@ -59,13 +59,13 @@ if st.button('PPTX 生成'):
     # PPTX 生成処理
     st.write('PPTX 生成中...')
 
-    #初期設定
-    #スライドタイトルテキスト
+    # 初期設定
+    # スライドタイトルテキスト
     slide_title = "Azure Updates"
-    #スライドの発行者名
-    #slide_auther = "Takashi Okawa"
-    #スライドの保存ファイル名
-    #save_name = "AzureUpdates.pptx"
+    # スライドの発行者名
+    # slide_auther = "Takashi Okawa"
+    # スライドの保存ファイル名
+    # save_name = "AzureUpdates.pptx"
 
     # PPTX の保存先を一時ファイルに指定
     pptx_file = tempfile.NamedTemporaryFile(delete=False)
