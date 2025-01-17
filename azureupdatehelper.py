@@ -112,11 +112,11 @@ def get_update_urls(days):
     start_date = now - timedelta(days=days) # 取得開始日
     urls = []
     for entry in entries:
-        published = entry.published_parsed
-        rss_published_datetime = datetime.fromtimestamp(mktime(published))
-        if published is not None:
-            if (rss_published_datetime > start_date):
-                urls.append(entry.link)
+      published = entry.published_parsed
+      rss_published_datetime = datetime.fromtimestamp(mktime(published))
+      if published is not None:
+        if (rss_published_datetime > start_date):
+          urls.append(entry.link)
 
     return urls
 
@@ -156,7 +156,7 @@ def main():
 
         # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
         for key in result.keys():
-            print(f"{key} : {result[key]}")
+          print(f"{key} : {result[key]}")
         logging.debug("***** End of Recode *****")
 
         print("\n")
