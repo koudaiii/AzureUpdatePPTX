@@ -37,7 +37,9 @@ if st.button('PPTX 生成'):
 
     # 初期設定
     # スライドタイトルテキスト
-    slide_title = "Azure Updates"
+    start_date_str = (datetime.now() - timedelta(days=days)).strftime('%Y/%m/%d')
+    end_date_str = datetime.now().strftime('%Y/%m/%d')
+    slide_title = f"Azure Updates {start_date_str} ~ {end_date_str}"
 
     # PPTX の保存先を一時ファイルに指定
     pptx_file = tempfile.NamedTemporaryFile(delete=False)
