@@ -73,10 +73,10 @@ if st.button('PPTX 生成'):
     prs = tmp_prs
 
     # スライドに関する諸々の初期設定
-    now = datetime.now() # 現在時刻の取得
-    today = now.strftime('%Y年%m月%d日') # 現在時刻を年月曜日で表示
-    start_date = now - timedelta(days) # 現在時刻から過去何日前までのアップデートをスライドに含めるか
-    start_day_str = start_date.strftime('%Y年%m月%d日') # アップデートの開始日を年月曜日で表示
+    now = datetime.now()  # 現在時刻の取得
+    today = now.strftime('%Y年%m月%d日')  # 現在時刻を年月曜日で表示
+    start_date = now - timedelta(days)  # 現在時刻から過去何日前までのアップデートをスライドに含めるか
+    start_day_str = start_date.strftime('%Y年%m月%d日')  # アップデートの開始日を年月曜日で表示
 
     # 1枚目（タイトルスライドを自動生成)
     title_slide_layout = prs.slide_layouts[0]
