@@ -28,7 +28,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        cp .env.example .env
+        cp .env.template .env
     - name: Run ci-test
       run: |
         script/ci-test
