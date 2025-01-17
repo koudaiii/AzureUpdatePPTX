@@ -110,16 +110,17 @@ def get_update_urls(days):
     entries = feed.entries
 
     # entries から published が指定された日数以内のエントリーの URL をリスト化
-    start_date = now - timedelta(days=days) # 取得開始日
+    start_date = now - timedelta(days=days)  # 取得開始日
     urls = []
     for entry in entries:
-      published = entry.published_parsed
-      rss_published_datetime = datetime.fromtimestamp(mktime(published))
-      if published is not None:
-        if (rss_published_datetime > start_date):
-          urls.append(entry.link)
+        published = entry.published_parsed
+        rss_published_datetime = datetime.fromtimestamp(mktime(published))
+        if published is not None:
+            if (rss_published_datetime > start_date):
+                urls.append(entry.link)
 
     return urls
+
 
 def environment_check():
     logging.debug(f"API_KEY: {os.getenv('API_KEY')}")
@@ -127,15 +128,15 @@ def environment_check():
     logging.debug(f"API_ENDPOINT: {os.getenv('API_ENDPOINT')}")
     logging.debug(f"DEPLOYMENT_NAME: {os.getenv('DEPLOYMENT_NAME')}")
 
-    if (os.getenv("API_KEY") == ""
-        or os.getenv("API_VERSION") == ""
-        or os.getenv("API_ENDPOINT") == ""
-        or os.getenv("DEPLOYMENT_NAME") == ""
-        ):
+    if (os.getenv("API_KEY") == "" or
+            os.getenv("API_VERSION") == "" or
+            os.getenv("API_ENDPOINT") == "" or
+            os.getenv("DEPLOYMENT_NAME") == ""):
         logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
         return False
     else:
         return True
+
 
 # メイン関数
 def main():
@@ -153,10 +154,11 @@ def main():
 
         # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
         for key in result.keys():
-          print(f"{key} : {result[key]}")
+            print(f"{key} : {result[key]}")
         logging.debug("***** End of Recode *****")
 
         print("\n")
+
 
 # メイン関数を実行
 if __name__ == '__main__':
