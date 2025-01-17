@@ -136,30 +136,3 @@ def environment_check():
         return False
     else:
         return True
-
-
-# メイン関数
-def main():
-    # Azure Update の RSS フィードから条件に合う URL のリストを取得
-    urls = get_update_urls(DAYS)
-    logging.debug(urls)
-
-    # URL のリストをループして、それぞれの URL を読み込んで要約を取得
-    for url in urls:
-        print("\n")
-        logging.debug("***** Begin of Recode *****")
-        result = read_and_summary(url)
-        # result の中身をログに出力
-        logging.debug(result)
-
-        # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
-        for key in result.keys():
-            print(f"{key} : {result[key]}")
-        logging.debug("***** End of Recode *****")
-
-        print("\n")
-
-
-# メイン関数を実行
-if __name__ == '__main__':
-    main()
