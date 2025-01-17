@@ -99,6 +99,7 @@ def read_and_summary(url):
 
     return retval
 
+
 # Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
 def get_update_urls(days):
     # RSS フィードを読み込む
