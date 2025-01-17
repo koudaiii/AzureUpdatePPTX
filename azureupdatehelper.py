@@ -76,8 +76,8 @@ def read_and_summary(url):
     summary_list = client.chat.completions.create(
         model=os.getenv("DEPLOYMENT_NAME"),
         messages=[
-            {"role":"system", "content": systemprompt},
-            {"role":"user", "content": response.text}
+            {"role": "system", "content": systemprompt},
+            {"role": "user", "content": response.text}
         ]
     )
 
