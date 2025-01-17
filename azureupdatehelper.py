@@ -47,7 +47,7 @@ def read_and_summary(url):
     # url からクエリ文字列以外を取得する
     base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
     target_url = base_url + docid
-    logging.info(target_url)
+    logging.debug(target_url)
 
     # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
     headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"}
@@ -66,8 +66,8 @@ def read_and_summary(url):
     # description から HTML タグを削除
     description = re.sub(r'<[^>]*?>', '', description)
 
-    logging.info(title)
-    logging.info(description)
+    logging.debug(title)
+    logging.debug(description)
 
     # ダウンロードしたデータを Azure OpenAI で要約
     summary_list = client.chat.completions.create(
@@ -118,26 +118,35 @@ def get_update_urls(days):
     return urls
 
 def environment_check():
+    logging.debug(f"API_KEY: {os.getenv('API_KEY')}")
+    logging.debug(f"API_VERSION: {os.getenv('API_VERSION')}")
+    logging.debug(f"API_ENDPOINT: {os.getenv('API_ENDPOINT')}")
+    logging.debug(f"DEPLOYMENT_NAME: {os.getenv('DEPLOYMENT_NAME')}")
+    # logging.debug(f"AZURE_STORAGE_CONNECTION_STRING: {os.getenv('AZURE_STORAGE_CONNECTION_STRING')}")
+    # logging.debug(f"AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: {os.getenv('AZURE_STORAGE_ACCOUNT_CONTAINER_NAME')}")
+
     if (os.getenv("API_KEY") == ""
         or os.getenv("API_VERSION") == ""
         or os.getenv("API_ENDPOINT") == ""
         or os.getenv("DEPLOYMENT_NAME") == ""
-        or os.getenv("DEPLOYMENT_NAME") == ""
-        or os.getenv("AZURE_STORAGE_CONNECTION_STRING") == ""
-        or os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME") == ""):
+        # or os.getenv("AZURE_STORAGE_CONNECTION_STRING") == ""
+        # or os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME") == ""
+        ):
         logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
         return False
+    else:
+        return True
 
 # メイン関数
 def main():
     # Azure Update の RSS フィードから条件に合う URL のリストを取得
     urls = get_update_urls(DAYS)
-    logging.info(urls)
+    logging.debug(urls)
 
     # URL のリストをループして、それぞれの URL を読み込んで要約を取得
     for url in urls:
         print("\n")
-        logging.info("***** Begin of Recode *****")
+        logging.debug("***** Begin of Recode *****")
         result = read_and_summary(url)
         # result の中身をログに出力
         logging.debug(result)
@@ -145,7 +154,7 @@ def main():
         # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
         for key in result.keys():
             print(f"{key} : {result[key]}")
-        logging.info("***** End of Recode *****")
+        logging.debug("***** End of Recode *****")
 
         print("\n")
 
