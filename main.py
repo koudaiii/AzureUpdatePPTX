@@ -1,15 +1,11 @@
 import streamlit as st
 import azureupdatehelper as azup
-import random
 import os
 import tempfile
 import logging
 from pptx import Presentation
-from pptx.util import Inches, Pt, Cm
-from datetime import datetime, timedelta, timezone
-from time import mktime
-from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
+from pptx.util import Pt
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 load_dotenv()
 
