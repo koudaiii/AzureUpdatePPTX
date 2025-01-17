@@ -126,15 +126,11 @@ def environment_check():
     logging.debug(f"API_VERSION: {os.getenv('API_VERSION')}")
     logging.debug(f"API_ENDPOINT: {os.getenv('API_ENDPOINT')}")
     logging.debug(f"DEPLOYMENT_NAME: {os.getenv('DEPLOYMENT_NAME')}")
-    # logging.debug(f"AZURE_STORAGE_CONNECTION_STRING: {os.getenv('AZURE_STORAGE_CONNECTION_STRING')}")
-    # logging.debug(f"AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: {os.getenv('AZURE_STORAGE_ACCOUNT_CONTAINER_NAME')}")
 
     if (os.getenv("API_KEY") == ""
         or os.getenv("API_VERSION") == ""
         or os.getenv("API_ENDPOINT") == ""
         or os.getenv("DEPLOYMENT_NAME") == ""
-        # or os.getenv("AZURE_STORAGE_CONNECTION_STRING") == ""
-        # or os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME") == ""
         ):
         logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
         return False

@@ -9,7 +9,7 @@ from pptx.util import Inches, Pt, Cm
 from datetime import datetime, timedelta, timezone
 from time import mktime
 from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -155,40 +155,6 @@ if st.button('PPTX 生成'):
         # .env の Azure Storage の設定を読み込み
         azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
         container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
-
-        if azurestorageconstr:
-            # Azure Storage に接続
-            blob_service_client = BlobServiceClient.from_connection_string(azurestorageconstr)
-            container_client = blob_service_client.get_container_client(container_name)
-
-            # 保存先のコンテナが存在しない場合は作成
-            if not container_client.exists():
-                container_client.create_container()
-                st.write('コンテナを新規作成しました。')
-
-            # 一時ファイルから Azure Storage にアップロード
-            with open(pptx_file.name, "rb") as data:
-                blob_client = container_client.upload_blob(name=save_name, data=data, overwrite=True)
-                st.write('PPTX を Azure Storage にアップロードしました。')
-
-                # account key を環境変数から取得
-                account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
-
-                # いまアップロードした PPTX にアクセス可能な SAS URL を生成
-                sas_token = generate_blob_sas(
-                    account_name=blob_service_client.account_name,
-                    container_name=container_name,
-                    blob_name=save_name,
-                    account_key=account_key,
-                    permission=BlobSasPermissions(read=True),
-                    expiry=datetime.now(timezone.utc) + timedelta(hours=1)
-                )
-
-                sas_url = blob_client.url + "?" + sas_token
-
-                # SAS URL でダウンロードボタンを作成
-                st.write('以下のリンクからダウンロードしてください。')
-                st.markdown(f'<a href="{sas_url}" download="{save_name}">Download {save_name}</a>', unsafe_allow_html=True)
     finally:
         pptx_file.close()
         # 一時ファイルを削除
