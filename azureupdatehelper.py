@@ -14,7 +14,7 @@ load_dotenv()
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
 
-#何日前のアップデートまでスライドに含めるかの設定
+# 何日前のアップデートまでスライドに含めるかの設定
 DAYS = 7
 
 # Azure Update の RSS フィードの URL
