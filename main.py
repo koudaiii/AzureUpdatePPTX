@@ -24,19 +24,6 @@ save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
-    # 環境変数の確認
-    st.info(
-        f"""
-    以下の環境変数が設定されています。 \n
-    API_KEY: {os.getenv("API_KEY")} \n
-    API_ENDPOINT: {os.getenv("API_ENDPOINT")} \n
-    API_VERSION: {os.getenv("API_VERSION")} \n
-    DEPLOYMENT_NAME: {os.getenv("DEPLOYMENT_NAME")} \n
-    AZURE_STORAGE_CONNECTION_STRING: {os.getenv("AZURE_STORAGE_CONNECTION_STRING")} \n
-    AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: {os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")} \n
-    """
-    )
-
     # 環境変数が不足している場合はエラーを表示して終了
     if not azup.environment_check():
         st.error('環境変数が不足しています。.env ファイルを確認してください。')
