@@ -46,26 +46,20 @@ if st.button('PPTX 生成'):
     tmp_prs = Presentation("template/gpstemplate.pptx")
     prs = tmp_prs
 
-    # スライドに関する諸々の初期設定
-    now = datetime.now()  # 現在時刻の取得
-    today = now.strftime('%Y年%m月%d日')  # 現在時刻を年月曜日で表示
-    start_date = now - timedelta(days)  # 現在時刻から過去何日前までのアップデートをスライドに含めるか
-    start_day_str = start_date.strftime('%Y年%m月%d日')  # アップデートの開始日を年月曜日で表示
-
     # 1枚目（タイトルスライドを自動生成)
     title_slide_layout = prs.slide_layouts[0]
     slide = prs.slides.add_slide(title_slide_layout)
     title_shape = slide.shapes.title
     date_ph = slide.placeholders[13]
     title_shape.text = slide_title
-    date_ph.text = today
+    date_ph.text = end_date_str
     auth_ph = slide.placeholders[12]
 
     # 2枚目(スライドレイアウト ID 27 のプレースホルダーに、いつからいつまでの情報が入っているか記載)
     section_title_slide_layout = prs.slide_layouts[27]
     slide = prs.slides.add_slide(section_title_slide_layout)
     title_shape = slide.shapes.title
-    title_shape.text = str(start_day_str) + " ～ \n" + str(today) + " のアップデート"
+    title_shape.text = f"※取得した情報を元に Azure OpenAI で要約しています。"
     date_ph = slide.placeholders[0]
 
     # 3枚目以降（Azure Update の情報をスライドに追加)
