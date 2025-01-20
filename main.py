@@ -29,6 +29,8 @@ if st.button('PPTX 生成'):
     # Azure Update API からデータを取得
     st.write('データ取得中...')
     urls = azup.get_update_urls(days)
+
+    st.write(f"Azureアップデートは {len(urls)} 件です。")
     st.write('含まれる Azure Update の URL は以下の通りです。')
     st.write(urls)
 
@@ -59,7 +61,7 @@ if st.button('PPTX 生成'):
     section_title_slide_layout = prs.slide_layouts[27]
     slide = prs.slides.add_slide(section_title_slide_layout)
     title_shape = slide.shapes.title
-    title_shape.text = f"※取得した情報を元に Azure OpenAI で要約しています。"
+    title_shape.text = f"Azureアップデートは {len(urls)} 件です。\n※ Azure OpenAI で要約しています。"
     date_ph = slide.placeholders[0]
 
     # 3枚目以降（Azure Update の情報をスライドに追加)
