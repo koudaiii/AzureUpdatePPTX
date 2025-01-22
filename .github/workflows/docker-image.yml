@@ -19,6 +19,8 @@ jobs:
     - name: Test the Docker image
       run: script/docker-server
     - name: Check http process using curl
-      run: curl -s http://localhost:8000 | grep -q 'Streamlit'
+      run: |
+        sleep 5
+        curl -s http://localhost:8000 | grep -q 'Streamlit'
     - name: Stop the Docker image
       run: script/docker-shutdown
