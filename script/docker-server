@@ -9,5 +9,5 @@ fi
 ## display web url
 echo "Open http://localhost:8000"
 
-## run docker container
-docker run -it -p 8000:8000 azureupdatepptx
+## run azureupdatepptx docker container with port 8000
+docker run -d -p 8000:8000 --name azureupdatepptx azureupdatepptx
