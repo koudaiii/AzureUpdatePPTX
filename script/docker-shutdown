@@ -1,0 +1,13 @@
+#!/bin/bash
+
+## check docker container running
+if ! docker ps -a | grep azureupdatepptx > /dev/null; then
+  echo "docker container azureupdatepptx is not running"
+  exit 1
+fi
+
+## stop docker container
+docker stop azureupdatepptx
+
+## Remove docker container
+docker rm azureupdatepptx
