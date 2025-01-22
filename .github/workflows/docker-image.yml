@@ -16,3 +16,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: script/docker-bootstrap
+    - name: Test the Docker image
+      run: script/docker-server
+    - name: Check http process using curl
+      run: curl -s http://localhost:8000 | grep -q 'Streamlit'

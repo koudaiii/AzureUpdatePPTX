@@ -7,7 +7,7 @@ if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
 fi
 
 ## display web url
-echo "Open http://localhost:8501"
+echo "Open http://localhost:8000"
 
 ## run docker container
-docker run -it -p 8501:80 azureupdatepptx
+docker run -it -p 8000:8000 azureupdatepptx
