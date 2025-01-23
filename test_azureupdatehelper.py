@@ -10,16 +10,21 @@ class TestAzureUpdateHelper(unittest.TestCase):
 
     @patch('azureupdatehelper.client.chat.completions.create')
     @patch('azureupdatehelper.requests.get')
+    @patch.dict(os.environ, {
+        "API_KEY": "test_api_key",
+        "API_VERSION": "test_api_version",
+        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
+        "DEPLOYMENT_NAME": "test_deployment_name"
+    }, clear=True)
     def test_read_and_summary(self, mock_get, mock_openai):
-        with patch.dict(os.environ, {'DEPLOYMENT_NAME': 'test-deployment-name'}):
-            mock_response = MagicMock()
-            mock_response.json.return_value = {
-                'title': 'Test Title',
-                'description': '<p>Test Description</p>',
-                'created': '2023-01-01T00:00:00Z',
-                'modified': '2023-01-02T00:00:00Z',
-                'products': ['Product1', 'Product2']
-            }
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            'title': 'Test Title',
+            'description': '<p>Test Description</p>',
+            'created': '2023-01-01T00:00:00Z',
+            'modified': '2023-01-02T00:00:00Z',
+            'products': ['Product1', 'Product2']
+        }
         mock_get.return_value = mock_response
         mock_openai.return_value = MagicMock(
             choices=[MagicMock(message=MagicMock(content='Summary of the update.'))]
