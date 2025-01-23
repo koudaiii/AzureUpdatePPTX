@@ -4,11 +4,6 @@ import azureupdatehelper
 import os
 
 
-class TestAzureUpdateHelper(unittest.TestCase):
-    def test_placeholder(self):
-        self.assertTrue(True)
-
-
 class TestEnvironmentCheck(unittest.TestCase):
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
