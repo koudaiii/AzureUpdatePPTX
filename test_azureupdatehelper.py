@@ -53,27 +53,21 @@ class TestAzureUpdateHelper(unittest.TestCase):
 class TestEnvironmentCheck(unittest.TestCase):
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"
     }, clear=True)
     def test_environment_check_all_set(self):
         self.assertTrue(azureupdatehelper.environment_check())
 
     @patch.dict(os.environ, {
         "API_KEY": "",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"
     }, clear=True)
     def test_environment_check_missing_api_key(self):
         self.assertFalse(azureupdatehelper.environment_check())
 
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": ""
     }, clear=True)
     def test_environment_check_missing_api_endpoint(self):
         self.assertFalse(azureupdatehelper.environment_check())
