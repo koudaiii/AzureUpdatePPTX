@@ -1,3 +1,4 @@
+import sys
 import os
 import requests
 import urllib
@@ -136,3 +137,20 @@ def environment_check():
         return False
     else:
         return True
+
+def main():
+    # ログの設定
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+        print("Usage: cp .env.template .env; python azureupdatehelper.py")
+        return
+
+    print("Checking environment variables...")
+    # 環境変数が不足している場合はエラーを表示して終了
+    if not environment_check():
+        logging.error('環境変数が不足しています。.env ファイルを確認してください。')
+        return
+    print("Environment variables OK.")
+
+if __name__ == "__main__":
+    main()
