@@ -31,12 +31,12 @@ class TestGetRssFeedEntries(unittest.TestCase):
     @patch('azureupdatehelper.feedparser.parse')
     def test_get_rss_feed_entries(self, mock_parse):
         mock_feed = MagicMock()
-        mock_feed.entries = [{'title': 'Test Entry'}]
+        mock_feed.entries = [{'id': '1', 'published': 'Thu, 31 Oct 2024 21:45:07 Z'}]
         mock_parse.return_value = mock_feed
 
         entries = azureupdatehelper.get_rss_feed_entries()
         self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0]['title'], 'Test Entry')
+        self.assertEqual(entries[0]['id'], '1')
 
 
 if __name__ == '__main__':
