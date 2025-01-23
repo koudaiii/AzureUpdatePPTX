@@ -9,9 +9,6 @@ import urllib.parse as urlparse
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from time import mktime
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
@@ -38,10 +35,6 @@ def environment_check():
         return False
     else:
         return True
-
-
-# 環境変数のチェック
-environment_check()
 
 
 # Azure OpenAI のクライアントを生成する関数
