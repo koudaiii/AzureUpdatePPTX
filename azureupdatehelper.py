@@ -36,6 +36,20 @@ systemprompt = ("渡されたデータに含まれている Azure のアップ�
 now = datetime.now()
 
 
+# 環境変数のチェック
+def environment_check():
+    if (os.getenv("API_KEY") == "" or
+            os.getenv("API_ENDPOINT") == ""):
+        logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
+        return False
+    else:
+        return True
+
+
+# 環境変数のチェック
+environment_check()
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(url):
     # url からクエリ文字列を取得してリスト化する
@@ -122,21 +136,6 @@ def get_update_urls(days):
 
     return urls
 
-
-def environment_check():
-    logging.debug(f"API_KEY: {os.getenv('API_KEY')}")
-    logging.debug(f"API_VERSION: {os.getenv('API_VERSION')}")
-    logging.debug(f"API_ENDPOINT: {os.getenv('API_ENDPOINT')}")
-    logging.debug(f"DEPLOYMENT_NAME: {os.getenv('DEPLOYMENT_NAME')}")
-
-    if (os.getenv("API_KEY") == "" or
-            os.getenv("API_VERSION") == "" or
-            os.getenv("API_ENDPOINT") == "" or
-            os.getenv("DEPLOYMENT_NAME") == ""):
-        logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
-        return False
-    else:
-        return True
 
 def main():
     # ログの設定
