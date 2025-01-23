@@ -141,7 +141,7 @@ def main():
 
     load_dotenv()
     # ログの設定
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(force=True, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
         print("Usage: cp .env.template .env; python azureupdatehelper.py")
         return
