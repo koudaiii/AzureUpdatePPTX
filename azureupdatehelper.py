@@ -31,8 +31,8 @@ now = datetime.now()
 
 # 環境変数のチェック
 def environment_check():
-    if (os.getenv("API_KEY") == "" or
-            os.getenv("API_ENDPOINT") == ""):
+    if (os.getenv("API_KEY") == "" or os.getenv("API_KEY") is None or
+            os.getenv("API_ENDPOINT") == "") or os.getenv("API_ENDPOINT") is None:
         logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
         return False
     else:
