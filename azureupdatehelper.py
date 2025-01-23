@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from time import mktime
 
-
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
 
