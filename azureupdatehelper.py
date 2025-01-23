@@ -153,5 +153,6 @@ def main():
         return
     print("Environment variables OK.")
 
+
 if __name__ == "__main__":
     main()
