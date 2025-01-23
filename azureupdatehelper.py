@@ -54,10 +54,6 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
 
 
-# Azure OpenAI のクライアントを生成
-client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
-
-
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(url):
     # url からクエリ文字列を取得してリスト化する
@@ -162,6 +158,8 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
+    client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    print("Client: ", client)
 
 
 if __name__ == "__main__":
