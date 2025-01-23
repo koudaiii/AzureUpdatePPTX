@@ -21,19 +21,49 @@ DAYS = 7
 # Azure Update の RSS フィードの URL
 RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 
-# Azure OpenAI のクライアントを生成
-client = AzureOpenAI(
-    api_key=os.getenv("API_KEY"),
-    api_version=os.getenv("API_VERSION"),
-    azure_endpoint=os.getenv("API_ENDPOINT")
-)
-
 # システムプロンプトの設定
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
 # 過去 N 日分、の計算をするために、現在時刻の取得
 now = datetime.now()
+
+
+# 環境変数のチェック
+def environment_check():
+    if (os.getenv("API_KEY") == "" or
+            os.getenv("API_ENDPOINT") == ""):
+        logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
+        return False
+    else:
+        return True
+
+
+# 環境変数のチェック
+environment_check()
+
+
+# Azure OpenAI のクライアントを生成する関数
+def azure_openai_client(key, endpoint):
+    import urllib.parse as urlparse
+
+    parsed_url = urlparse.urlparse(endpoint)
+    query_params = dict(urlparse.parse_qsl(parsed_url.query))
+
+    api_version = query_params.get('api-version', '')
+
+    deployment_name_match = re.search(r"deployments/([^/]+)/", parsed_url.path)
+    deployment_name = deployment_name_match.group(1) if deployment_name_match else ''
+
+    logging.debug(f"Extracted API Key: {key}")
+    logging.debug(f"Extracted API Version: {api_version}")
+    logging.debug(f"Extracted Deployment Name: {deployment_name}")
+
+    return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
+
+
+# Azure OpenAI のクライアントを生成
+client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
@@ -122,21 +152,6 @@ def get_update_urls(days):
 
     return urls
 
-
-def environment_check():
-    logging.debug(f"API_KEY: {os.getenv('API_KEY')}")
-    logging.debug(f"API_VERSION: {os.getenv('API_VERSION')}")
-    logging.debug(f"API_ENDPOINT: {os.getenv('API_ENDPOINT')}")
-    logging.debug(f"DEPLOYMENT_NAME: {os.getenv('DEPLOYMENT_NAME')}")
-
-    if (os.getenv("API_KEY") == "" or
-            os.getenv("API_VERSION") == "" or
-            os.getenv("API_ENDPOINT") == "" or
-            os.getenv("DEPLOYMENT_NAME") == ""):
-        logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
-        return False
-    else:
-        return True
 
 def main():
     # ログの設定
