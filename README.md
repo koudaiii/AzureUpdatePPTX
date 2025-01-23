@@ -18,7 +18,7 @@ AzureUpdatePPTX は、Azure の最新情報を自動的に取得し、PowerPoint
 
 1. `git clone https://github.com/koudaiii/AzureUpdatePPTX.git`
 2. `cd AzureUpdatePPTX`
-3. .env.template を .env としてコピーします。Azure OpenAI の API Key, API Endpoint, API Version, Model Deployment Name の接続文字列を設定します。
+3. .env.template を .env としてコピーします。Azure OpenAI の API Key, API Endpoint の接続文字列を設定します。
    ```sh
    cp .env.sample .env
    ```
