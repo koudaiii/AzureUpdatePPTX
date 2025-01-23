@@ -60,17 +60,9 @@ def get_rss_feed_entries():
     return feed.entries
 
 
-# Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
-def get_update_urls(days):
-    # RSS フィードを読み込む
-    feed = feedparser.parse(RSS_URL)
-    logging.debug(feed)
-
-    # フィードからエントリーを取得
-    entries = feed.entries
-
-    # entries から published が指定された日数以内のエントリーの URL をリスト化
-    start_date = now - timedelta(days=days)  # 取得開始日
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def get_update_urls(entries, days):
+    start_date = datetime.now() - timedelta(days=days)  # 取得開始日
     urls = []
     for entry in entries:
         published = entry.published_parsed
@@ -170,7 +162,7 @@ def main():
     entries = get_rss_feed_entries()
     print(f"RSS フィードのエントリーは {len(entries)} 件です。")
 
-    urls = get_update_urls(DAYS)
+    urls = get_update_urls(entries, DAYS)
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
