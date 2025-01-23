@@ -8,9 +8,7 @@ import feedparser
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from time import mktime
-from dotenv import load_dotenv
 
-load_dotenv()
 
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
@@ -139,6 +137,9 @@ def environment_check():
         return True
 
 def main():
+    from dotenv import load_dotenv
+
+    load_dotenv()
     # ログの設定
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
