@@ -46,9 +46,6 @@ environment_check()
 
 # Azure OpenAI のクライアントを生成する関数
 def azure_openai_client(key, endpoint):
-    if environment_check() is False:
-        return None
-
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
 
