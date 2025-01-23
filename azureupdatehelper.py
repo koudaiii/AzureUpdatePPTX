@@ -55,7 +55,7 @@ def azure_openai_client(key, endpoint):
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
-def read_and_summary(url):
+def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
     query = urllib.parse.urlparse(url).query
     query_list = dict(urllib.parse.parse_qsl(query))
@@ -160,6 +160,21 @@ def main():
     print("Environment variables OK.")
     client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
+    urls = get_update_urls(DAYS)
+    print(f"Azureアップデートは {len(urls)} 件です。")
+    print('含まれる Azure Update の URL は以下の通りです。')
+    print(urls)
+    for url in urls:
+        print("\n")
+        logging.info("***** Begin of Record *****")
+        result = read_and_summary(client, url)
+        # result の中身をログに出力
+        logging.debug(result)
+
+        # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
+        for key in result.keys():
+            print(f"{key} : {result[key]}")
+        logging.info("***** End of Recode *****")
 
 
 if __name__ == "__main__":

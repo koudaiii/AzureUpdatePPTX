@@ -69,7 +69,7 @@ if st.button('PPTX 生成'):
     for url in urls:
         print("\n")
         logging.info("***** Begin of Record *****")
-        result = azup.read_and_summary(url)
+        result = azup.read_and_summary(client, url)
         # result の中身をログに出力
         logging.debug(result)
 
