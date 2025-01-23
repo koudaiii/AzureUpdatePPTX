@@ -54,6 +54,28 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
 
 
+# Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
+def get_update_urls(days):
+    # RSS フィードを読み込む
+    feed = feedparser.parse(RSS_URL)
+    logging.debug(feed)
+
+    # フィードからエントリーを取得
+    entries = feed.entries
+
+    # entries から published が指定された日数以内のエントリーの URL をリスト化
+    start_date = now - timedelta(days=days)  # 取得開始日
+    urls = []
+    for entry in entries:
+        published = entry.published_parsed
+        rss_published_datetime = datetime.fromtimestamp(mktime(published))
+        if published is not None:
+            if (rss_published_datetime > start_date):
+                urls.append(entry.link)
+
+    return urls
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
@@ -117,28 +139,6 @@ def read_and_summary(client, url):
     logging.debug(retval)
 
     return retval
-
-
-# Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
-def get_update_urls(days):
-    # RSS フィードを読み込む
-    feed = feedparser.parse(RSS_URL)
-    logging.debug(feed)
-
-    # フィードからエントリーを取得
-    entries = feed.entries
-
-    # entries から published が指定された日数以内のエントリーの URL をリスト化
-    start_date = now - timedelta(days=days)  # 取得開始日
-    urls = []
-    for entry in entries:
-        published = entry.published_parsed
-        rss_published_datetime = datetime.fromtimestamp(mktime(published))
-        if published is not None:
-            if (rss_published_datetime > start_date):
-                urls.append(entry.link)
-
-    return urls
 
 
 def main():
