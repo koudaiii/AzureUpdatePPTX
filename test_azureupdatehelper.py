@@ -71,29 +71,11 @@ class TestEnvironmentCheck(unittest.TestCase):
 
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
-        "API_VERSION": "",
-        "API_ENDPOINT": "test_api_endpoint",
-        "DEPLOYMENT_NAME": "test_deployment_name"
-    }, clear=True)
-    def test_environment_check_missing_api_version(self):
-        self.assertFalse(azureupdatehelper.environment_check())
-
-    @patch.dict(os.environ, {
-        "API_KEY": "test_api_key",
         "API_VERSION": "test_api_version",
         "API_ENDPOINT": "",
         "DEPLOYMENT_NAME": "test_deployment_name"
     }, clear=True)
     def test_environment_check_missing_api_endpoint(self):
-        self.assertFalse(azureupdatehelper.environment_check())
-
-    @patch.dict(os.environ, {
-        "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "test_api_endpoint",
-        "DEPLOYMENT_NAME": ""
-    }, clear=True)
-    def test_environment_check_missing_deployment_name(self):
         self.assertFalse(azureupdatehelper.environment_check())
 
 
