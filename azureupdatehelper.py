@@ -54,6 +54,12 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
 
 
+# Azure Update の RSS フィードを読み込んでエントリーを取得
+def get_rss_feed_entries():
+    feed = feedparser.parse(RSS_URL)
+    return feed.entries
+
+
 # Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
 def get_update_urls(days):
     # RSS フィードを読み込む
@@ -160,6 +166,10 @@ def main():
     print("Environment variables OK.")
     client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
+
+    entries = get_rss_feed_entries()
+    print(f"RSS フィードのエントリーは {len(entries)} 件です。")
+
     urls = get_update_urls(DAYS)
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
