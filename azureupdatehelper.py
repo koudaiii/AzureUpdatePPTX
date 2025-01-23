@@ -5,6 +5,7 @@ import urllib
 import logging
 import re
 import feedparser
+import urllib.parse as urlparse
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from time import mktime
@@ -45,7 +46,8 @@ environment_check()
 
 # Azure OpenAI のクライアントを生成する関数
 def azure_openai_client(key, endpoint):
-    import urllib.parse as urlparse
+    if environment_check() is False:
+        return None
 
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
@@ -154,6 +156,10 @@ def get_update_urls(days):
 
 
 def main():
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     # ログの設定
     logging.basicConfig(force=True, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
