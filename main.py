@@ -28,8 +28,7 @@ if st.button('PPTX 生成'):
 
     # Azure Update API からデータを取得
     st.write('データ取得中...')
-    entries = azup.get_rss_feed_entries()
-    urls = azup.get_update_urls(entries, days)
+    urls = azup.get_update_urls(days)
 
     st.write(f"Azureアップデートは {len(urls)} 件です。")
     st.write('含まれる Azure Update の URL は以下の通りです。')
