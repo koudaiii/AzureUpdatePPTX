@@ -2,81 +2,97 @@ import unittest
 from unittest.mock import patch, MagicMock
 import azureupdatehelper
 import os
-
-
-class TestAzureUpdateHelper(unittest.TestCase):
-    def test_placeholder(self):
-        self.assertTrue(True)
-
-    @patch('azureupdatehelper.client.chat.completions.create')
-    @patch('azureupdatehelper.requests.get')
-    @patch.dict(os.environ, {
-        "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
-        "DEPLOYMENT_NAME": "test_deployment_name"
-    }, clear=True)
-    def test_read_and_summary(self, mock_get, mock_openai):
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'title': 'Test Title',
-            'description': '<p>Test Description</p>',
-            'created': '2023-01-01T00:00:00Z',
-            'modified': '2023-01-02T00:00:00Z',
-            'products': ['Product1', 'Product2']
-        }
-        mock_get.return_value = mock_response
-        mock_openai.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content='Summary of the update.'))]
-        )
-
-        url = 'http://example.com/?id=abc123'
-        result = azureupdatehelper.read_and_summary(url)
-
-        expected_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/abc123"
-        mock_get.assert_called_once_with(
-            expected_url,
-            headers={"User-Agent": "Safari/605.1.15"}
-        )
-
-        self.assertEqual(result['url'], url)
-        self.assertEqual(result['apiUrl'], expected_url)
-        self.assertEqual(result['docId'], 'abc123')
-        self.assertEqual(result['title'], 'Test Title')
-        self.assertEqual(result['description'], 'Test Description')
-        self.assertEqual(result['products'], ['Product1', 'Product2'])
-        self.assertEqual(result['publishedDate'], '2023-01-01T00:00:00Z')
-        self.assertEqual(result['updatedDate'], '2023-01-02T00:00:00Z')
-        self.assertEqual(result['summary'], 'Summary of the update.')
+from datetime import datetime
+import time
 
 
 class TestEnvironmentCheck(unittest.TestCase):
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"
     }, clear=True)
     def test_environment_check_all_set(self):
         self.assertTrue(azureupdatehelper.environment_check())
 
     @patch.dict(os.environ, {
         "API_KEY": "",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": "https://example.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"
     }, clear=True)
     def test_environment_check_missing_api_key(self):
         self.assertFalse(azureupdatehelper.environment_check())
 
     @patch.dict(os.environ, {
         "API_KEY": "test_api_key",
-        "API_VERSION": "test_api_version",
-        "API_ENDPOINT": "",
-        "DEPLOYMENT_NAME": "test_deployment_name"
+        "API_ENDPOINT": ""
     }, clear=True)
     def test_environment_check_missing_api_endpoint(self):
         self.assertFalse(azureupdatehelper.environment_check())
+
+
+class TestGetRssFeedEntries(unittest.TestCase):
+    @patch('azureupdatehelper.feedparser.parse')
+    def test_get_rss_feed_entries(self, mock_parse):
+        mock_feed = MagicMock()
+        mock_feed.entries = [{'id': '1', 'published': 'Thu, 31 Oct 2024 21:45:07 Z'}]
+        mock_parse.return_value = mock_feed
+
+        entries = azureupdatehelper.get_rss_feed_entries()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['id'], '1')
+
+
+class TestGetUpdateUrls(unittest.TestCase):
+    @patch('azureupdatehelper.get_rss_feed_entries')
+    @patch('azureupdatehelper.datetime')
+    def test_get_update_urls_within_days(self, mock_datetime, mock_get_rss_feed_entries):
+        mock_datetime.now.return_value = datetime(2024, 11, 7)
+        mock_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        mock_entry = MagicMock()
+        mock_entry.published = 'Sat, 2 Nov 2024 21:45:07 Z'
+        mock_entry.published_parsed = time.struct_time((2024, 11, 2, 21, 45, 7, 5, 307, 0))
+        mock_entry.link = 'https://example.com/update1'
+        mock_get_rss_feed_entries.return_value = [mock_entry]
+
+        mock_datetime.fromtimestamp.return_value = datetime(2024, 11, 2)
+
+        urls = azureupdatehelper.get_update_urls(7)
+        self.assertEqual(len(urls), 1)
+        self.assertEqual(urls[0], 'https://example.com/update1')
+
+    @patch('azureupdatehelper.get_rss_feed_entries')
+    @patch('azureupdatehelper.datetime')
+    def test_get_update_urls_outside_days(self, mock_datetime, mock_get_rss_feed_entries):
+        mock_datetime.now.return_value = datetime(2024, 11, 7)
+        mock_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        mock_entry = MagicMock()
+        mock_entry.published = 'Sat, 2 Nov 2024 21:45:07 Z'
+        mock_entry.published_parsed = time.struct_time((2024, 11, 2, 21, 45, 7, 5, 307, 0))
+        mock_entry.link = 'https://example.com/update1'
+        mock_get_rss_feed_entries.return_value = [mock_entry]
+
+        mock_datetime.fromtimestamp.return_value = datetime(2024, 11, 2)
+
+        urls = azureupdatehelper.get_update_urls(1)
+        self.assertEqual(len(urls), 0)
+
+    @patch('azureupdatehelper.get_rss_feed_entries')
+    @patch('azureupdatehelper.datetime')
+    def test_get_update_urls_no_published_date(self, mock_datetime, mock_get_rss_feed_entries):
+        mock_datetime.now.return_value = datetime(2024, 11, 7)
+        mock_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        mock_entry = MagicMock()
+        mock_entry.published = None
+        mock_entry.published_parsed = None
+        mock_entry.link = None
+        mock_get_rss_feed_entries.return_value = [mock_entry]
+
+        mock_datetime.fromtimestamp.return_value = None
+
+        urls = azureupdatehelper.get_update_urls(7)
+        self.assertEqual(len(urls), 0)
 
 
 if __name__ == '__main__':

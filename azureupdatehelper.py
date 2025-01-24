@@ -5,12 +5,10 @@ import urllib
 import logging
 import re
 import feedparser
+import urllib.parse as urlparse
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from time import mktime
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
@@ -25,9 +23,6 @@ RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
-# 過去 N 日分、の計算をするために、現在時刻の取得
-now = datetime.now()
-
 
 # 環境変数のチェック
 def environment_check():
@@ -39,14 +34,8 @@ def environment_check():
         return True
 
 
-# 環境変数のチェック
-environment_check()
-
-
 # Azure OpenAI のクライアントを生成する関数
 def azure_openai_client(key, endpoint):
-    import urllib.parse as urlparse
-
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
 
@@ -62,12 +51,29 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
 
 
-# Azure OpenAI のクライアントを生成
-client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+# Azure Update の RSS フィードを読み込んでエントリーを取得
+def get_rss_feed_entries():
+    feed = feedparser.parse(RSS_URL)
+    return feed.entries
+
+
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def get_update_urls(days):
+    entries = get_rss_feed_entries()
+    start_date = datetime.now() - timedelta(days=days)  # 取得開始日
+    urls = []
+    for entry in entries:
+        published = entry.published_parsed
+        if published is None:
+            continue
+        rss_published_datetime = datetime.fromtimestamp(mktime(published))
+        if (rss_published_datetime > start_date):
+            urls.append(entry.link)
+    return urls
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
-def read_and_summary(url):
+def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
     query = urllib.parse.urlparse(url).query
     query_list = dict(urllib.parse.parse_qsl(query))
@@ -131,29 +137,11 @@ def read_and_summary(url):
     return retval
 
 
-# Azure Update の RSS フィードを読み込んで URL のリストを返す。引数には過去何日まで取得するかを指定する
-def get_update_urls(days):
-    # RSS フィードを読み込む
-    feed = feedparser.parse(RSS_URL)
-    logging.debug(feed)
-
-    # フィードからエントリーを取得
-    entries = feed.entries
-
-    # entries から published が指定された日数以内のエントリーの URL をリスト化
-    start_date = now - timedelta(days=days)  # 取得開始日
-    urls = []
-    for entry in entries:
-        published = entry.published_parsed
-        rss_published_datetime = datetime.fromtimestamp(mktime(published))
-        if published is not None:
-            if (rss_published_datetime > start_date):
-                urls.append(entry.link)
-
-    return urls
-
-
 def main():
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     # ログの設定
     logging.basicConfig(force=True, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
@@ -166,6 +154,16 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
+    client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    print("Client: ", client)
+
+    entries = get_rss_feed_entries()
+    print(f"RSS フィードのエントリーは {len(entries)} 件です。")
+
+    urls = get_update_urls(DAYS)
+    print(f"Azureアップデートは {len(urls)} 件です。")
+    print('含まれる Azure Update の URL は以下の通りです。')
+    print(urls)
 
 
 if __name__ == "__main__":
