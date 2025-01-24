@@ -23,6 +23,10 @@ systemprompt = ("渡されたデータに含まれている Azure のアップ�
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
 
+# 日付フォーマット 'Thu, 23 Jan 2025 21:30:21 Z' は RSS フィードの published で使用
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
+
+
 # 環境変数のチェック
 def environment_check():
     if (os.getenv("API_KEY") == "" or os.getenv("API_KEY") is None or
@@ -62,8 +66,8 @@ def get_update_urls(days):
     start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
     urls = []
     for entry in entries:
-        # 'Thu, 23 Jan 2025 21:30:21 Z' を datetime に変換
-        published_at = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z').astimezone()
+        # DATE_FORMAT から datetime に変換
+        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
         if published_at is None:
             continue
         if (published_at > start_date):

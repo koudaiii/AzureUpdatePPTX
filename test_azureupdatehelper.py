@@ -53,7 +53,7 @@ class TestGetUpdateUrls(unittest.TestCase):
         mock_get_rss_feed_entries.return_value = [mock_entry]
 
         mock_datetime.strptime().astimezone.return_value = datetime.strptime(
-            mock_entry.published, '%a, %d %b %Y %H:%M:%S %z'
+            mock_entry.published, azureupdatehelper.DATE_FORMAT
         ).astimezone()
 
         urls = azureupdatehelper.get_update_urls(7)
@@ -72,7 +72,7 @@ class TestGetUpdateUrls(unittest.TestCase):
         mock_get_rss_feed_entries.return_value = [mock_entry]
 
         mock_datetime.strptime().astimezone.return_value = datetime.strptime(
-            mock_entry.published, '%a, %d %b %Y %H:%M:%S %z'
+            mock_entry.published, azureupdatehelper.DATE_FORMAT
         ).astimezone()
 
         urls = azureupdatehelper.get_update_urls(1)
