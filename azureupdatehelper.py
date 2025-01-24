@@ -23,9 +23,6 @@ RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
-# 過去 N 日分、の計算をするために、現在時刻の取得
-now = datetime.now()
-
 
 # 環境変数のチェック
 def environment_check():
