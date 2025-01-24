@@ -8,7 +8,6 @@ import feedparser
 import urllib.parse as urlparse
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
-from time import mktime
 
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
@@ -22,6 +21,10 @@ RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 # システムプロンプトの設定
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
+
+
+# 日付フォーマット 'Thu, 23 Jan 2025 21:30:21 Z' は RSS フィードの published で使用
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
 
 
 # 環境変数のチェック
@@ -60,14 +63,14 @@ def get_rss_feed_entries():
 # entries から published が指定された日数以内のエントリーの URL をリスト化
 def get_update_urls(days):
     entries = get_rss_feed_entries()
-    start_date = datetime.now() - timedelta(days=days)  # 取得開始日
+    start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
     urls = []
     for entry in entries:
-        published = entry.published_parsed
-        if published is None:
+        # DATE_FORMAT から datetime に変換
+        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
+        if published_at is None:
             continue
-        rss_published_datetime = datetime.fromtimestamp(mktime(published))
-        if (rss_published_datetime > start_date):
+        if (published_at > start_date):
             urls.append(entry.link)
     return urls
 
