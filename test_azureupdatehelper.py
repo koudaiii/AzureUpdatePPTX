@@ -3,7 +3,6 @@ from unittest.mock import patch, MagicMock
 import azureupdatehelper
 import os
 from datetime import datetime
-import time
 
 
 class TestEnvironmentCheck(unittest.TestCase):
@@ -50,11 +49,12 @@ class TestGetUpdateUrls(unittest.TestCase):
 
         mock_entry = MagicMock()
         mock_entry.published = 'Sat, 2 Nov 2024 21:45:07 Z'
-        mock_entry.published_parsed = time.struct_time((2024, 11, 2, 21, 45, 7, 5, 307, 0))
         mock_entry.link = 'https://example.com/update1'
         mock_get_rss_feed_entries.return_value = [mock_entry]
 
-        mock_datetime.fromtimestamp.return_value = datetime(2024, 11, 2)
+        mock_datetime.strptime().astimezone.return_value = datetime.strptime(
+            mock_entry.published, '%a, %d %b %Y %H:%M:%S %z'
+        ).astimezone()
 
         urls = azureupdatehelper.get_update_urls(7)
         self.assertEqual(len(urls), 1)
@@ -68,11 +68,12 @@ class TestGetUpdateUrls(unittest.TestCase):
 
         mock_entry = MagicMock()
         mock_entry.published = 'Sat, 2 Nov 2024 21:45:07 Z'
-        mock_entry.published_parsed = time.struct_time((2024, 11, 2, 21, 45, 7, 5, 307, 0))
         mock_entry.link = 'https://example.com/update1'
         mock_get_rss_feed_entries.return_value = [mock_entry]
 
-        mock_datetime.fromtimestamp.return_value = datetime(2024, 11, 2)
+        mock_datetime.strptime().astimezone.return_value = datetime.strptime(
+            mock_entry.published, '%a, %d %b %Y %H:%M:%S %z'
+        ).astimezone()
 
         urls = azureupdatehelper.get_update_urls(1)
         self.assertEqual(len(urls), 0)
@@ -85,11 +86,10 @@ class TestGetUpdateUrls(unittest.TestCase):
 
         mock_entry = MagicMock()
         mock_entry.published = None
-        mock_entry.published_parsed = None
         mock_entry.link = None
         mock_get_rss_feed_entries.return_value = [mock_entry]
 
-        mock_datetime.fromtimestamp.return_value = None
+        mock_datetime.strptime().astimezone.return_value = None
 
         urls = azureupdatehelper.get_update_urls(7)
         self.assertEqual(len(urls), 0)
