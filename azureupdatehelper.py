@@ -167,17 +167,6 @@ def main():
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
-    for url in urls:
-        print("\n")
-        logging.info("***** Begin of Record *****")
-        result = read_and_summary(client, url)
-        # result の中身をログに出力
-        logging.debug(result)
-
-        # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
-        for key in result.keys():
-            print(f"{key} : {result[key]}")
-        logging.info("***** End of Recode *****")
 
 
 if __name__ == "__main__":
