@@ -67,11 +67,11 @@ def get_update_urls(days):
     urls = []
     for entry in entries:
         published = entry.published_parsed
+        if published is None:
+            continue
         rss_published_datetime = datetime.fromtimestamp(mktime(published))
-        if published is not None:
-            if (rss_published_datetime > start_date):
-                urls.append(entry.link)
-
+        if (rss_published_datetime > start_date):
+            urls.append(entry.link)
     return urls
 
 
