@@ -95,5 +95,20 @@ class TestGetUpdateUrls(unittest.TestCase):
         self.assertEqual(len(urls), 0)
 
 
+class TestGetArticle(unittest.TestCase):
+    @patch('azureupdatehelper.requests.get')
+    def test_get_article_calls_api(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.text = '{"title":"Fake Title"}'
+        mock_response.json.return_value = {"title": "Fake Title"}
+        mock_get.return_value = mock_response
+
+        url = "https://fake.url/path?id=12345"
+        response = azureupdatehelper.get_article(url)
+        mock_get.assert_called_once()
+        self.assertIsNotNone(response)
+        self.assertEqual(response.json()['title'], "Fake Title")
+
+
 if __name__ == '__main__':
     unittest.main()
