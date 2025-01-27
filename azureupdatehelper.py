@@ -75,6 +75,45 @@ def get_update_urls(days):
     return urls
 
 
+# URL から記事を順番に取得する
+def get_article(url):
+    # url からクエリ文字列を取得してリスト化する
+    query = urllib.parse.urlparse(url).query
+    query_list = dict(urllib.parse.parse_qsl(query))
+    logging.debug(query_list)
+
+    # query_list の中で id がキーの値を取得する
+    docid = query_list['id']
+
+    # url からクエリ文字列以外を取得する
+    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+    target_url = base_url + docid
+    logging.debug(target_url)
+
+    # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
+    headers = {
+        "User-Agent": "Safari/605.1.15"
+    }
+
+    # URL からデータをダウンロード
+    response = requests.get(target_url, headers=headers)
+    logging.debug(response.text)
+
+    return response
+
+
+# 記事を要約する
+def summarize_article(client, article):
+    summary_list = client.chat.completions.create(
+        model=client.model,
+        messages=[
+            {"role": "system", "content": systemprompt},
+            {"role": "user", "content": article}
+        ]
+    )
+    return summary_list.choices[0].message.content
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
