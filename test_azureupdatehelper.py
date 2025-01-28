@@ -126,5 +126,14 @@ class TestGetArticle(unittest.TestCase):
         self.assertIsNone(response)
 
 
+class TestAzureOpenAIClient(unittest.TestCase):
+    @patch('azureupdatehelper.logging.debug')
+    def test_azure_openai_client(self, mock_debug):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-version=2024-08-01-preview")
+        self.assertEqual(client.api_key, "fake_key")
+        self.assertEqual(client._api_version, "2024-08-01-preview")
+
+
 if __name__ == '__main__':
     unittest.main()
