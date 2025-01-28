@@ -100,7 +100,11 @@ def get_article(url):
 
     # 記事取得
     response = requests.get(target_url, headers=headers)
-    logging.debug(response.text)
+    if response.status_code != 200:
+        logging.error(f"{target_url} から記事を取得できませんでした。")
+        logging.error(f"Status Code is '{response.status_code}'")
+        logging.error(f"Response Message is '{response.text}'")
+        return None
 
     return response
 
