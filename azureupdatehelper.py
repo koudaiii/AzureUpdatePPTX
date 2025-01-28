@@ -98,7 +98,7 @@ def get_article(url):
         "User-Agent": "Safari/605.1.15"
     }
 
-    # URL からデータをダウンロード
+    # 記事取得
     response = requests.get(target_url, headers=headers)
     logging.debug(response.text)
 
