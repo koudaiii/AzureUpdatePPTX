@@ -134,6 +134,26 @@ class TestAzureOpenAIClient(unittest.TestCase):
         self.assertEqual(client.api_key, "fake_key")
         self.assertEqual(client._api_version, "2024-08-01-preview")
 
+    def test_azure_openai_client_empty_param(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_api_version_param(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-versions=")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_api_version(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-version=")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_deployment(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/test/?api-version=2024-08-01-preview")
+        self.assertIsNone(client)
+
 
 if __name__ == '__main__':
     unittest.main()
