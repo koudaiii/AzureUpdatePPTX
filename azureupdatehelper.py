@@ -85,9 +85,11 @@ def get_article(url):
 
     # クエリ文字列をリスト化
     query_list = dict(urllib.parse.parse_qsl(query))
-    logging.debug(query_list)
+    if query_list is None or query_list == '' or 'id' not in query_list:
+        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        return None
 
-    # query_list の中で id がキーの値を取得する
+    # 記事用の url 生成
     docid = query_list['id']
 
     # url からクエリ文字列以外を取得する
