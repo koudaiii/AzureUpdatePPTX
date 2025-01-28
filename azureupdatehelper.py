@@ -77,7 +77,7 @@ def get_update_urls(days):
 
 # URL から記事を順番に取得する
 def get_article(url):
-    # url からクエリ文字列を取得してリスト化する
+    # url からクエリ文字列を取得
     query = urllib.parse.urlparse(url).query
     query_list = dict(urllib.parse.parse_qsl(query))
     logging.debug(query_list)
