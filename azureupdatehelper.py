@@ -91,13 +91,9 @@ def get_article(url):
 
     # 記事用の url 生成
     docid = query_list['id']
-
-    # url からクエリ文字列以外を取得する
     base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
     target_url = base_url + docid
-    logging.debug(target_url)
-
-    # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
+    # Azure Update API 用に header に User-Agent 設定
     headers = {
         "User-Agent": "Safari/605.1.15"
     }
