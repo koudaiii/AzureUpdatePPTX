@@ -95,5 +95,65 @@ class TestGetUpdateUrls(unittest.TestCase):
         self.assertEqual(len(urls), 0)
 
 
+class TestGetArticle(unittest.TestCase):
+    @patch('azureupdatehelper.requests.get')
+    def test_get_article_calls_api(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.text = '{"title":"Fake Title"}'
+        mock_response.json.return_value = {"title": "Fake Title"}
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        url = "https://fake.url/path?id=12345"
+        response = azureupdatehelper.get_article(url)
+        mock_get.assert_called_once()
+        self.assertIsNotNone(response)
+        self.assertEqual(response.json()['title'], "Fake Title")
+
+    def test_get_article_calls_api_empty_id(self):
+        url = "https://fake.url/path?id="
+        response = azureupdatehelper.get_article(url)
+        self.assertIsNone(response)
+
+    def test_get_article_calls_api_no_id(self):
+        url = "https://fake.url/path"
+        response = azureupdatehelper.get_article(url)
+        self.assertIsNone(response)
+
+    def test_get_article_calls_api_faildocid(self):
+        url = "https://fake.url/path?id=faildocid"
+        response = azureupdatehelper.get_article(url)
+        self.assertIsNone(response)
+
+
+class TestAzureOpenAIClient(unittest.TestCase):
+    @patch('azureupdatehelper.logging.debug')
+    def test_azure_openai_client(self, mock_debug):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-version=2024-08-01-preview")
+        self.assertEqual(client.api_key, "fake_key")
+        self.assertEqual(client._api_version, "2024-08-01-preview")
+
+    def test_azure_openai_client_empty_param(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_api_version_param(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-versions=")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_api_version(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/deployments/test/?api-version=")
+        self.assertIsNone(client)
+
+    def test_azure_openai_client_no_deployment(self):
+        client = azureupdatehelper.azure_openai_client("fake_key",
+                                                       "https://example.com/test/?api-version=2024-08-01-preview")
+        self.assertIsNone(client)
+
+
 if __name__ == '__main__':
     unittest.main()

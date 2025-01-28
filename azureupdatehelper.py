@@ -41,11 +41,20 @@ def environment_check():
 def azure_openai_client(key, endpoint):
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
+    if query_params is None:
+        logging.error("Query Parameters are not found in the endpoint URL.")
+        return None
 
     api_version = query_params.get('api-version', '')
+    if api_version == '' or api_version is None:
+        logging.error("API Version is not found in the endpoint URL.")
+        return None
 
     deployment_name_match = re.search(r"deployments/([^/]+)/", parsed_url.path)
     deployment_name = deployment_name_match.group(1) if deployment_name_match else ''
+    if deployment_name == '':
+        logging.error("Deployment Name is not found in the endpoint URL.")
+        return None
 
     logging.debug(f"Extracted API Key: {key}")
     logging.debug(f"Extracted API Version: {api_version}")
@@ -73,6 +82,52 @@ def get_update_urls(days):
         if (published_at > start_date):
             urls.append(entry.link)
     return urls
+
+
+# URL から記事を順番に取得する
+def get_article(url):
+    # url からクエリ文字列を取得
+    query = urllib.parse.urlparse(url).query
+    if query is None or query == '':
+        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        return None
+
+    # クエリ文字列をリスト化
+    query_list = dict(urllib.parse.parse_qsl(query))
+    if query_list is None or query_list == '' or 'id' not in query_list:
+        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        return None
+
+    # 記事用の url 生成
+    docid = query_list['id']
+    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+    target_url = base_url + docid
+    # Azure Update API 用に header に User-Agent 設定
+    headers = {
+        "User-Agent": "Safari/605.1.15"
+    }
+
+    # 記事取得
+    response = requests.get(target_url, headers=headers)
+    if response.status_code != 200:
+        logging.error(f"{target_url} から記事を取得できませんでした。")
+        logging.error(f"Status Code is '{response.status_code}'")
+        logging.error(f"Response Message is '{response.text}'")
+        return None
+
+    return response
+
+
+# 記事を要約する
+def summarize_article(client, article):
+    summary_list = client.chat.completions.create(
+        model=client.model,
+        messages=[
+            {"role": "system", "content": systemprompt},
+            {"role": "user", "content": article}
+        ]
+    )
+    return summary_list.choices[0].message.content
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
@@ -167,6 +222,10 @@ def main():
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
+    for url in urls:
+        result = read_and_summary(client, url)
+        print(result)
+        print("\n")
 
 
 if __name__ == "__main__":
