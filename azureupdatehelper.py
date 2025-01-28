@@ -79,6 +79,11 @@ def get_update_urls(days):
 def get_article(url):
     # url からクエリ文字列を取得
     query = urllib.parse.urlparse(url).query
+    if query is None or query == '':
+        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        return None
+
+    # クエリ文字列をリスト化
     query_list = dict(urllib.parse.parse_qsl(query))
     logging.debug(query_list)
 
