@@ -120,14 +120,18 @@ def get_article(url):
 
 # 記事を要約する
 def summarize_article(client, article):
-    summary_list = client.chat.completions.create(
-        model=client.model,
-        messages=[
-            {"role": "system", "content": systemprompt},
-            {"role": "user", "content": article}
-        ]
-    )
-    return summary_list.choices[0].message.content
+    try:
+        summary_list = client.chat.completions.create(
+            model==client.model,
+            messages=[
+                {"role": "system", "content": systemprompt},
+                {"role": "user", "content": article}
+            ]
+        )
+        return summary_list.choices[0].message.content
+    except Exception as e:
+        logging.error("An error occurred during summary generation: %s", e)
+        return None
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
