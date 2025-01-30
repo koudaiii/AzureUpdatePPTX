@@ -43,18 +43,18 @@ def azure_openai_client(key, endpoint):
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
     if query_params is None:
         logging.error("Query Parameters are not found in the endpoint URL.")
-        return None
+        return None, None
 
     api_version = query_params.get('api-version', '')
     if api_version == '' or api_version is None:
         logging.error("API Version is not found in the endpoint URL.")
-        return None
+        return None, None
 
     deployment_name_match = re.search(r"deployments/([^/]+)/", parsed_url.path)
     deployment_name = deployment_name_match.group(1) if deployment_name_match else ''
     if deployment_name == '':
         logging.error("Deployment Name is not found in the endpoint URL.")
-        return None
+        return None, None
 
     logging.debug(f"Extracted API Key: {key}")
     logging.debug(f"Extracted API Version: {api_version}")
