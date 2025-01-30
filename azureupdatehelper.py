@@ -60,7 +60,7 @@ def azure_openai_client(key, endpoint):
     logging.debug(f"Extracted API Version: {api_version}")
     logging.debug(f"Extracted Deployment Name: {deployment_name}")
 
-    return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
+    return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint), deployment_name
 
 
 # Azure Update の RSS フィードを読み込んでエントリーを取得
@@ -119,10 +119,10 @@ def get_article(url):
 
 
 # 記事を要約する
-def summarize_article(client, article):
+def summarize_article(client, deployment_name, article):
     try:
         summary_list = client.chat.completions.create(
-            model==client.model,
+            model=deployment_name,
             messages=[
                 {"role": "system", "content": systemprompt},
                 {"role": "user", "content": article}
@@ -216,7 +216,7 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
-    client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
 
     entries = get_rss_feed_entries()
