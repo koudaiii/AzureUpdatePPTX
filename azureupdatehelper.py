@@ -216,7 +216,7 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
-    client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    client, _ = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
 
     entries = get_rss_feed_entries()
