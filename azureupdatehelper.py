@@ -226,10 +226,6 @@ def main():
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
-    for url in urls:
-        result = read_and_summary(client, url)
-        print(result)
-        print("\n")
 
 
 if __name__ == "__main__":
