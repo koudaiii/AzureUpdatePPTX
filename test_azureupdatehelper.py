@@ -170,5 +170,27 @@ class TestAzureOpenAIClient(unittest.TestCase):
         self.assertIsNone(deployment_name)
 
 
+class TestSummarizeArticle(unittest.TestCase):
+    def test_summarize_article_returns_summary(self):
+        mock_client = MagicMock()
+        mock_deployment_name = "Fake Deployment"
+        mock_chat_completions = MagicMock()
+        mock_chat_completions.create.return_value.choices = [
+            MagicMock(message=MagicMock(content="Fake Summary"))
+        ]
+        mock_client.chat.completions = mock_chat_completions
+
+        summary = azureupdatehelper.summarize_article(mock_client, mock_deployment_name, "Dummy article content")
+        self.assertEqual(summary, "Fake Summary")
+
+        mock_chat_completions.create.assert_called_once_with(
+            model=mock_deployment_name,
+            messages=[
+                {"role": "system", "content": azureupdatehelper.systemprompt},
+                {"role": "user", "content": "Dummy article content"}
+            ]
+        )
+
+
 if __name__ == '__main__':
     unittest.main()
