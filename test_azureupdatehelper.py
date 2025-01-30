@@ -129,29 +129,39 @@ class TestGetArticle(unittest.TestCase):
 class TestAzureOpenAIClient(unittest.TestCase):
     @patch('azureupdatehelper.logging.debug')
     def test_azure_openai_client(self, mock_debug):
-        client = azureupdatehelper.azure_openai_client("fake_key",
-                                                       "https://example.com/deployments/test/?api-version=2024-08-01-preview")
+        client, deployment_name = azureupdatehelper.azure_openai_client(
+            "fake_key",
+            "https://example.com/deployments/test/?api-version=2024-08-01-preview"
+        )
         self.assertEqual(client.api_key, "fake_key")
         self.assertEqual(client._api_version, "2024-08-01-preview")
 
     def test_azure_openai_client_empty_param(self):
-        client = azureupdatehelper.azure_openai_client("fake_key",
-                                                       "https://example.com/deployments/test/")
+        client, deployment_name = azureupdatehelper.azure_openai_client(
+            "fake_key",
+            "https://example.com/deployments/test/"
+        )
         self.assertIsNone(client)
 
     def test_azure_openai_client_no_api_version_param(self):
-        client = azureupdatehelper.azure_openai_client("fake_key",
-                                                       "https://example.com/deployments/test/?api-versions=")
+        client, deployment_name = azureupdatehelper.azure_openai_client(
+            "fake_key",
+            "https://example.com/deployments/test/?api-versions="
+        )
         self.assertIsNone(client)
 
     def test_azure_openai_client_no_api_version(self):
-        client = azureupdatehelper.azure_openai_client("fake_key",
-                                                       "https://example.com/deployments/test/?api-version=")
+        client, deployment_name = azureupdatehelper.azure_openai_client(
+            "fake_key",
+            "https://example.com/deployments/test/?api-version="
+        )
         self.assertIsNone(client)
 
     def test_azure_openai_client_no_deployment(self):
-        client = azureupdatehelper.azure_openai_client("fake_key",
-                                                       "https://example.com/test/?api-version=2024-08-01-preview")
+        client, deployment_name = azureupdatehelper.azure_openai_client(
+            "fake_key",
+            "https://example.com/test/?api-version=2024-08-01-preview"
+        )
         self.assertIsNone(client)
 
 
