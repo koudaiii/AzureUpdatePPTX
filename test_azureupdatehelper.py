@@ -134,6 +134,7 @@ class TestAzureOpenAIClient(unittest.TestCase):
             "https://example.com/deployments/test/?api-version=2024-08-01-preview"
         )
         self.assertEqual(client.api_key, "fake_key")
+        self.assertEqual(deployment_name, "test")
         self.assertEqual(client._api_version, "2024-08-01-preview")
 
     def test_azure_openai_client_empty_param(self):
@@ -142,6 +143,7 @@ class TestAzureOpenAIClient(unittest.TestCase):
             "https://example.com/deployments/test/"
         )
         self.assertIsNone(client)
+        self.assertIsNone(deployment_name)
 
     def test_azure_openai_client_no_api_version_param(self):
         client, deployment_name = azureupdatehelper.azure_openai_client(
@@ -149,6 +151,7 @@ class TestAzureOpenAIClient(unittest.TestCase):
             "https://example.com/deployments/test/?api-versions="
         )
         self.assertIsNone(client)
+        self.assertIsNone(deployment_name)
 
     def test_azure_openai_client_no_api_version(self):
         client, deployment_name = azureupdatehelper.azure_openai_client(
@@ -156,6 +159,7 @@ class TestAzureOpenAIClient(unittest.TestCase):
             "https://example.com/deployments/test/?api-version="
         )
         self.assertIsNone(client)
+        self.assertIsNone(deployment_name)
 
     def test_azure_openai_client_no_deployment(self):
         client, deployment_name = azureupdatehelper.azure_openai_client(
@@ -163,6 +167,7 @@ class TestAzureOpenAIClient(unittest.TestCase):
             "https://example.com/test/?api-version=2024-08-01-preview"
         )
         self.assertIsNone(client)
+        self.assertIsNone(deployment_name)
 
 
 if __name__ == '__main__':
