@@ -41,17 +41,26 @@ def environment_check():
 def azure_openai_client(key, endpoint):
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
+    if query_params is None:
+        logging.error("Query Parameters are not found in the endpoint URL.")
+        return None, None
 
     api_version = query_params.get('api-version', '')
+    if api_version == '' or api_version is None:
+        logging.error("API Version is not found in the endpoint URL.")
+        return None, None
 
     deployment_name_match = re.search(r"deployments/([^/]+)/", parsed_url.path)
     deployment_name = deployment_name_match.group(1) if deployment_name_match else ''
+    if deployment_name == '':
+        logging.error("Deployment Name is not found in the endpoint URL.")
+        return None, None
 
     logging.debug(f"Extracted API Key: {key}")
     logging.debug(f"Extracted API Version: {api_version}")
     logging.debug(f"Extracted Deployment Name: {deployment_name}")
 
-    return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint)
+    return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint), deployment_name
 
 
 # Azure Update の RSS フィードを読み込んでエントリーを取得
@@ -73,6 +82,56 @@ def get_update_urls(days):
         if (published_at > start_date):
             urls.append(entry.link)
     return urls
+
+
+# URL から記事を順番に取得する
+def get_article(url):
+    # url からクエリ文字列を取得
+    query = urllib.parse.urlparse(url).query
+    if query is None or query == '':
+        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        return None
+
+    # クエリ文字列をリスト化
+    query_list = dict(urllib.parse.parse_qsl(query))
+    if query_list is None or query_list == '' or 'id' not in query_list:
+        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        return None
+
+    # 記事用の url 生成
+    docid = query_list['id']
+    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+    target_url = base_url + docid
+    # Azure Update API 用に header に User-Agent 設定
+    headers = {
+        "User-Agent": "Safari/605.1.15"
+    }
+
+    # 記事取得
+    response = requests.get(target_url, headers=headers)
+    if response.status_code != 200:
+        logging.error(f"{target_url} から記事を取得できませんでした。")
+        logging.error(f"Status Code is '{response.status_code}'")
+        logging.error(f"Response Message is '{response.text}'")
+        return None
+
+    return response
+
+
+# 記事を要約する
+def summarize_article(client, deployment_name, article):
+    try:
+        summary_list = client.chat.completions.create(
+            model=deployment_name,
+            messages=[
+                {"role": "system", "content": systemprompt},
+                {"role": "user", "content": article}
+            ]
+        )
+        return summary_list.choices[0].message.content
+    except Exception as e:
+        logging.error("An error occurred during summary generation: %s", e)
+        return None
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
@@ -157,7 +216,7 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
-    client = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    client, _ = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
 
     entries = get_rss_feed_entries()

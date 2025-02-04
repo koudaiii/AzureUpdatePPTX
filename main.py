@@ -65,7 +65,7 @@ if st.button('PPTX 生成'):
     date_ph = slide.placeholders[0]
 
     # 3枚目以降（Azure Update の情報をスライドに追加)
-    client = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    client, _ = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     for url in urls:
         print("\n")
         logging.info("***** Begin of Record *****")
