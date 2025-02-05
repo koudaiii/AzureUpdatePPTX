@@ -154,6 +154,11 @@ def remove_html_tags(text):
     return re.sub(r'<[^>]*?>', '', text)
 
 
+# description から a タグの href を取得
+def get_a_href_from_html(html):
+    return re.findall(r'<a href="([^"]*)"', html)
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # URL からデータをダウンロード
