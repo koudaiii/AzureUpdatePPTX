@@ -155,7 +155,7 @@ def read_and_summary(client, url):
     }
 
     # URL からデータをダウンロード
-    response = requests.get(target_url, headers=headers)
+    response = get_article(url)
     logging.debug(response.text)
 
     # response.text をパースして、title と description と publishedDate を取得
