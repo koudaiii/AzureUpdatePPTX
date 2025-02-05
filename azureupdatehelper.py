@@ -132,7 +132,7 @@ def summarize_article(client, deployment_name, article):
         logging.error("An error occurred during summary generation: %s", e)
         return None
 
-
+# Azure Update API の URL を生成
 def target_url(id):
     base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
     if id is None or id == '':
