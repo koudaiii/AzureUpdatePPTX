@@ -248,5 +248,36 @@ class TestRemoveHtmlTags(unittest.TestCase):
         self.assertEqual(azureupdatehelper.remove_html_tags(text), "")
 
 
+class TestGetAHrefFromHtml(unittest.TestCase):
+    def test_get_a_href_from_html_no_links(self):
+        html_content = "No anchor tags here."
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(links, [], "Expected empty list when no <a> tags present.")
+
+    def test_get_a_href_from_html_single_link(self):
+        html_content = '<p>Click <a href="https://example.com">here</a> to visit.</p>'
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(len(links), 1, "Expected one link in the list.")
+        self.assertEqual(links[0], "https://example.com")
+
+    def test_get_a_href_from_html_multiple_links(self):
+        html_content = '''
+            <div>
+                <a href="https://example.com/page1">Link1</a>
+                <a href="https://example.com/page2">Link2</a>
+                <a href="https://example.com/page3">Link3</a>
+            </div>
+        '''
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(len(links), 3)
+        self.assertIn("https://example.com/page1", links)
+        self.assertIn("https://example.com/page2", links)
+        self.assertIn("https://example.com/page3", links)
+
+    def test_get_a_href_from_html_empty_string(self):
+        links = azureupdatehelper.get_a_href_from_html("")
+        self.assertEqual(links, [], "Expected empty list for empty HTML string.")
+
+
 if __name__ == '__main__':
     unittest.main()
