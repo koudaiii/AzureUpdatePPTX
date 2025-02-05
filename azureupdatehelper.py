@@ -141,6 +141,15 @@ def target_url(id):
     return base_url + id
 
 
+def docid_from_url(url):
+    query = urlparse.urlparse(url).query
+    query_list = dict(urlparse.parse_qsl(query))
+    if query_list is None or query_list == '' or 'id' not in query_list:
+        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        return None
+    return query_list['id']
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
