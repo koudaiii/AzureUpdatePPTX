@@ -100,17 +100,16 @@ def get_article(url):
 
     # 記事用の url 生成
     docid = query_list['id']
-    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
-    target_url = base_url + docid
+    link = target_url(docid)
     # Azure Update API 用に header に User-Agent 設定
     headers = {
         "User-Agent": "Safari/605.1.15"
     }
 
     # 記事取得
-    response = requests.get(target_url, headers=headers)
+    response = requests.get(link, headers=headers)
     if response.status_code != 200:
-        logging.error(f"{target_url} から記事を取得できませんでした。")
+        logging.error(f"{link} から記事を取得できませんでした。")
         logging.error(f"Status Code is '{response.status_code}'")
         logging.error(f"Response Message is '{response.text}'")
         return None
