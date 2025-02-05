@@ -158,20 +158,9 @@ def remove_html_tags(text):
 def read_and_summary(client, url):
     # URL からデータをダウンロード
     response = get_article(url)
+    if response is None:
+        return None
     logging.debug(response.text)
-
-    # response.text をパースして、title と description と publishedDate を取得
-    title = response.json()['title']
-    description = response.json()['description']
-    publishedDate = response.json()['created']
-    updatedDate = response.json()['modified']
-    products = response.json()['products']
-
-    # description から HTML タグを削除
-    description = re.sub(r'<[^>]*?>', '', description)
-
-    logging.debug(title)
-    logging.debug(description)
 
     # ダウンロードしたデータを Azure OpenAI で要約
     summary_list = client.chat.completions.create(
@@ -181,23 +170,33 @@ def read_and_summary(client, url):
             {"role": "user", "content": response.text}
         ]
     )
-
     summary = summary_list.choices[0].message.content
+    if summary is None:
+        logging.error("要約が生成されませんでした。")
+        return None
 
     # URL から記事 ID を取得
     docid = docid_from_url(url)
+    if docid is None:
+        logging.error(f"{url} から docid を取得できませんでした。")
+        return None
+    # description から HTML タグを削除
+    description = remove_html_tags(response.json()['description'])
+    if description is None:
+        logging.error(f"{response.json()['description']} の HTML タグの削除に失敗しました。")
+        return None
 
     # retval に title と description と summary を JSON 形式で格納
     retval = {
         "url": url,
         "apiUrl": target_url(docid),
         "docId": docid,
-        "title": title,
-        "products": products,
+        "title": response.json()['title'],
+        "products": response.json()['products'],
         "description": description,
         "summary": summary,
-        "publishedDate": publishedDate,
-        "updatedDate": updatedDate
+        "publishedDate": response.json()['created'],
+        "updatedDate": response.json()['modified']
     }
     logging.debug(retval)
 
