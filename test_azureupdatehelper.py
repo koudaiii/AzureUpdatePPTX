@@ -260,12 +260,24 @@ class TestGetAHrefFromHtml(unittest.TestCase):
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com")
 
+    def test_get_a_href_from_html_single_link_and_single_quote(self):
+        html_content = "<p>Click <a href='https://example.com'>here</a> to visit.</p>"
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(len(links), 1, "Expected one link in the list.")
+        self.assertEqual(links[0], "https://example.com")
+
+    def test_get_a_href_from_html_single_link_and_no_quote(self):
+        html_content = '<p>Click <a href=https://example.com>here</a> to visit.</p>'
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(len(links), 1, "Expected one link in the list.")
+        self.assertEqual(links[0], "https://example.com")
+
     def test_get_a_href_from_html_multiple_links(self):
         html_content = '''
             <div>
                 <a href="https://example.com/page1">Link1</a>
-                <a href="https://example.com/page2">Link2</a>
-                <a href="https://example.com/page3">Link3</a>
+                <a href='https://example.com/page2'>Link2</a>
+                <a href=https://example.com/page3>Link3</a>
             </div>
         '''
         links = azureupdatehelper.get_a_href_from_html(html_content)
