@@ -115,11 +115,18 @@ def get_article(url):
 # 記事を要約する
 def summarize_article(client, deployment_name, article):
     try:
+        content = (
+            "タイトル: " + article['title'] + "\n"
+            + "製品: " + ", ".join(article['products']) + "\n"
+            + "説明: " + remove_html_tags(article['description']) + "\n"
+            + "説明内のリンク: " + ", ".join(get_a_href_from_html(article['description']))
+        )
+        # ダウンロードしたデータを Azure OpenAI で要約
         summary_list = client.chat.completions.create(
             model=deployment_name,
             messages=[
                 {"role": "system", "content": systemprompt},
-                {"role": "user", "content": article}
+                {"role": "user", "content": content}
             ]
         )
         return summary_list.choices[0].message.content
