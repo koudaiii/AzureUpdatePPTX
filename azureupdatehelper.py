@@ -149,6 +149,11 @@ def docid_from_url(url):
     return query_list['id']
 
 
+# description から HTML タグを削除
+def remove_html_tags(text):
+    return re.sub(r'<[^>]*?>', '', text)
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # URL からデータをダウンロード

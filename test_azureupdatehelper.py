@@ -228,5 +228,25 @@ class TestDocidFromUrl(unittest.TestCase):
         self.assertIsNone(docid)
 
 
+class TestRemoveHtmlTags(unittest.TestCase):
+    def test_remove_html_tags_no_tags(self):
+        text = "Just some text."
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), text)
+
+    def test_remove_html_tags_with_simple_tags(self):
+        text = "<b>Bold</b> text with <i>italic</i> tags."
+        expected = "Bold text with italic tags."
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), expected)
+
+    def test_remove_html_tags_nested_tags(self):
+        text = "<div><p>Paragraph with <span>nested</span> tag</p></div>"
+        expected = "Paragraph with nested tag"
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), expected)
+
+    def test_remove_html_tags_empty_string(self):
+        text = ""
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), "")
+
+
 if __name__ == '__main__':
     unittest.main()
