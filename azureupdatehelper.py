@@ -19,6 +19,7 @@ RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 
 # システムプロンプトの設定
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
+                "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
 
