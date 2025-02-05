@@ -168,36 +168,14 @@ def get_a_href_from_html(html):
 
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
-def read_and_summary(client, url):
+def read_and_summary(client, deployment_name, url):
     # URL からデータをダウンロード
     response = get_article(url)
     if response is None:
         return None
     logging.debug(response.text)
 
-    logging.debug(f"記事のタイトル: {response.json()['title']}")
-    logging.debug(f"記事の製品: {response.json()['products']}")
-    logging.debug(f"記事の作成日: {response.json()['created']}")
-    logging.debug(f"記事の更新日: {response.json()['modified']}")
-    logging.debug(f"記事の説明: {remove_html_tags(response.json()['description'])}")
-    logging.debug(f"記事の説明内のリンク: {get_a_href_from_html(response.json()['description'])}")
-    logging.debug(f"記事のリンク: {url}")
-    content = (
-        "タイトル: " + response.json()['title'] + "\n"
-        + "製品: " + ", ".join(response.json()['products']) + "\n"
-        + "説明: " + remove_html_tags(response.json()['description']) + "\n"
-        + "説明内のリンク: " + ", ".join(get_a_href_from_html(response.json()['description']))
-    )
-
-    # ダウンロードしたデータを Azure OpenAI で要約
-    summary_list = client.chat.completions.create(
-        model=os.getenv("DEPLOYMENT_NAME"),
-        messages=[
-            {"role": "system", "content": systemprompt},
-            {"role": "user", "content": content}
-        ]
-    )
-    summary = summary_list.choices[0].message.content
+    summary = summarize_article(client, deployment_name, response.json())
     if summary is None:
         logging.error("要約が生成されませんでした。")
         return None
@@ -206,12 +184,12 @@ def read_and_summary(client, url):
     docid = docid_from_url(url)
     if docid is None:
         logging.error(f"{url} から docid を取得できませんでした。")
-        return None
+        docid = ""
     # description から HTML タグを削除
     description = remove_html_tags(response.json()['description'])
     if description is None:
         logging.error(f"{response.json()['description']} の HTML タグの削除に失敗しました。")
-        return None
+        description = response.json()['description']
 
     # retval に title と description と summary を JSON 形式で格納
     retval = {
@@ -247,7 +225,7 @@ def main():
         logging.error('環境変数が不足しています。.env ファイルを確認してください。')
         return
     print("Environment variables OK.")
-    client, _ = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
 
     entries = get_rss_feed_entries()
@@ -257,7 +235,7 @@ def main():
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
-    print(read_and_summary(client, urls[0]))
+    print(read_and_summary(client, deployment_name, urls[0]))
 
 
 if __name__ == "__main__":
