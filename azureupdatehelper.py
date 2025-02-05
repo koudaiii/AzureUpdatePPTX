@@ -156,9 +156,6 @@ def docid_from_url(url):
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
-    # URL から記事 ID を取得
-    docid = docid_from_url(url)
-
     # URL からデータをダウンロード
     response = get_article(url)
     logging.debug(response.text)
@@ -186,6 +183,9 @@ def read_and_summary(client, url):
     )
 
     summary = summary_list.choices[0].message.content
+
+    # URL から記事 ID を取得
+    docid = docid_from_url(url)
 
     # retval に title と description と summary を JSON 形式で格納
     retval = {
