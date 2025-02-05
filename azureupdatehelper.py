@@ -141,8 +141,13 @@ def target_url(id):
     return base_url + id
 
 
+# URL から記事 ID を取得
 def docid_from_url(url):
     query = urlparse.urlparse(url).query
+    if query is None or query == '':
+        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        return None
+
     query_list = dict(urlparse.parse_qsl(query))
     if query_list is None or query_list == '' or 'id' not in query_list:
         logging.error(f"{url} からリスト化と id を取得できませんでした。")
