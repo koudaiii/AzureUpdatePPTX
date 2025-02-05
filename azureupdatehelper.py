@@ -19,6 +19,7 @@ RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 
 # システムプロンプトの設定
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
+                "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
 
@@ -167,12 +168,26 @@ def read_and_summary(client, url):
         return None
     logging.debug(response.text)
 
+    logging.debug(f"記事のタイトル: {response.json()['title']}")
+    logging.debug(f"記事の製品: {response.json()['products']}")
+    logging.debug(f"記事の作成日: {response.json()['created']}")
+    logging.debug(f"記事の更新日: {response.json()['modified']}")
+    logging.debug(f"記事の説明: {remove_html_tags(response.json()['description'])}")
+    logging.debug(f"記事の説明内のリンク: {get_a_href_from_html(response.json()['description'])}")
+    logging.debug(f"記事のリンク: {url}")
+    content = (
+        "タイトル: " + response.json()['title'] + "\n"
+        + "製品: " + ", ".join(response.json()['products']) + "\n"
+        + "説明: " + remove_html_tags(response.json()['description']) + "\n"
+        + "説明内のリンク: " + ", ".join(get_a_href_from_html(response.json()['description']))
+    )
+
     # ダウンロードしたデータを Azure OpenAI で要約
     summary_list = client.chat.completions.create(
         model=os.getenv("DEPLOYMENT_NAME"),
         messages=[
             {"role": "system", "content": systemprompt},
-            {"role": "user", "content": response.text}
+            {"role": "user", "content": content}
         ]
     )
     summary = summary_list.choices[0].message.content
