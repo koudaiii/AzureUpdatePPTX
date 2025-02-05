@@ -179,15 +179,20 @@ class TestSummarizeArticle(unittest.TestCase):
             MagicMock(message=MagicMock(content="Fake Summary"))
         ]
         mock_client.chat.completions = mock_chat_completions
-
-        summary = azureupdatehelper.summarize_article(mock_client, mock_deployment_name, "Dummy article content")
+        article = {
+            "title": "Dummy article content",
+            "products": ["Azure"],
+            "description": "<p>Some description with <a href='https://example.com'>link</a></p>"
+        }
+        summary = azureupdatehelper.summarize_article(mock_client, mock_deployment_name, article)
         self.assertEqual(summary, "Fake Summary")
 
+        content = 'タイトル: Dummy article content\n製品: Azure\n説明: Some description with link\n説明内のリンク: https://example.com'
         mock_chat_completions.create.assert_called_once_with(
             model=mock_deployment_name,
             messages=[
                 {"role": "system", "content": azureupdatehelper.systemprompt},
-                {"role": "user", "content": "Dummy article content"}
+                {"role": "user", "content": content}
             ]
         )
 
