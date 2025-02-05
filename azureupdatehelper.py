@@ -157,13 +157,8 @@ def docid_from_url(url):
 
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
-    # url からクエリ文字列を取得してリスト化する
-    query = urllib.parse.urlparse(url).query
-    query_list = dict(urllib.parse.parse_qsl(query))
-    logging.debug(query_list)
-
-    # query_list の中で id がキーの値を取得する
-    docid = query_list['id']
+    # URL から記事 ID を取得
+    docid = docid_from_url(url)
 
     # URL からデータをダウンロード
     response = get_article(url)
