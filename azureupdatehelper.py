@@ -1,7 +1,6 @@
 import sys
 import os
 import requests
-import urllib
 import logging
 import re
 import feedparser
