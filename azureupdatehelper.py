@@ -85,20 +85,8 @@ def get_update_urls(days):
 
 # URL から記事を順番に取得する
 def get_article(url):
-    # url からクエリ文字列を取得
-    query = urllib.parse.urlparse(url).query
-    if query is None or query == '':
-        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
-        return None
-
-    # クエリ文字列をリスト化
-    query_list = dict(urllib.parse.parse_qsl(query))
-    if query_list is None or query_list == '' or 'id' not in query_list:
-        logging.error(f"{url} からリスト化と id を取得できませんでした。")
-        return None
-
     # 記事用の url 生成
-    docid = query_list['id']
+    docid = docid_from_url(url)
     link = target_url(docid)
     # Azure Update API 用に header に User-Agent 設定
     headers = {
