@@ -206,5 +206,27 @@ class TestTargetUrl(unittest.TestCase):
         self.assertIsNone(azureupdatehelper.target_url(None))
 
 
+class TestDocidFromUrl(unittest.TestCase):
+    def test_docid_from_url_valid_id(self):
+        url = 'https://fake.url/path?id=test_doc_id'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertEqual(docid, 'test_doc_id')
+
+    def test_docid_from_url_empty_id(self):
+        url = 'https://fake.url/path?id='
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+    def test_docid_from_url_no_id(self):
+        url = 'https://fake.url/path?foo=1'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+    def test_docid_from_url_no_query(self):
+        url = 'https://fake.url/path'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+
 if __name__ == '__main__':
     unittest.main()
