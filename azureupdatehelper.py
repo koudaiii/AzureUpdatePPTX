@@ -87,7 +87,14 @@ def get_update_urls(days):
 def get_article(url):
     # 記事用の url 生成
     docid = docid_from_url(url)
+    if docid is None:
+        logging.error(f"{url} から docid を取得できませんでした。")
+        return None
     link = target_url(docid)
+    if link is None:
+        logging.error(f"{url} から link を取得できませんでした。")
+        return None
+
     # Azure Update API 用に header に User-Agent 設定
     headers = {
         "User-Agent": "Safari/605.1.15"
