@@ -192,5 +192,19 @@ class TestSummarizeArticle(unittest.TestCase):
         )
 
 
+class TestTargetUrl(unittest.TestCase):
+    def test_target_url_valid_id(self):
+        self.assertEqual(
+            "https://www.microsoft.com/releasecommunications/api/v2/azure/testid",
+            azureupdatehelper.target_url("testid")
+        )
+
+    def test_target_url_empty_id(self):
+        self.assertIsNone(azureupdatehelper.target_url(""))
+
+    def test_target_url_none_id(self):
+        self.assertIsNone(azureupdatehelper.target_url(None))
+
+
 if __name__ == '__main__':
     unittest.main()

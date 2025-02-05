@@ -134,6 +134,13 @@ def summarize_article(client, deployment_name, article):
         return None
 
 
+def target_url(id):
+    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+    if id is None or id == '':
+        return None
+    return base_url + id
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
     # url からクエリ文字列を取得してリスト化する
