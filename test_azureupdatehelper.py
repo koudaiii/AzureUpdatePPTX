@@ -192,5 +192,61 @@ class TestSummarizeArticle(unittest.TestCase):
         )
 
 
+class TestTargetUrl(unittest.TestCase):
+    def test_target_url_valid_id(self):
+        self.assertEqual(
+            "https://www.microsoft.com/releasecommunications/api/v2/azure/testid",
+            azureupdatehelper.target_url("testid")
+        )
+
+    def test_target_url_empty_id(self):
+        self.assertIsNone(azureupdatehelper.target_url(""))
+
+    def test_target_url_none_id(self):
+        self.assertIsNone(azureupdatehelper.target_url(None))
+
+
+class TestDocidFromUrl(unittest.TestCase):
+    def test_docid_from_url_valid_id(self):
+        url = 'https://fake.url/path?id=test_doc_id'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertEqual(docid, 'test_doc_id')
+
+    def test_docid_from_url_empty_id(self):
+        url = 'https://fake.url/path?id='
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+    def test_docid_from_url_no_id(self):
+        url = 'https://fake.url/path?foo=1'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+    def test_docid_from_url_no_query(self):
+        url = 'https://fake.url/path'
+        docid = azureupdatehelper.docid_from_url(url)
+        self.assertIsNone(docid)
+
+
+class TestRemoveHtmlTags(unittest.TestCase):
+    def test_remove_html_tags_no_tags(self):
+        text = "Just some text."
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), text)
+
+    def test_remove_html_tags_with_simple_tags(self):
+        text = "<b>Bold</b> text with <i>italic</i> tags."
+        expected = "Bold text with italic tags."
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), expected)
+
+    def test_remove_html_tags_nested_tags(self):
+        text = "<div><p>Paragraph with <span>nested</span> tag</p></div>"
+        expected = "Paragraph with nested tag"
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), expected)
+
+    def test_remove_html_tags_empty_string(self):
+        text = ""
+        self.assertEqual(azureupdatehelper.remove_html_tags(text), "")
+
+
 if __name__ == '__main__':
     unittest.main()

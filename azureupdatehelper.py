@@ -1,7 +1,6 @@
 import sys
 import os
 import requests
-import urllib
 import logging
 import re
 import feedparser
@@ -86,31 +85,25 @@ def get_update_urls(days):
 
 # URL から記事を順番に取得する
 def get_article(url):
-    # url からクエリ文字列を取得
-    query = urllib.parse.urlparse(url).query
-    if query is None or query == '':
-        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
-        return None
-
-    # クエリ文字列をリスト化
-    query_list = dict(urllib.parse.parse_qsl(query))
-    if query_list is None or query_list == '' or 'id' not in query_list:
-        logging.error(f"{url} からリスト化と id を取得できませんでした。")
-        return None
-
     # 記事用の url 生成
-    docid = query_list['id']
-    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
-    target_url = base_url + docid
+    docid = docid_from_url(url)
+    if docid is None:
+        logging.error(f"{url} から docid を取得できませんでした。")
+        return None
+    link = target_url(docid)
+    if link is None:
+        logging.error(f"{url} から link を取得できませんでした。")
+        return None
+
     # Azure Update API 用に header に User-Agent 設定
     headers = {
         "User-Agent": "Safari/605.1.15"
     }
 
     # 記事取得
-    response = requests.get(target_url, headers=headers)
+    response = requests.get(link, headers=headers)
     if response.status_code != 200:
-        logging.error(f"{target_url} から記事を取得できませんでした。")
+        logging.error(f"{link} から記事を取得できませんでした。")
         logging.error(f"Status Code is '{response.status_code}'")
         logging.error(f"Response Message is '{response.text}'")
         return None
@@ -134,42 +127,40 @@ def summarize_article(client, deployment_name, article):
         return None
 
 
+# Azure Update API の URL を生成
+def target_url(id):
+    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+    if id is None or id == '':
+        return None
+    return base_url + id
+
+
+# URL から記事 ID を取得
+def docid_from_url(url):
+    query = urlparse.urlparse(url).query
+    if query is None or query == '':
+        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        return None
+
+    query_list = dict(urlparse.parse_qsl(query))
+    if query_list is None or query_list == '' or 'id' not in query_list:
+        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        return None
+    return query_list['id']
+
+
+# description から HTML タグを削除
+def remove_html_tags(text):
+    return re.sub(r'<[^>]*?>', '', text)
+
+
 # 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, url):
-    # url からクエリ文字列を取得してリスト化する
-    query = urllib.parse.urlparse(url).query
-    query_list = dict(urllib.parse.parse_qsl(query))
-    logging.debug(query_list)
-
-    # query_list の中で id がキーの値を取得する
-    docid = query_list['id']
-
-    # url からクエリ文字列以外を取得する
-    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
-    target_url = base_url + docid
-    logging.debug(target_url)
-
-    # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
-    headers = {
-        "User-Agent": "Safari/605.1.15"
-    }
-
     # URL からデータをダウンロード
-    response = requests.get(target_url, headers=headers)
+    response = get_article(url)
+    if response is None:
+        return None
     logging.debug(response.text)
-
-    # response.text をパースして、title と description と publishedDate を取得
-    title = response.json()['title']
-    description = response.json()['description']
-    publishedDate = response.json()['created']
-    updatedDate = response.json()['modified']
-    products = response.json()['products']
-
-    # description から HTML タグを削除
-    description = re.sub(r'<[^>]*?>', '', description)
-
-    logging.debug(title)
-    logging.debug(description)
 
     # ダウンロードしたデータを Azure OpenAI で要約
     summary_list = client.chat.completions.create(
@@ -179,20 +170,33 @@ def read_and_summary(client, url):
             {"role": "user", "content": response.text}
         ]
     )
-
     summary = summary_list.choices[0].message.content
+    if summary is None:
+        logging.error("要約が生成されませんでした。")
+        return None
+
+    # URL から記事 ID を取得
+    docid = docid_from_url(url)
+    if docid is None:
+        logging.error(f"{url} から docid を取得できませんでした。")
+        return None
+    # description から HTML タグを削除
+    description = remove_html_tags(response.json()['description'])
+    if description is None:
+        logging.error(f"{response.json()['description']} の HTML タグの削除に失敗しました。")
+        return None
 
     # retval に title と description と summary を JSON 形式で格納
     retval = {
         "url": url,
-        "apiUrl": target_url,
+        "apiUrl": target_url(docid),
         "docId": docid,
-        "title": title,
-        "products": products,
+        "title": response.json()['title'],
+        "products": response.json()['products'],
         "description": description,
         "summary": summary,
-        "publishedDate": publishedDate,
-        "updatedDate": updatedDate
+        "publishedDate": response.json()['created'],
+        "updatedDate": response.json()['modified']
     }
     logging.debug(retval)
 
@@ -226,6 +230,7 @@ def main():
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
+    print(read_and_summary(client, urls[0]))
 
 
 if __name__ == "__main__":
