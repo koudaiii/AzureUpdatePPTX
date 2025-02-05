@@ -149,11 +149,6 @@ def read_and_summary(client, url):
     target_url = base_url + docid
     logging.debug(target_url)
 
-    # リクエストヘッダーをブラウザーからのアクセスとして偽装しないと Azure Update API が正しい応答を返さない
-    headers = {
-        "User-Agent": "Safari/605.1.15"
-    }
-
     # URL からデータをダウンロード
     response = get_article(url)
     logging.debug(response.text)
