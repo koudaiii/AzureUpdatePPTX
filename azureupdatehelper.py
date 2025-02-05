@@ -150,11 +150,6 @@ def read_and_summary(client, url):
     # query_list の中で id がキーの値を取得する
     docid = query_list['id']
 
-    # url からクエリ文字列以外を取得する
-    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
-    target_url = base_url + docid
-    logging.debug(target_url)
-
     # URL からデータをダウンロード
     response = get_article(url)
     logging.debug(response.text)
@@ -186,7 +181,7 @@ def read_and_summary(client, url):
     # retval に title と description と summary を JSON 形式で格納
     retval = {
         "url": url,
-        "apiUrl": target_url,
+        "apiUrl": target_url(docid),
         "docId": docid,
         "title": title,
         "products": products,
