@@ -182,7 +182,6 @@ def read_and_summary(client, url):
         + "説明内のリンク: " + ", ".join(get_a_href_from_html(response.json()['description']))
     )
 
-
     # ダウンロードしたデータを Azure OpenAI で要約
     summary_list = client.chat.completions.create(
         model=os.getenv("DEPLOYMENT_NAME"),
