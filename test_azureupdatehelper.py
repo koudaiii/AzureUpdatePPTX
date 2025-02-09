@@ -185,7 +185,7 @@ class TestSummarizeArticle(unittest.TestCase):
             "description": "<p>Some description with <a href='https://example.com'>link</a></p>"
         }
         summary = azureupdatehelper.summarize_article(mock_client, mock_deployment_name, article)
-        self.assertEqual(summary, "Fake Summary")
+        self.assertEqual(summary, ('Fake Summary', 'https://example.com'))
 
         content = 'タイトル: Dummy article content\n製品: Azure\n説明: Some description with link\n説明内のリンク: https://example.com'
         mock_chat_completions.create.assert_called_once_with(

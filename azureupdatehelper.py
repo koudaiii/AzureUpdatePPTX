@@ -115,11 +115,12 @@ def get_article(url):
 # 記事を要約する
 def summarize_article(client, deployment_name, article):
     try:
+        link = ", ".join(get_a_href_from_html(article['description']))
         content = (
             "タイトル: " + article['title'] + "\n"
             + "製品: " + ", ".join(article['products']) + "\n"
             + "説明: " + remove_html_tags(article['description']) + "\n"
-            + "説明内のリンク: " + ", ".join(get_a_href_from_html(article['description']))
+            + "説明内のリンク: " + link
         )
         # ダウンロードしたデータを Azure OpenAI で要約
         summary_list = client.chat.completions.create(
@@ -129,7 +130,7 @@ def summarize_article(client, deployment_name, article):
                 {"role": "user", "content": content}
             ]
         )
-        return summary_list.choices[0].message.content
+        return summary_list.choices[0].message.content, link
     except Exception as e:
         logging.error("An error occurred during summary generation: %s", e)
         return None
@@ -175,7 +176,7 @@ def read_and_summary(client, deployment_name, url):
         return None
     logging.debug(response.text)
 
-    summary = summarize_article(client, deployment_name, response.json())
+    summary, link = summarize_article(client, deployment_name, response.json())
     if summary is None:
         logging.error("要約が生成されませんでした。")
         return None
@@ -201,7 +202,8 @@ def read_and_summary(client, deployment_name, url):
         "description": description,
         "summary": summary,
         "publishedDate": response.json()['created'],
-        "updatedDate": response.json()['modified']
+        "updatedDate": response.json()['modified'],
+        "referenceLink": link
     }
     logging.debug(retval)
 
