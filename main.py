@@ -101,12 +101,23 @@ if st.button('PPTX 生成'):
         p.text = result["summary"]
         p.level = 0
 
+        # 参照リンク
         p = body_shape.text_frame.add_paragraph()
+        text = "参照リンク"
+        st.write(text)
+        p.text = text
         p.level = 1
-        r = p.add_run()
-        r.text = result["url"]
-        hlink = r.hyperlink
-        hlink.address = result["url"]
+
+        # 記事内のリンク
+        links = result["referenceLink"].split(",")
+        for link in links:
+            link = link.strip()
+            st.write(link)
+            p = body_shape.text_frame.add_paragraph()
+            p.level = 2
+            r = p.add_run()
+            r.text = link
+            r.hyperlink.address = link
 
         # 公開日の時刻データに標準準拠しないタイムゾーン情報が入っているので、それを削除してから利用。
         p = body_shape.text_frame.add_paragraph()
@@ -114,8 +125,21 @@ if st.button('PPTX 生成'):
         pubDate = result["publishedDate"][:idx]
 
         logging.info(result["publishedDate"])
-        p.text = "公開日: " + datetime.strptime(pubDate, '%Y-%m-%dT%H:%M:%S').strftime('%Y年%m月%d日')
+        text = "公開日: " + datetime.strptime(pubDate, '%Y-%m-%dT%H:%M:%S').strftime('%Y年%m月%d日')
+        st.write(text)
+        p.text = text
+        p.level = 1
+
+        # 記事リンク
+        p = body_shape.text_frame.add_paragraph()
         p.level = 2
+        r = p.add_run()
+        r.text = result["url"]
+        st.write(url)
+        hlink = r.hyperlink
+        hlink.address = result["url"]
+
+
         print("\n")
 
     # PPTX を保存
