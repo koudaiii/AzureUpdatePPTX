@@ -296,5 +296,46 @@ class TestGetAHrefFromHtml(unittest.TestCase):
         self.assertEqual(links, [], "Expected empty list for empty HTML string.")
 
 
+class TestLatestArticleDate(unittest.TestCase):
+    def test_latest_article_date_no_entries(self):
+        entries = []
+        result = azureupdatehelper.latest_article_date(entries)
+        self.assertIsNone(result)
+
+    def test_latest_article_date_single_entry(self):
+        mock_entry = MagicMock()
+        mock_entry.published = "Thu, 31 Oct 2024 21:45:07 Z"
+        entries = [mock_entry]
+        result = azureupdatehelper.latest_article_date(entries)
+        self.assertEqual(result, mock_entry.published)
+
+    def test_latest_article_date_multiple_entries(self):
+        mock_entry1 = MagicMock()
+        mock_entry1.published = "Thu, 31 Oct 2024 21:45:07 Z"
+        mock_entry2 = MagicMock()
+        mock_entry2.published = "Fri, 1 Nov 2024 09:30:07 Z"
+        entries = [mock_entry1, mock_entry2]
+        result = azureupdatehelper.latest_article_date(entries)
+        self.assertEqual(result, mock_entry1.published)
+
+
+class TestOldestArticleDate(unittest.TestCase):
+    def test_oldest_article_date_empty_entries(self):
+        entries = []
+        self.assertIsNone(azureupdatehelper.oldest_article_date(entries))
+
+    def test_oldest_article_date_single_entry(self):
+        entries = [MagicMock(published='Thu, 31 Oct 2024 21:45:07 Z')]
+        self.assertEqual(azureupdatehelper.oldest_article_date(entries), 'Thu, 31 Oct 2024 21:45:07 Z')
+
+    def test_oldest_article_date_multiple_entries(self):
+        entries = [
+            MagicMock(published='Thu, 31 Oct 2024 21:45:07 Z'),
+            MagicMock(published='Fri, 01 Nov 2024 10:30:00 Z'),
+            MagicMock(published='Sat, 02 Nov 2024 05:15:20 Z')
+        ]
+        self.assertEqual(azureupdatehelper.oldest_article_date(entries), 'Sat, 02 Nov 2024 05:15:20 Z')
+
+
 if __name__ == '__main__':
     unittest.main()
