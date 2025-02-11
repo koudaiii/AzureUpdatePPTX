@@ -98,6 +98,20 @@ def get_update_urls(days):
     return urls
 
 
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def target_update_urls(entries, days):
+    start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
+    urls = []
+    for entry in entries:
+        # DATE_FORMAT から datetime に変換
+        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
+        if published_at is None:
+            continue
+        if (published_at > start_date):
+            urls.append(entry.link)
+    return urls
+
+
 # URL から記事を順番に取得する
 def get_article(url):
     # 記事用の url 生成
