@@ -139,7 +139,6 @@ if st.button('PPTX 生成'):
         hlink = r.hyperlink
         hlink.address = result["url"]
 
-
         print("\n")
 
     # PPTX を保存
