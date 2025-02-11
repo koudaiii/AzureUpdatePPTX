@@ -63,6 +63,20 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint), deployment_name
 
 
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def latest_article_date(entries):
+    if len(entries) == 0:
+        return None
+    return entries[0].published
+
+
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def oldest_article_date(entries):
+    if len(entries) == 0:
+        return None
+    return entries[-1].published
+
+
 # Azure Update の RSS フィードを読み込んでエントリーを取得
 def get_rss_feed_entries():
     feed = feedparser.parse(RSS_URL)
