@@ -12,12 +12,20 @@ load_dotenv()
 st.title('Azure Update PPTX Generator')
 
 # 何日前までのアップデートを取得するか streamlit で指定
-days = st.slider('何日前までのアップデートを取得しますか？', 1, 30, 7)
+days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
 
 # スライドのファイル名の拡張子なしの文字列を入力
 name_prefix = st.text_input('スライドのファイル名を拡張子なしで入力してください。', 'AzureUpdates')
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
+
+# Azure Update API からデータを取得
+st.write('データ取得中...')
+entries = azup.get_rss_feed_entries()
+st.write(
+    f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から "
+    f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
+)
 
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
@@ -26,10 +34,7 @@ if st.button('PPTX 生成'):
         st.error('環境変数が不足しています。.env ファイルを確認してください。')
         st.stop()
 
-    # Azure Update API からデータを取得
-    st.write('データ取得中...')
-    urls = azup.get_update_urls(days)
-
+    urls = azup.target_update_urls(entries, days)
     st.write(f"Azureアップデートは {len(urls)} 件です。")
     st.write('含まれる Azure Update の URL は以下の通りです。')
     st.write(urls)

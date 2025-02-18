@@ -63,6 +63,22 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint), deployment_name
 
 
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def latest_article_date(entries):
+    if len(entries) == 0:
+        return None
+    # 日付 yyyy-mm-dd に変換
+    return datetime.strptime(entries[0].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
+
+
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def oldest_article_date(entries):
+    if len(entries) == 0:
+        return None
+    # 日付 yyyy-mm-dd に変換
+    return datetime.strptime(entries[-1].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
+
+
 # Azure Update の RSS フィードを読み込んでエントリーを取得
 def get_rss_feed_entries():
     feed = feedparser.parse(RSS_URL)
@@ -72,6 +88,20 @@ def get_rss_feed_entries():
 # entries から published が指定された日数以内のエントリーの URL をリスト化
 def get_update_urls(days):
     entries = get_rss_feed_entries()
+    start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
+    urls = []
+    for entry in entries:
+        # DATE_FORMAT から datetime に変換
+        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
+        if published_at is None:
+            continue
+        if (published_at > start_date):
+            urls.append(entry.link)
+    return urls
+
+
+# entries から published が指定された日数以内のエントリーの URL をリスト化
+def target_update_urls(entries, days):
     start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
     urls = []
     for entry in entries:
@@ -229,11 +259,9 @@ def main():
     print("Environment variables OK.")
     client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
-
     entries = get_rss_feed_entries()
     print(f"RSS フィードのエントリーは {len(entries)} 件です。")
-
-    urls = get_update_urls(DAYS)
+    urls = target_update_urls(entries, DAYS)
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
