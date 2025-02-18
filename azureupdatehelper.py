@@ -67,14 +67,16 @@ def azure_openai_client(key, endpoint):
 def latest_article_date(entries):
     if len(entries) == 0:
         return None
-    return entries[0].published
+    # 日付 yyyy-mm-dd に変換
+    return datetime.strptime(entries[0].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
 
 
 # entries から published が指定された日数以内のエントリーの URL をリスト化
 def oldest_article_date(entries):
     if len(entries) == 0:
         return None
-    return entries[-1].published
+    # 日付 yyyy-mm-dd に変換
+    return datetime.strptime(entries[-1].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
 
 
 # Azure Update の RSS フィードを読み込んでエントリーを取得

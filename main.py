@@ -19,6 +19,11 @@ name_prefix = st.text_input('スライドのファイル名を拡張子なしで
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
+# Azure Update API からデータを取得
+st.write('データ取得中...')
+entries = azup.get_rss_feed_entries()
+st.write(f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から {azup.latest_article_date(entries)} の {len(entries)} 件です。")
+
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
     # 環境変数が不足している場合はエラーを表示して終了
@@ -26,9 +31,6 @@ if st.button('PPTX 生成'):
         st.error('環境変数が不足しています。.env ファイルを確認してください。')
         st.stop()
 
-    # Azure Update API からデータを取得
-    st.write('データ取得中...')
-    entries = azup.get_rss_feed_entries
     urls = azup.target_update_urls(entries, days)
     st.write(f"Azureアップデートは {len(urls)} 件です。")
     st.write('含まれる Azure Update の URL は以下の通りです。')
