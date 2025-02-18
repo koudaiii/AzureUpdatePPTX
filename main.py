@@ -22,7 +22,10 @@ save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 # Azure Update API からデータを取得
 st.write('データ取得中...')
 entries = azup.get_rss_feed_entries()
-st.write(f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から {azup.latest_article_date(entries)} の {len(entries)} 件です。")
+st.write(
+    f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から "
+    f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
+)
 
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
