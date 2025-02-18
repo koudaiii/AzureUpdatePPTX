@@ -26,6 +26,9 @@ systemprompt = ("渡されたデータに含まれている Azure のアップ�
 # 日付フォーマット 'Thu, 23 Jan 2025 21:30:21 Z' は RSS フィードの published で使用
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
 
+# タイムゾーン指定
+os.environ['TZ'] = 'UTC'
+
 
 # 環境変数のチェック
 def environment_check():
