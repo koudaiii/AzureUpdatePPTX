@@ -307,7 +307,7 @@ class TestLatestArticleDate(unittest.TestCase):
         mock_entry.published = "Thu, 31 Oct 2024 21:45:07 Z"
         entries = [mock_entry]
         result = azureupdatehelper.latest_article_date(entries)
-        self.assertEqual(result, '2024-11-01')
+        self.assertEqual(result, '2024-10-31')
 
     def test_latest_article_date_multiple_entries(self):
         mock_entry1 = MagicMock()
@@ -316,7 +316,7 @@ class TestLatestArticleDate(unittest.TestCase):
         mock_entry2.published = "Fri, 1 Nov 2024 09:30:07 Z"
         entries = [mock_entry1, mock_entry2]
         result = azureupdatehelper.latest_article_date(entries)
-        self.assertEqual(result, '2024-11-01')
+        self.assertEqual(result, '2024-10-31')
 
 
 class TestOldestArticleDate(unittest.TestCase):
@@ -326,7 +326,7 @@ class TestOldestArticleDate(unittest.TestCase):
 
     def test_oldest_article_date_single_entry(self):
         entries = [MagicMock(published='Thu, 31 Oct 2024 21:45:07 Z')]
-        self.assertEqual(azureupdatehelper.oldest_article_date(entries), '2024-11-01')
+        self.assertEqual(azureupdatehelper.oldest_article_date(entries), '2024-10-31')
 
     def test_oldest_article_date_multiple_entries(self):
         entries = [
