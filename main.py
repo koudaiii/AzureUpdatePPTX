@@ -12,7 +12,7 @@ load_dotenv()
 st.title('Azure Update PPTX Generator')
 
 # 何日前までのアップデートを取得するか streamlit で指定
-days = st.slider('何日前までのアップデートを取得しますか？', 1, 30, 7)
+days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
 
 # スライドのファイル名の拡張子なしの文字列を入力
 name_prefix = st.text_input('スライドのファイル名を拡張子なしで入力してください。', 'AzureUpdates')
