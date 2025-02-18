@@ -257,11 +257,9 @@ def main():
     print("Environment variables OK.")
     client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
-
     entries = get_rss_feed_entries()
     print(f"RSS フィードのエントリーは {len(entries)} 件です。")
-
-    urls = get_update_urls(DAYS)
+    urls = target_update_urls(entries, DAYS)
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
