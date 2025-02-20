@@ -243,7 +243,7 @@ def end_date():
 if st.button('PPTX 生成'):
     # 環境変数が不足している場合はエラーを表示して終了
     if not azup.environment_check():
-        st.error('環境変数が不足しています。.env ファイルを確認してください。')
+        st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
         st.stop()
 
     st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')

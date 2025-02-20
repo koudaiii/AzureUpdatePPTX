@@ -8,6 +8,3 @@ fi
 
 ## stop docker container
 docker stop azureupdatepptx
-
-## Remove docker container
-docker rm azureupdatepptx

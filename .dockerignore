@@ -1,5 +1,6 @@
-__blobstorage__
-__pycache__
-.venv
-__azurite_db_blob_extent__.json
-__azurite_db_blob__.json
+*
+!azureupdatehelper.py
+!main.py
+!requirements.txt
+!script/
+!template/
