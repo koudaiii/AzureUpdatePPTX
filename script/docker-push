@@ -2,9 +2,6 @@
 DOCKER_IMAGE=koudaiii/azureupdatepptx
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
-## Login to docker
-echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-
 ## Build docker image
 docker build -t $DOCKER_IMAGE:$GIT_COMMIT -t $DOCKER_IMAGE:latest .
 
@@ -15,6 +12,6 @@ if ! docker image inspect $DOCKER_IMAGE:latest > /dev/null; then
 fi
 
 ## Push docker image
-docker push $DOCKER_IMAGE:GIT_COMMIT
+docker push $DOCKER_IMAGE:$GIT_COMMIT
 docker push $DOCKER_IMAGE:latest
 
