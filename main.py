@@ -27,6 +27,51 @@ st.write(
     f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
 )
 
+
+# スライドのタイトル
+def set_slide_title(shape, text, font_size=Pt(24)):
+    shape.text = text
+    if shape.text_frame and shape.text_frame.paragraphs:
+        shape.text_frame.paragraphs[0].font.size = font_size
+
+
+# 公開日 published_date_text と azure_update_url を一行の文として追加
+def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
+    text_frame.clear()
+    p = text_frame.paragraphs[0]
+    run = p.add_run()
+    run.text = f"{prefix}"
+    run.hyperlink.address = url
+    run.font.size = font_size
+
+
+# 本文 summary を追加
+def add_body_summary(slide, summary):
+    body_shape = slide.placeholders[11]
+    text_frame = body_shape.text_frame
+    text_frame.clear()
+    # 既存の段落が無い場合は、新たに段落を追加する
+    paragraph = text_frame.paragraphs[0] if text_frame.paragraphs else text_frame.add_paragraph()
+    paragraph.text = summary
+    paragraph.level = 0
+
+
+# 参照リンク reference_links を追加
+def add_reference_links(text_frame, label, links):
+    # Add header for the reference links
+    header = text_frame.add_paragraph()
+    header.text = label
+    header.level = 2
+    # Add each link as a new paragraph with a hyperlink
+    for link in links:
+        link = link.strip()
+        p = text_frame.add_paragraph()
+        p.level = 3
+        run = p.add_run()
+        run.text = link
+        run.hyperlink.address = link
+
+
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
     # 環境変数が不足している場合はエラーを表示して終了
