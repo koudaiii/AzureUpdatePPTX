@@ -27,6 +27,218 @@ st.write(
     f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
 )
 
+
+# スライドのタイトル
+def set_slide_title(shape, text, font_size=Pt(24)):
+    shape.text = text
+    if shape.text_frame and shape.text_frame.paragraphs:
+        shape.text_frame.paragraphs[0].font.size = font_size
+
+
+# 公開日 published_date_text と azure_update_url を一行の文として追加
+def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
+    text_frame.clear()
+    p = text_frame.paragraphs[0]
+    run = p.add_run()
+    run.text = f"{prefix}"
+    run.hyperlink.address = url
+    run.font.size = font_size
+
+
+# 本文 summary を追加
+def add_body_summary(slide, summary):
+    body_shape = slide.placeholders[11]
+    text_frame = body_shape.text_frame
+    text_frame.clear()
+    # 既存の段落が無い場合は、新たに段落を追加する
+    paragraph = text_frame.paragraphs[0] if text_frame.paragraphs else text_frame.add_paragraph()
+    paragraph.text = summary
+    paragraph.level = 0
+
+
+# 参照リンク reference_links を追加
+def add_reference_links(text_frame, label, links):
+    # Add header for the reference links
+    header = text_frame.add_paragraph()
+    header.text = label
+    header.level = 2
+    # Add each link as a new paragraph with a hyperlink
+    for link in links:
+        link = link.strip()
+        p = text_frame.add_paragraph()
+        p.level = 3
+        run = p.add_run()
+        run.text = link
+        run.hyperlink.address = link
+
+
+# タイトルスライドを作成
+def create_title_slide(prs, title, date_str):
+    """
+    Creates and configures the title slide using the first layout.
+
+    Args:
+        prs: Presentation object.
+        title: Title text for the slide.
+        date_str: Date string to display in the date placeholder.
+
+    Returns:
+        The created slide.
+    """
+    slide_layout = prs.slide_layouts[0]
+    slide = prs.slides.add_slide(slide_layout)
+
+    # Set the slide title.
+    slide.shapes.title.text = title
+
+    # Set the date in the designated placeholder.
+    try:
+        date_placeholder = slide.placeholders[13]
+        date_placeholder.text = date_str
+    except IndexError:
+        # Log if the expected placeholder index is not found.
+        logging.error("Placeholder index 13 for date not found in the title slide.")
+    return slide
+
+
+# セクションタイトルスライドを作成
+def create_section_title_slide(prs, update_count):
+    """
+    Creates a section title slide indicating the total number of Azure updates.
+    Args:
+        prs: The Presentation object.
+        update_count: The number of Azure updates.
+
+    Returns:
+        A tuple containing the created slide and its first placeholder.
+    """
+    layout = prs.slide_layouts[27]
+    slide = prs.slides.add_slide(layout)
+    slide.shapes.title.text = (
+        f"Azureアップデートは {update_count} 件です。\n"
+        "※ Azure OpenAI で要約しています。"
+    )
+    return slide, slide.placeholders[0]
+
+
+# Azure Update の情報を表示
+def display_update_info(title, url, published_date, summary, ref_label, ref_links):
+    st.write('')
+    st.markdown(f"「{title}」", unsafe_allow_html=True)
+    st.markdown(
+        f"<small><a href='{url}' target='_blank'>{published_date}</a></small>",
+        unsafe_allow_html=True
+    )
+    st.markdown(f"<small>{summary}</small>", unsafe_allow_html=True)
+    st.markdown(f"<small>{ref_label}</small>", unsafe_allow_html=True)
+    for link in ref_links:
+        st.markdown(
+            f"<p style='line-height:80%; margin-bottom:10px; padding:0;'>"
+            f"<a href='{link}' target='_blank'>{link}</a></p>",
+            unsafe_allow_html=True
+        )
+    st.write('')
+
+
+# Azure Update のスライドを作成
+def create_update_slide(prs, title, published_date, url, summary, ref_label, ref_links):
+    """Creates a new slide for an Azure update and configures its elements."""
+    layout = prs.slide_layouts[10]
+    slide = prs.slides.add_slide(layout)
+
+    # Set slide title
+    set_slide_title(slide.shapes.title, title)
+
+    # Add published date with hyperlink (using placeholder index 10)
+    try:
+        ph_date = slide.placeholders[10].text_frame
+        add_hyperlink_text(ph_date, published_date, url)
+    except IndexError:
+        logging.error("Placeholder index 10 not found in update slide.")
+
+    # Add summary/body content
+    add_body_summary(slide, summary)
+
+    # Add reference links (using placeholder index 11)
+    try:
+        ph_refs = slide.placeholders[11].text_frame
+        add_reference_links(ph_refs, ref_label, ref_links)
+    except IndexError:
+        logging.error("Placeholder index 11 not found in update slide.")
+
+    return slide
+
+
+# Azure Update の情報を抽出
+def extract_update_data(result):
+    title = result.get("title", "No Title")
+    published_date_raw = result.get("publishedDate", "")
+    published_date_str = published_date_raw.split(".")[0] if published_date_raw else ""
+    try:
+        dt = datetime.strptime(published_date_str, '%Y-%m-%dT%H:%M:%S')
+        published_date_text = f"公開日: {dt.strftime('%Y年%m月%d日')}"
+    except ValueError:
+        published_date_text = "公開日: 不明"
+    url = result.get("url", "")
+    summary = result.get("summary", "")
+    ref_label = "参照リンク: "
+    ref_links = [link.strip() for link in result.get("referenceLink", "").split(",") if link.strip()]
+    return title, published_date_text, url, summary, ref_label, ref_links
+
+
+# Azure Update のコンテンツ作成
+def process_update(url, client, deployment_name, prs):
+    # Process and log Azure Update information
+    logging.info("***** Begin of Record *****")
+    result = azup.read_and_summary(client, deployment_name, url)
+    logging.debug("Result: %s", result)
+    for key, value in result.items():
+        logging.info("%s : %s", key, value)
+    logging.info("***** End of Record *****")
+
+    # Extract update data from the result
+    (
+        azure_update_title,
+        published_date_text,
+        azure_update_url,
+        azure_update_summary,
+        reference_link_label,
+        reference_links,
+    ) = extract_update_data(result)
+
+    # Display update information via Streamlit
+    display_update_info(azure_update_title, azure_update_url, published_date_text,
+                        azure_update_summary, reference_link_label, reference_links)
+
+    # Create and add the update slide to the presentation
+    create_update_slide(prs, azure_update_title, published_date_text, azure_update_url,
+                        azure_update_summary, reference_link_label, reference_links)
+
+
+# スライドのタイトルと日付を生成
+def generate_slide_info(start_date, end_date) -> tuple[str, str]:
+    slide_title = f"Azure Updates {start_date.strftime('%Y/%m/%d')} ~ {end_date.strftime('%Y/%m/%d')}"
+    return slide_title
+
+
+# Azure Update の URL を表示
+def display_update_urls(urls):
+    update_count = len(urls)
+    st.write(f"Azureアップデートは {update_count} 件です。")
+    st.write("含まれる Azure Update の URL は以下の通りです。")
+    st.write(urls)
+
+
+# 指定された日付
+def start_date(days):
+    return datetime.now().astimezone() - timedelta(days)
+
+
+# 終了日時は現在時刻
+def end_date():
+    return datetime.now().astimezone()
+
+
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
 if st.button('PPTX 生成'):
     # 環境変数が不足している場合はエラーを表示して終了
@@ -34,117 +246,30 @@ if st.button('PPTX 生成'):
         st.error('環境変数が不足しています。.env ファイルを確認してください。')
         st.stop()
 
-    urls = azup.target_update_urls(entries, days)
-    st.write(f"Azureアップデートは {len(urls)} 件です。")
-    st.write('含まれる Azure Update の URL は以下の通りです。')
-    st.write(urls)
+    st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
+    urls = azup.target_update_urls(entries, start_date(days))
+    display_update_urls(urls)
 
     # PPTX 生成処理
     st.write('PPTX 生成中...')
 
-    # 初期設定
-    # スライドタイトルテキスト
-    start_date_str = (datetime.now() - timedelta(days=days)).strftime('%Y/%m/%d')
-    end_date_str = datetime.now().strftime('%Y/%m/%d')
-    slide_title = f"Azure Updates {start_date_str} ~ {end_date_str}"
+    # Generate slide title and date string
+    slide_title = generate_slide_info(start_date(days), end_date())
 
-    # PPTX の保存先を一時ファイルに指定
-    pptx_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_prs = Presentation("template/gpstemplate.pptx")
-    prs = tmp_prs
+    # Create a temporary PPTX file using a template
+    pptx_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pptx")
+    prs = Presentation("template/gpstemplate.pptx")
 
-    # 1枚目（タイトルスライドを自動生成)
-    title_slide_layout = prs.slide_layouts[0]
-    slide = prs.slides.add_slide(title_slide_layout)
-    title_shape = slide.shapes.title
-    date_ph = slide.placeholders[13]
-    title_shape.text = slide_title
-    date_ph.text = end_date_str
-    auth_ph = slide.placeholders[12]
+    # スライド一枚目（タイトルスライド）
+    slide = create_title_slide(prs, slide_title, end_date().strftime('%Y%m%d%H%M%S'))
+    # スライド二枚目（セクションタイトルスライド）
+    slide, date_ph = create_section_title_slide(prs, len(urls))
 
-    # 2枚目(スライドレイアウト ID 27 のプレースホルダーに、いつからいつまでの情報が入っているか記載)
-    section_title_slide_layout = prs.slide_layouts[27]
-    slide = prs.slides.add_slide(section_title_slide_layout)
-    title_shape = slide.shapes.title
-    title_shape.text = f"Azureアップデートは {len(urls)} 件です。\n※ Azure OpenAI で要約しています。"
-    date_ph = slide.placeholders[0]
-
-    # 3枚目以降（Azure Update の情報をスライドに追加)
+    # Azure OpenAI のクライアントを取得
     client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    # Azure Update の情報を取得してスライドを作成
     for url in urls:
-        print("\n")
-        logging.info("***** Begin of Record *****")
-        result = azup.read_and_summary(client, deployment_name, url)
-        # result の中身をログに出力
-        logging.debug(result)
-
-        # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
-        for key in result.keys():
-            print(f"{key} : {result[key]}")
-        logging.info("***** End of Recode *****")
-
-        st.write('以下の Azure Update の情報をスライドに追加しています。')
-        st.write(result["title"])
-        st.write(result["summary"])
-
-        # スライドマスタの3番目にあるレイアウト（社内テンプレではタイトルと箇条書きテキスト）を選択
-        main_layout = prs.slide_layouts[2]
-
-        # スライドを一枚追加
-        slide = prs.slides.add_slide(main_layout)
-        title_shape = slide.shapes.title
-        title_shape.text = result["title"]
-
-        # title_shapeのフォントサイズを26ptにする
-        title_shape.text_frame.paragraphs[0].font.size = Pt(26)
-
-        # body_shape にプレースホルダー 1 を割り当て
-        body_shape = slide.placeholders[10]
-
-        # プレースホルダー1に諸々のコンテンツを流し込み
-        p = body_shape.text_frame.add_paragraph()
-        p.text = result["summary"]
-        p.level = 0
-
-        # 参照リンク
-        p = body_shape.text_frame.add_paragraph()
-        text = "参照リンク"
-        st.write(text)
-        p.text = text
-        p.level = 1
-
-        # 記事内のリンク
-        links = result["referenceLink"].split(",")
-        for link in links:
-            link = link.strip()
-            st.write(link)
-            p = body_shape.text_frame.add_paragraph()
-            p.level = 2
-            r = p.add_run()
-            r.text = link
-            r.hyperlink.address = link
-
-        # 公開日の時刻データに標準準拠しないタイムゾーン情報が入っているので、それを削除してから利用。
-        p = body_shape.text_frame.add_paragraph()
-        idx = result["publishedDate"].find(".")
-        pubDate = result["publishedDate"][:idx]
-
-        logging.info(result["publishedDate"])
-        text = "公開日: " + datetime.strptime(pubDate, '%Y-%m-%dT%H:%M:%S').strftime('%Y年%m月%d日')
-        st.write(text)
-        p.text = text
-        p.level = 1
-
-        # 記事リンク
-        p = body_shape.text_frame.add_paragraph()
-        p.level = 2
-        r = p.add_run()
-        r.text = result["url"]
-        st.write(url)
-        hlink = r.hyperlink
-        hlink.address = result["url"]
-
-        print("\n")
+        process_update(url, client, deployment_name, prs)
 
     # PPTX を保存
     prs.save(pptx_file.name)
@@ -153,10 +278,6 @@ if st.button('PPTX 生成'):
     try:
         with open(pptx_file.name, "rb") as f:
             st.download_button("Download PPTX", f.read(), file_name=save_name)
-
-        # .env の Azure Storage の設定を読み込み
-        azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-        container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
     finally:
         pptx_file.close()
         # 一時ファイルを削除
