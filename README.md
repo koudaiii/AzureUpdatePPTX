@@ -6,20 +6,28 @@ AzureUpdatePPTX は、Azure の最新情報を自動的に取得し、PowerPoint
 
 ## 特徴
 
-- Azure の最新情報を自動取得
+- Azure の最新情報を自動取得(最大90日分)
+- Azure OpenAI を利用して Azure の最新情報を三行に要約ならびにリンクを取得
 - PowerPoint プレゼンテーションの自動生成
 
-
 ## 事前にデプロイする Azure サービス
-- Azure OpenAI
-  - GPT-4o のモデルデプロイメント
 
-## 使い方
+- Azure OpenAI(GPT-4o のモデルデプロイメント)
+
+## Docker での実行
+
+```console
+docker run -p 8000:8000 --env API_KEY=<fake_key> --env API_ENDPOINT=https://example.com/deployments/test/?api-version=2024-08-01-preview koudaiii/azureupdatepptx
+```
+
+ブラウザで `http://localhost:8000` にアクセスします
+
+## 開発
 
 1. `git clone https://github.com/koudaiii/AzureUpdatePPTX.git`
 2. `cd AzureUpdatePPTX`
 3. .env.template を .env としてコピーします。Azure OpenAI の API Key, API Endpoint の接続文字列を設定します。
-   ```sh
+   ```console
    cp .env.sample .env
    ```
 4. セットアップします。
@@ -27,21 +35,8 @@ AzureUpdatePPTX は、Azure の最新情報を自動的に取得し、PowerPoint
    $ script/bootstrap
    ```
 6. サーバーを起動します。
-   ```sh
+   ```console
    script/server
-   ```
-
-ブラウザで `http://localhost:8000` にアクセスします
-
-## Docker での実行
-
-1. docker build
-   ```sh
-   script/docker-bootstrap
-   ```
-2. Docker コンテナを起動します
-   ```sh
-   script/docker-server
    ```
 
 ブラウザで `http://localhost:8000` にアクセスします
