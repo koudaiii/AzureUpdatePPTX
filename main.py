@@ -246,117 +246,30 @@ if st.button('PPTX 生成'):
         st.error('環境変数が不足しています。.env ファイルを確認してください。')
         st.stop()
 
-    urls = azup.target_update_urls(entries, days)
-    st.write(f"Azureアップデートは {len(urls)} 件です。")
-    st.write('含まれる Azure Update の URL は以下の通りです。')
-    st.write(urls)
+    st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
+    urls = azup.target_update_urls(entries, start_date(days))
+    display_update_urls(urls)
 
     # PPTX 生成処理
     st.write('PPTX 生成中...')
 
-    # 初期設定
-    # スライドタイトルテキスト
-    start_date_str = (datetime.now() - timedelta(days=days)).strftime('%Y/%m/%d')
-    end_date_str = datetime.now().strftime('%Y/%m/%d')
-    slide_title = f"Azure Updates {start_date_str} ~ {end_date_str}"
+    # Generate slide title and date string
+    slide_title = generate_slide_info(start_date(days), end_date())
 
-    # PPTX の保存先を一時ファイルに指定
-    pptx_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_prs = Presentation("template/gpstemplate.pptx")
-    prs = tmp_prs
+    # Create a temporary PPTX file using a template
+    pptx_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pptx")
+    prs = Presentation("template/gpstemplate.pptx")
 
-    # 1枚目（タイトルスライドを自動生成)
-    title_slide_layout = prs.slide_layouts[0]
-    slide = prs.slides.add_slide(title_slide_layout)
-    title_shape = slide.shapes.title
-    date_ph = slide.placeholders[13]
-    title_shape.text = slide_title
-    date_ph.text = end_date_str
-    auth_ph = slide.placeholders[12]
+    # スライド一枚目（タイトルスライド）
+    slide = create_title_slide(prs, slide_title, end_date().strftime('%Y%m%d%H%M%S'))
+    # スライド二枚目（セクションタイトルスライド）
+    slide, date_ph = create_section_title_slide(prs, len(urls))
 
-    # 2枚目(スライドレイアウト ID 27 のプレースホルダーに、いつからいつまでの情報が入っているか記載)
-    section_title_slide_layout = prs.slide_layouts[27]
-    slide = prs.slides.add_slide(section_title_slide_layout)
-    title_shape = slide.shapes.title
-    title_shape.text = f"Azureアップデートは {len(urls)} 件です。\n※ Azure OpenAI で要約しています。"
-    date_ph = slide.placeholders[0]
-
-    # 3枚目以降（Azure Update の情報をスライドに追加)
+    # Azure OpenAI のクライアントを取得
     client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+    # Azure Update の情報を取得してスライドを作成
     for url in urls:
-        print("\n")
-        logging.info("***** Begin of Record *****")
-        result = azup.read_and_summary(client, deployment_name, url)
-        # result の中身をログに出力
-        logging.debug(result)
-
-        # result の中身は json なので、パースして一行ずつ出力。出力は 要素名 : 値 とする
-        for key in result.keys():
-            print(f"{key} : {result[key]}")
-        logging.info("***** End of Recode *****")
-
-        st.write('以下の Azure Update の情報をスライドに追加しています。')
-        st.write(result["title"])
-        st.write(result["summary"])
-
-        # スライドマスタの3番目にあるレイアウト（社内テンプレではタイトルと箇条書きテキスト）を選択
-        main_layout = prs.slide_layouts[2]
-
-        # スライドを一枚追加
-        slide = prs.slides.add_slide(main_layout)
-        title_shape = slide.shapes.title
-        title_shape.text = result["title"]
-
-        # title_shapeのフォントサイズを26ptにする
-        title_shape.text_frame.paragraphs[0].font.size = Pt(26)
-
-        # body_shape にプレースホルダー 1 を割り当て
-        body_shape = slide.placeholders[10]
-
-        # プレースホルダー1に諸々のコンテンツを流し込み
-        p = body_shape.text_frame.add_paragraph()
-        p.text = result["summary"]
-        p.level = 0
-
-        # 参照リンク
-        p = body_shape.text_frame.add_paragraph()
-        text = "参照リンク"
-        st.write(text)
-        p.text = text
-        p.level = 1
-
-        # 記事内のリンク
-        links = result["referenceLink"].split(",")
-        for link in links:
-            link = link.strip()
-            st.write(link)
-            p = body_shape.text_frame.add_paragraph()
-            p.level = 2
-            r = p.add_run()
-            r.text = link
-            r.hyperlink.address = link
-
-        # 公開日の時刻データに標準準拠しないタイムゾーン情報が入っているので、それを削除してから利用。
-        p = body_shape.text_frame.add_paragraph()
-        idx = result["publishedDate"].find(".")
-        pubDate = result["publishedDate"][:idx]
-
-        logging.info(result["publishedDate"])
-        text = "公開日: " + datetime.strptime(pubDate, '%Y-%m-%dT%H:%M:%S').strftime('%Y年%m月%d日')
-        st.write(text)
-        p.text = text
-        p.level = 1
-
-        # 記事リンク
-        p = body_shape.text_frame.add_paragraph()
-        p.level = 2
-        r = p.add_run()
-        r.text = result["url"]
-        st.write(url)
-        hlink = r.hyperlink
-        hlink.address = result["url"]
-
-        print("\n")
+        process_update(url, client, deployment_name, prs)
 
     # PPTX を保存
     prs.save(pptx_file.name)
