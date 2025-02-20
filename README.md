@@ -17,7 +17,10 @@ AzureUpdatePPTX は、Azure の最新情報を自動的に取得し、PowerPoint
 ## Docker での実行
 
 ```console
-docker run -p 8000:8000 --env API_KEY=<fake_key> --env API_ENDPOINT=https://example.com/deployments/test/?api-version=2024-08-01-preview koudaiii/azureupdatepptx
+$ docker run --rm -p 8000:8000 --env API_KEY=<fake_key> --env API_ENDPOINT=https://example.com/deployments/test/?api-version=2024-08-01-preview koudaiii/azureupdatepptx
+or
+$ cp .env.sample
+$ docker run --rm -p 8000:8000 --env-file .env koudaiii/azureupdatepptx
 ```
 
 ブラウザで `http://localhost:8000` にアクセスします
