@@ -252,6 +252,11 @@ def main():
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
         print("Usage: cp .env.template .env; python azureupdatehelper.py")
         return
+    # コマンドライン引数の取得
+    # python azureupdatehelper.py [--days 7]
+    if len(sys.argv) > 2 and sys.argv[1] == "--days":
+        global DAYS
+        DAYS = int(sys.argv[2])
 
     print("Checking environment variables...")
     # 環境変数が不足している場合はエラーを表示して終了
@@ -263,11 +268,21 @@ def main():
     print("Client: ", client)
     entries = get_rss_feed_entries()
     print(f"RSS フィードのエントリーは {len(entries)} 件です。")
-    urls = target_update_urls(entries, DAYS)
+    start_date = datetime.now().astimezone() - timedelta(days=DAYS)
+    print(f"開始日時: {start_date.strftime('%Y-%m-%d')}")
+    urls = target_update_urls(entries, start_date)
     print(f"Azureアップデートは {len(urls)} 件です。")
     print('含まれる Azure Update の URL は以下の通りです。')
     print(urls)
-    print(read_and_summary(client, deployment_name, urls[0]))
+    for url in urls:
+        result = read_and_summary(client, deployment_name, url)
+        if result is None:
+            continue
+        print("--------------------")
+        for key, value in result.items():
+            print(f"{key}: {value}")
+            print()
+        print("--------------------")
 
 
 if __name__ == "__main__":
