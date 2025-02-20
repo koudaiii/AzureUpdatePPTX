@@ -28,14 +28,14 @@ st.write(
 )
 
 
-# スライドのタイトル
+# Azure Update スライドにタイトル設定
 def set_slide_title(shape, text, font_size=Pt(24)):
     shape.text = text
     if shape.text_frame and shape.text_frame.paragraphs:
         shape.text_frame.paragraphs[0].font.size = font_size
 
 
-# 公開日 published_date_text と azure_update_url を一行の文として追加
+# Azure Update スライドに公開日 published_date_text と azure_update_url を一行の文として追加
 def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
     text_frame.clear()
     p = text_frame.paragraphs[0]
@@ -45,7 +45,7 @@ def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
     run.font.size = font_size
 
 
-# 本文 summary を追加
+# Azure Update スライドに本文 summary を追加
 def add_body_summary(slide, summary):
     body_shape = slide.placeholders[11]
     text_frame = body_shape.text_frame
@@ -56,7 +56,7 @@ def add_body_summary(slide, summary):
     paragraph.level = 0
 
 
-# 参照リンク reference_links を追加
+# Azure Update スライドに参照リンク reference_links を追加
 def add_reference_links(text_frame, label, links):
     # Add header for the reference links
     header = text_frame.add_paragraph()
@@ -72,7 +72,7 @@ def add_reference_links(text_frame, label, links):
         run.hyperlink.address = link
 
 
-# タイトルスライドを作成
+# 表紙を作成
 def create_title_slide(prs, title, date_str):
     """
     Creates and configures the title slide using the first layout.
@@ -140,7 +140,7 @@ def display_update_info(title, url, published_date, summary, ref_label, ref_link
     st.write('')
 
 
-# Azure Update のスライドを作成
+# Azure Update スライドに追加
 def create_update_slide(prs, title, published_date, url, summary, ref_label, ref_links):
     """Creates a new slide for an Azure update and configures its elements."""
     layout = prs.slide_layouts[10]
@@ -169,7 +169,7 @@ def create_update_slide(prs, title, published_date, url, summary, ref_label, ref
     return slide
 
 
-# Azure Update の情報を抽出
+# Azure Update の内容を生成
 def extract_update_data(result):
     title = result.get("title", "No Title")
     published_date_raw = result.get("publishedDate", "")
@@ -186,7 +186,7 @@ def extract_update_data(result):
     return title, published_date_text, url, summary, ref_label, ref_links
 
 
-# Azure Update のコンテンツ作成
+# Azure Update 作成
 def process_update(url, client, deployment_name, prs):
     # Process and log Azure Update information
     logging.info("***** Begin of Record *****")
@@ -215,13 +215,13 @@ def process_update(url, client, deployment_name, prs):
                         azure_update_summary, reference_link_label, reference_links)
 
 
-# スライドのタイトルと日付を生成
+# 表紙のタイトル
 def generate_slide_info(start_date, end_date) -> tuple[str, str]:
     slide_title = f"Azure Updates {start_date.strftime('%Y/%m/%d')} ~ {end_date.strftime('%Y/%m/%d')}"
     return slide_title
 
 
-# Azure Update の URL を表示
+# Azure Update の URL 一覧を表示
 def display_update_urls(urls):
     update_count = len(urls)
     st.write(f"Azureアップデートは {update_count} 件です。")
