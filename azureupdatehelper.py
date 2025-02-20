@@ -252,6 +252,11 @@ def main():
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
         print("Usage: cp .env.template .env; python azureupdatehelper.py")
         return
+    # コマンドライン引数の取得
+    # python azureupdatehelper.py [--days 7]
+    if len(sys.argv) > 2 and sys.argv[1] == "--days":
+        global DAYS
+        DAYS = int(sys.argv[2])
 
     print("Checking environment variables...")
     # 環境変数が不足している場合はエラーを表示して終了
