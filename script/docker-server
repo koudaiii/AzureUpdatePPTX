@@ -10,4 +10,4 @@ fi
 echo "Open http://localhost:8000"
 
 ## run azureupdatepptx docker container with port 8000
-docker run -d -p 8000:8000 --name azureupdatepptx azureupdatepptx
+docker run --rm --env-file .env -d -p 8000:8000 --name azureupdatepptx azureupdatepptx
