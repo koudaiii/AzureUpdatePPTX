@@ -365,10 +365,6 @@ if st.button('PPTX 生成'):
     try:
         with open(pptx_file.name, "rb") as f:
             st.download_button("Download PPTX", f.read(), file_name=save_name)
-
-        # .env の Azure Storage の設定を読み込み
-        azurestorageconstr = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-        container_name = os.getenv("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME")
     finally:
         pptx_file.close()
         # 一時ファイルを削除
