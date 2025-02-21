@@ -29,7 +29,7 @@ $ docker run --rm -p 8000:8000 --env-file .env koudaiii/azureupdatepptx
 
 1. `git clone https://github.com/koudaiii/AzureUpdatePPTX.git`
 2. `cd AzureUpdatePPTX`
-3. .env.template を .env としてコピーします。Azure OpenAI の API Key, API Endpoint の接続文字列を設定します。
+3. .env.sample を .env としてコピーします。Azure OpenAI の API Key, API Endpoint の接続文字列を設定します。
    ```console
    cp .env.sample .env
    ```
