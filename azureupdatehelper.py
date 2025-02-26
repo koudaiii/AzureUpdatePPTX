@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.CRITICAL)
 # 何日前のアップデートまでスライドに含めるかの設定
 DAYS = 7
 
-# Azure Update の RSS フィードの URL
+# Azure Updates の RSS フィードの URL
 RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
 
 # システムプロンプトの設定
@@ -82,7 +82,7 @@ def oldest_article_date(entries):
     return datetime.strptime(entries[-1].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
 
 
-# Azure Update の RSS フィードを読み込んでエントリーを取得
+# Azure Updates の RSS フィードを読み込んでエントリーを取得
 def get_rss_feed_entries():
     feed = feedparser.parse(RSS_URL)
     return feed.entries
@@ -128,7 +128,7 @@ def get_article(url):
         logging.error(f"{url} から link を取得できませんでした。")
         return None
 
-    # Azure Update API 用に header に User-Agent 設定
+    # Azure Updates API 用に header に User-Agent 設定
     headers = {
         "User-Agent": "Safari/605.1.15"
     }
@@ -168,7 +168,7 @@ def summarize_article(client, deployment_name, article):
         return None
 
 
-# Azure Update API の URL を生成
+# Azure Updates API の URL を生成
 def target_url(id):
     base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
     if id is None or id == '':
@@ -200,7 +200,7 @@ def get_a_href_from_html(html):
     return re.findall(r'<a\s+href\s*=\s*["\']?([^"\'\s>]+)["\']?', html)
 
 
-# 引数に渡された URL から、Azure Update の記事 ID を取得して Azure Update API に HTTP Get を行い、その記事を要約する
+# 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
 def read_and_summary(client, deployment_name, url):
     # URL からデータをダウンロード
     response = get_article(url)
@@ -272,7 +272,7 @@ def main():
     print(f"開始日時: {start_date.strftime('%Y-%m-%d')}")
     urls = target_update_urls(entries, start_date)
     print(f"Azureアップデートは {len(urls)} 件です。")
-    print('含まれる Azure Update の URL は以下の通りです。')
+    print('含まれる Azure Updates の URL は以下の通りです。')
     print(urls)
     for url in urls:
         result = read_and_summary(client, deployment_name, url)
