@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Set the browser page title
-st.set_page_config(page_title="Azure Update Summary",
+st.set_page_config(page_title="Azure Updates Summary",
                    page_icon=":cloud:",
                    initial_sidebar_state="auto",
                    layout="centered",
@@ -21,29 +21,31 @@ st.set_page_config(page_title="Azure Update Summary",
                   )
 
 # Set the browser tab title
-st.title('Azure Update')
+st.title('Azure Updates')
+# description
+st.markdown('<a href="https://azure.microsoft.com/updates" target="_blank">Azure Updates</a> から要約します。', unsafe_allow_html=True)
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
-# Azure Update API からデータを取得
+# Azure Updates API からデータを取得
 entries = azup.get_rss_feed_entries()
 st.write(
-    f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から "
+    f"取得した Azure Updates のエントリーは {azup.oldest_article_date(entries)} から "
     f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
 )
 
 # 何日前までのアップデートを取得するか streamlit で指定
 days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
 
-# Azure Update スライドにタイトル設定
+# Azure Updates スライドにタイトル設定
 def set_slide_title(shape, text, font_size=Pt(24)):
     shape.text = text
     if shape.text_frame and shape.text_frame.paragraphs:
         shape.text_frame.paragraphs[0].font.size = font_size
 
 
-# Azure Update スライドに公開日 published_date_text と azure_update_url を一行の文として追加
+# Azure Updates スライドに公開日 published_date_text と azure_update_url を一行の文として追加
 def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
     text_frame.clear()
     p = text_frame.paragraphs[0]
@@ -53,7 +55,7 @@ def add_hyperlink_text(text_frame, prefix, url, font_size=Pt(18)):
     run.font.size = font_size
 
 
-# Azure Update スライドに本文 summary を追加
+# Azure Updates スライドに本文 summary を追加
 def add_body_summary(slide, summary):
     body_shape = slide.placeholders[11]
     text_frame = body_shape.text_frame
@@ -64,7 +66,7 @@ def add_body_summary(slide, summary):
     paragraph.level = 0
 
 
-# Azure Update スライドに参照リンク reference_links を追加
+# Azure Updates スライドに参照リンク reference_links を追加
 def add_reference_links(text_frame, label, links):
     # Add header for the reference links
     header = text_frame.add_paragraph()
@@ -129,7 +131,7 @@ def create_section_title_slide(prs, update_count):
     return slide, slide.placeholders[0]
 
 
-# Azure Update の情報を表示
+# Azure Updates の情報を表示
 def display_update_info(title, url, published_date, summary, ref_label, ref_links):
     st.write('')
     st.markdown(f"「{title}」", unsafe_allow_html=True)
@@ -148,9 +150,9 @@ def display_update_info(title, url, published_date, summary, ref_label, ref_link
     st.write('')
 
 
-# Azure Update スライドに追加
+# Azure Updates スライドに追加
 def create_update_slide(prs, title, published_date, url, summary, ref_label, ref_links):
-    """Creates a new slide for an Azure update and configures its elements."""
+    """Creates a new slide for an Azure Updates and configures its elements."""
     layout = prs.slide_layouts[10]
     slide = prs.slides.add_slide(layout)
 
@@ -177,7 +179,7 @@ def create_update_slide(prs, title, published_date, url, summary, ref_label, ref
     return slide
 
 
-# Azure Update の内容を生成
+# Azure Updates の内容を生成
 def extract_update_data(result):
     title = result.get("title", "No Title")
     published_date_raw = result.get("publishedDate", "")
@@ -194,9 +196,9 @@ def extract_update_data(result):
     return title, published_date_text, url, summary, ref_label, ref_links
 
 
-# Azure Update 作成
+# Azure Updates 作成
 def process_update(url, client, deployment_name, prs):
-    # Process and log Azure Update information
+    # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
     result = azup.read_and_summary(client, deployment_name, url)
     logging.debug("Result: %s", result)
@@ -229,11 +231,11 @@ def generate_slide_info(start_date, end_date) -> tuple[str, str]:
     return slide_title
 
 
-# Azure Update の URL 一覧を表示
+# Azure Updates の URL 一覧を表示
 def display_update_urls(urls):
     update_count = len(urls)
     st.write(f"Azureアップデートは {update_count} 件です。")
-    st.write("含まれる Azure Update の URL は以下の通りです。")
+    st.write("含まれる Azure Updates の URL は以下の通りです。")
     st.write(urls)
 
 
@@ -247,8 +249,8 @@ def end_date():
     return datetime.now().astimezone()
 
 
-# ボタンを押すと Azure Update API からデータを取得して PPTX を生成
-if st.button('PPTX 生成'):
+# ボタンを押すと Azure Updates API からデータを取得して PPTX を生成
+if st.button('データを取得'):
     # 環境変数が不足している場合はエラーを表示して終了
     if not azup.environment_check():
         st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
@@ -259,7 +261,7 @@ if st.button('PPTX 生成'):
     display_update_urls(urls)
 
     # PPTX 生成処理
-    st.write('PPTX 生成中...')
+    st.write('要約を生成中...')
 
     # Generate slide title and date string
     slide_title = generate_slide_info(start_date(days), end_date())
@@ -275,13 +277,13 @@ if st.button('PPTX 生成'):
 
     # Azure OpenAI のクライアントを取得
     client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
-    # Azure Update の情報を取得してスライドを作成
+    # Azure Updates の情報を取得してスライドを作成
     for url in urls:
         process_update(url, client, deployment_name, prs)
 
     # PPTX を保存
     prs.save(pptx_file.name)
-    st.write('PPTX 生成完了')
+    st.write('Done!')
 
     try:
         with open(pptx_file.name, "rb") as f:
