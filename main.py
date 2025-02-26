@@ -9,24 +9,32 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 load_dotenv()
 
-st.title('Azure Update PPTX Generator')
+# Set the browser page title
+st.set_page_config(page_title="Azure Update Summary",
+                   page_icon=":cloud:",
+                   initial_sidebar_state="auto",
+                   layout="centered",
+                   menu_items={
+                       "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
+                       "About": "https://koudaiii.com"
+                       }
+                  )
 
-# 何日前までのアップデートを取得するか streamlit で指定
-days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
+# Set the browser tab title
+st.title('Azure Update Summary')
 
-# スライドのファイル名の拡張子なしの文字列を入力
-name_prefix = st.text_input('スライドのファイル名を拡張子なしで入力してください。', 'AzureUpdates')
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
-save_name = name_prefix + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
+save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
 # Azure Update API からデータを取得
-st.write('データ取得中...')
 entries = azup.get_rss_feed_entries()
 st.write(
     f"取得した Azure Update のエントリーは {azup.oldest_article_date(entries)} から "
     f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
 )
 
+# 何日前までのアップデートを取得するか streamlit で指定
+days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
 
 # Azure Update スライドにタイトル設定
 def set_slide_title(shape, text, font_size=Pt(24)):
