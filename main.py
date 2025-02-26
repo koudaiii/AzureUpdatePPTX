@@ -21,7 +21,7 @@ st.set_page_config(page_title="Azure Update Summary",
                   )
 
 # Set the browser tab title
-st.title('Azure Update Summary')
+st.title('Azure Update')
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
