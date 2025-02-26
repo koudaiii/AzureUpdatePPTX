@@ -21,7 +21,9 @@ st.set_page_config(page_title="Azure Update Summary",
                   )
 
 # Set the browser tab title
-st.title('Azure Update')
+st.title('Azure Updates')
+# description
+st.markdown('<a href="https://azure.microsoft.com/updates" target="_blank">Azure Updates</a> から要約します。', unsafe_allow_html=True)
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
@@ -248,7 +250,7 @@ def end_date():
 
 
 # ボタンを押すと Azure Update API からデータを取得して PPTX を生成
-if st.button('PPTX 生成'):
+if st.button('データを取得'):
     # 環境変数が不足している場合はエラーを表示して終了
     if not azup.environment_check():
         st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
@@ -259,7 +261,7 @@ if st.button('PPTX 生成'):
     display_update_urls(urls)
 
     # PPTX 生成処理
-    st.write('PPTX 生成中...')
+    st.write('要約を生成中...')
 
     # Generate slide title and date string
     slide_title = generate_slide_info(start_date(days), end_date())
@@ -281,7 +283,7 @@ if st.button('PPTX 生成'):
 
     # PPTX を保存
     prs.save(pptx_file.name)
-    st.write('PPTX 生成完了')
+    st.write('Done!')
 
     try:
         with open(pptx_file.name, "rb") as f:
