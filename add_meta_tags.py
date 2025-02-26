@@ -22,6 +22,7 @@ meta_tags = [
     {'name': 'author', 'content': 'Kodai Sakabe'},
     {'name': 'keywords', 'content': 'azure updates, azure, azure updates summary, azure updates generate pptx, updates, summary, powerpoint'},
 
+    # Open Graph
     {'property': 'og:type', 'content': 'website'},
     {'property': 'og:url', 'content': 'https://azure.koudaiii.com'},
     {'property': 'og:title', 'content': 'Azure Updates Summary'},
