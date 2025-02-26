@@ -27,9 +27,14 @@ meta_tags = [
     {'property': 'og:url', 'content': 'https://azure.koudaiii.com'},
     {'property': 'og:title', 'content': 'Azure Updates Summary'},
     {'property': 'og:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
-    {'property': 'og:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
+    {'property': 'og:image', 'content': 'https://opengraph.b-cdn.net/production/images/189613b4-180c-4fec-8715-908d5f86146b.png?token=5O8n6YskRFyXUC_Gi1qNqF3ocTOGCVxcLXzU4WcGbKg&height=630&width=1200&expires=33276555879'},
 
     # X
+    {'property': 'twitter:domain', 'content': 'azure.koudaiii.com'},
+    {'property': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
+    {'name': 'twitter:image', 'content': 'https://opengraph.b-cdn.net/production/images/189613b4-180c-4fec-8715-908d5f86146b.png?token=5O8n6YskRFyXUC_Gi1qNqF3ocTOGCVxcLXzU4WcGbKg&height=630&width=1200&expires=33276555879'},
+    {'name': 'twitter:title', 'content': 'Azure Updates Summary'},
+    {'name': 'twitter:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
     {'name': 'twitter:card', 'content': 'summary_large_image'},
     {'name': 'twitter:site', 'content': '@koudaiii'},
     {'name': 'twitter:creator', 'content': '@koudaiii'},
