@@ -14,8 +14,14 @@ logging.basicConfig(level=logging.CRITICAL)
 # 何日前のアップデートまでスライドに含めるかの設定
 DAYS = 7
 
-# Azure Updates の RSS フィードの URL
-RSS_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+# Azure Updates の API の URL
+BASE_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
+
+
+# URL から RSS フィードの URL を生成
+def rss_url(url):
+    return f"{url}rss"
+
 
 # システムプロンプトの設定
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
@@ -84,7 +90,7 @@ def oldest_article_date(entries):
 
 # Azure Updates の RSS フィードを読み込んでエントリーを取得
 def get_rss_feed_entries():
-    feed = feedparser.parse(RSS_URL)
+    feed = feedparser.parse(rss_url(BASE_URL))
     return feed.entries
 
 
@@ -170,10 +176,9 @@ def summarize_article(client, deployment_name, article):
 
 # Azure Updates API の URL を生成
 def target_url(id):
-    base_url = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
     if id is None or id == '':
         return None
-    return base_url + id
+    return BASE_URL + id
 
 
 # URL から記事 ID を取得
