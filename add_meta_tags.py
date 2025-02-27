@@ -1,4 +1,3 @@
-import os
 import shutil
 from bs4 import BeautifulSoup
 
@@ -20,7 +19,13 @@ meta_tags = [
     # General SEO
     {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
     {'name': 'author', 'content': 'Kodai Sakabe'},
-    {'name': 'keywords', 'content': 'azure updates, azure, azure updates summary, azure updates generate pptx, updates, summary, powerpoint'},
+    {
+        'name': 'keywords',
+        'content': (
+            'azure updates, azure, azure updates summary, '
+            'azure updates generate pptx, updates, summary, powerpoint'
+        )
+    },
 
     # Open Graph
     {'property': 'og:type', 'content': 'website'},

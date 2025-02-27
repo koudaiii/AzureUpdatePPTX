@@ -17,8 +17,7 @@ st.set_page_config(page_title="Azure Updates Summary",
                    menu_items={
                        "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
                        "About": "https://koudaiii.com"
-                       }
-                  )
+                   })
 
 # Set the browser tab title
 st.title('Azure Updates')
@@ -37,6 +36,7 @@ st.write(
 
 # 何日前までのアップデートを取得するか streamlit で指定
 days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
+
 
 # Azure Updates スライドにタイトル設定
 def set_slide_title(shape, text, font_size=Pt(24)):
