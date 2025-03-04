@@ -34,7 +34,7 @@ meta_tags = [
     {'property': 'og:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
     {'property': 'og:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
 
-    # X
+    # Twitter
     {'property': 'twitter:domain', 'content': 'azure.koudaiii.com'},
     {'property': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
     {'name': 'twitter:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
@@ -52,8 +52,27 @@ for tag in meta_tags:
         new_tag[key] = value
     soup.head.append(new_tag)
 
+# Add custom CSS and HTML for the header banner
+style_tag = soup.new_tag('style')
+style_tag.string = """
+.header-banner {
+    color: black;
+    text-align: center;
+    font-size: 14px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999991;
+}
+"""
+soup.head.append(style_tag)
+
+banner_div = soup.new_tag('div', **{'class': 'header-banner'})
+banner_div.string = "Public Preview"
+soup.body.insert(0, banner_div)
+
 # Save the modified HTML
 with open(streamlit_path, 'w') as file:
     file.write(str(soup))
 
-print("Meta tags have been added to the Streamlit index.html file.")
+print("Meta tags and header banner have been added to the Streamlit index.html file.")
