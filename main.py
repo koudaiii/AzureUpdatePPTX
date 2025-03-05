@@ -158,7 +158,7 @@ def display_update_info(title, url, published_date, summary, ref_label, ref_link
     st.markdown(f"<small>{ref_label}</small>", unsafe_allow_html=True)
     for link in ref_links:
         st.markdown(
-            f"<p style='line-height:80%; margin-bottom:10px; padding:0;'>"
+            f"<p style='line-height:130%; margin-bottom:10px; padding:0;'>"
             f"<a href='{link}' target='_blank'>{link}</a></p>",
             unsafe_allow_html=True
         )
