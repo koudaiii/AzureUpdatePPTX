@@ -248,6 +248,11 @@ class TestRemoveHtmlTags(unittest.TestCase):
         expected = "Paragraph with nested tag"
         self.assertEqual(azureupdatehelper.remove_html_tags(text), expected)
 
+    def test_remove_html_tags_with_special_characters(self):
+        html_content = '<p>Special characters: &amp; &lt; &gt;</p>'
+        expected_text = 'Special characters: & < >'
+        self.assertEqual(azureupdatehelper.remove_html_tags(html_content), expected_text)
+
     def test_remove_html_tags_empty_string(self):
         text = ""
         self.assertEqual(azureupdatehelper.remove_html_tags(text), "")
