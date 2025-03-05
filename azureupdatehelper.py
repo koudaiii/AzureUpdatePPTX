@@ -7,6 +7,7 @@ import feedparser
 import urllib.parse as urlparse
 from datetime import datetime, timedelta
 from openai import AzureOpenAI
+from bs4 import BeautifulSoup
 
 # ログレベルの設定
 logging.basicConfig(level=logging.CRITICAL)
@@ -197,12 +198,14 @@ def docid_from_url(url):
 
 # description から HTML タグを削除
 def remove_html_tags(text):
-    return re.sub(r'<[^>]*?>', '', text)
+    soup = BeautifulSoup(text, 'html.parser')
+    return soup.get_text()
 
 
 # description から a タグの href を取得
 def get_a_href_from_html(html):
-    return re.findall(r'<a\s+href\s*=\s*["\']?([^"\'\s>]+)["\']?', html)
+    soup = BeautifulSoup(html, 'html.parser')
+    return [a['href'] for a in soup.find_all('a', href=True)]
 
 
 # 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
