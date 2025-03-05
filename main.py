@@ -10,25 +10,30 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Set the browser page title
-st.set_page_config(page_title="Azure Updates Summary",
-                   page_icon=":cloud:",
-                   initial_sidebar_state="auto",
-                   layout="centered",
-                   menu_items={
-                       "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
-                       "About": """
-                                ### Azure Updates Summary
-                                本サイトの使用においては、次の制限、制約をご理解の上、活用ください。
-                                ### 目的外利用の禁止
-                                本サイトは Azure Updates において、円滑に情報を受け取ることを目的に作成されています。また、非公式の有志によって運営されています。この目的に反する利用はお断りいたします。
-                                ### 公式情報の確認
-                                本サイトの記載内容について一切の責任を負いません。公式情報については、 Azure Updates をご確認ください。
-                                ### Disclaimer
-                                本サイトの記載内容によって発生したいかなる損害について、一切の責任を負いません。本サイトの記載内容は、予告なく変更されることがあります。現在パブリックプレビュー中のため、予告なくサービスが終了する可能性があります。
-                                ### Author
-                                Kodai Sakabe @koudaiii https://koudaiii.com
-                                """,
-                   })
+st.set_page_config(
+    page_title="Azure Updates Summary",
+    page_icon=":cloud:",
+    initial_sidebar_state="auto",
+    layout="centered",
+    menu_items={
+        "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
+        "About": """
+                 ### Azure Updates Summary
+                 本サイトの使用においては、次の制限、制約をご理解の上、活用ください。
+                 ### 目的外利用の禁止
+                 本サイトは Azure Updates において、円滑に情報を受け取ることを目的に作成されています。
+                 また、非公式の有志によって運営されています。この目的に反する利用はお断りいたします。
+                 ### 公式情報の確認
+                 本サイトの記載内容について一切の責任を負いません。公式情報については、 Azure Updates をご確認ください。
+                 ### Disclaimer
+                 本サイトの記載内容によって発生したいかなる損害について、一切の責任を負いません。
+                 本サイトの記載内容は、予告なく変更されることがあります。現在パブリックプレビュー中のため、
+                 予告なくサービスが終了する可能性があります。
+                 ### Author
+                 Kodai Sakabe @koudaiii https://koudaiii.com
+                 """,
+    }
+)
 
 # Set the browser tab title
 st.title('Azure Updates Summary')
@@ -37,7 +42,8 @@ st.markdown("""
             <a href="https://azure.microsoft.com/updates" target="_blank">Azure Updates</a> から要約します。
             公式情報についてはリンク先よりご確認ください。<br>
             本サイトの利用に際しては、Aboutページの記載内容に同意したものとみなします。<br>
-            Microsoft 365 Roadmap の要約については、 <a href="https://m365.koudaiii.com" target="_blank">Microsoft 365 Roadmap Summary</a> になります。
+            Microsoft 365 Roadmap の要約については、
+            <a href="https://m365.koudaiii.com" target="_blank">Microsoft 365 Roadmap Summary</a> になります。
             """, unsafe_allow_html=True)
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
