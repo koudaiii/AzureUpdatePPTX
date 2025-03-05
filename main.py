@@ -36,7 +36,8 @@ st.title('Azure Updates Summary')
 st.markdown("""
             <a href="https://azure.microsoft.com/updates" target="_blank">Azure Updates</a> から要約します。
             公式情報についてはリンク先よりご確認ください。<br>
-            本サイトの利用に際しては、Aboutページの記載内容に同意したものとみなします。
+            本サイトの利用に際しては、Aboutページの記載内容に同意したものとみなします。<br>
+            Microsoft 365 Roadmap の要約については、 <a href="https://m365.koudaiii.com" target="_blank">Microsoft 365 Roadmap Summary</a> になります。
             """, unsafe_allow_html=True)
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
