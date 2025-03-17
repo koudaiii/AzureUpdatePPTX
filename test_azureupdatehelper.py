@@ -259,30 +259,30 @@ class TestRemoveHtmlTags(unittest.TestCase):
 
 
 class TestGetAHrefFromHtml(unittest.TestCase):
-    def test_get_a_href_from_html_no_links(self):
+    def test_get_unique_a_href_from_html_no_links(self):
         html_content = "No anchor tags here."
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(links, [], "Expected empty list when no <a> tags present.")
 
-    def test_get_a_href_from_html_single_link(self):
+    def test_get_unique_a_href_from_html_single_link(self):
         html_content = '<p>Click <a href="https://example.com">here</a> to visit.</p>'
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com")
 
-    def test_get_a_href_from_html_single_link_and_single_quote(self):
+    def test_get_unique_a_href_from_html_single_link_and_single_quote(self):
         html_content = "<p>Click <a href='https://example.com'>here</a> to visit.</p>"
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com")
 
-    def test_get_a_href_from_html_single_link_and_no_quote(self):
+    def test_get_unique_a_href_from_html_single_link_and_no_quote(self):
         html_content = '<p>Click <a href=https://example.com>here</a> to visit.</p>'
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com")
 
-    def test_get_a_href_from_html_multiple_links(self):
+    def test_get_unique_a_href_from_html_multiple_links(self):
         html_content = '''
             <div>
                 <a href="https://example.com/page1">Link1</a>
@@ -290,32 +290,44 @@ class TestGetAHrefFromHtml(unittest.TestCase):
                 <a href=https://example.com/page3>Link3</a>
             </div>
         '''
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 3)
         self.assertIn("https://example.com/page1", links)
         self.assertIn("https://example.com/page2", links)
         self.assertIn("https://example.com/page3", links)
 
-    def test_get_a_href_from_html_with_rel_attributes(self):
+    def test_unique_links(self):
+        html_content = '''
+            <div>
+                <a href="https://example.com/page">Link</a>
+                <a href='https://example.com/page'>Link</a>
+                <a href=https://example.com/page>Link</a>
+            </div>
+        '''
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
+        self.assertEqual(len(links), 1)
+        self.assertIn("https://example.com/page", links)
+
+    def test_get_unique_a_href_from_html_with_rel_attributes(self):
         html_content = '<a rel="noreferrer noopener" href="https://example.com/page1">Learn more</a>'
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com/page1")
 
-    def test_get_a_href_from_html_with_another_rel_attributes(self):
+    def test_get_unique_a_href_from_html_with_another_rel_attributes(self):
         html_content = '<a href="https://example.com/page1" rel="noreferrer noopener">Learn more</a>'
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com/page1")
 
-    def test_get_a_href_from_html_with_another_attributes(self):
+    def test_get_unique_a_href_from_html_with_another_attributes(self):
         html_content = '<a foo="bar" href="https://example.com/page1">Learn more</a>'
-        links = azureupdatehelper.get_a_href_from_html(html_content)
+        links = azureupdatehelper.get_unique_a_href_from_html(html_content)
         self.assertEqual(len(links), 1, "Expected one link in the list.")
         self.assertEqual(links[0], "https://example.com/page1")
 
-    def test_get_a_href_from_html_empty_string(self):
-        links = azureupdatehelper.get_a_href_from_html("")
+    def test_get_unique_a_href_from_html_empty_string(self):
+        links = azureupdatehelper.get_unique_a_href_from_html("")
         self.assertEqual(links, [], "Expected empty list for empty HTML string.")
 
 

@@ -154,7 +154,7 @@ def get_article(url):
 # 記事を要約する
 def summarize_article(client, deployment_name, article):
     try:
-        link = ", ".join(get_a_href_from_html(article['description']))
+        link = ", ".join(get_unique_a_href_from_html(article['description']))
         content = (
             "タイトル: " + article['title'] + "\n"
             + "製品: " + ", ".join(article['products']) + "\n"
@@ -203,9 +203,18 @@ def remove_html_tags(text):
 
 
 # description から a タグの href を取得
-def get_a_href_from_html(html):
+def get_unique_a_href_from_html(html):
+    """
+    Extracts unique href attributes from all <a> tags in the given HTML.
+
+    Args:
+        html (str): A string containing HTML content.
+
+    Returns:
+        list: A list of unique href attribute values from <a> tags.
+    """
     soup = BeautifulSoup(html, 'html.parser')
-    return [a['href'] for a in soup.find_all('a', href=True)]
+    return list(dict.fromkeys([a['href'] for a in soup.find_all('a', href=True)]))
 
 
 # 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
