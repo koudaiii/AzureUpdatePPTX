@@ -256,8 +256,7 @@ def generate_slide_info(start_date, end_date) -> tuple[str, str]:
 # Azure Updates の URL 一覧を表示
 def display_update_urls(urls):
     update_count = len(urls)
-    st.write(f"Azureアップデートは {update_count} 件です。")
-    st.write("含まれる Azure Updates の URL は以下の通りです。")
+    st.write(f"アップデートは {update_count} 件です。")
     st.write(urls)
 
 
