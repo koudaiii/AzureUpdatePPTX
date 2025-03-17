@@ -296,6 +296,18 @@ class TestGetAHrefFromHtml(unittest.TestCase):
         self.assertIn("https://example.com/page2", links)
         self.assertIn("https://example.com/page3", links)
 
+    def test_get_uniq_a_href_from_html_multiple_links(self):
+        html_content = '''
+            <div>
+                <a href="https://example.com/page">Link</a>
+                <a href='https://example.com/page'>Link</a>
+                <a href=https://example.com/page>Link</a>
+            </div>
+        '''
+        links = azureupdatehelper.get_a_href_from_html(html_content)
+        self.assertEqual(len(links), 1)
+        self.assertIn("https://example.com/page", links)
+
     def test_get_a_href_from_html_with_rel_attributes(self):
         html_content = '<a rel="noreferrer noopener" href="https://example.com/page1">Learn more</a>'
         links = azureupdatehelper.get_a_href_from_html(html_content)
