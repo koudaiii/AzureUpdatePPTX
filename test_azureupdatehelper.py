@@ -296,7 +296,7 @@ class TestGetAHrefFromHtml(unittest.TestCase):
         self.assertIn("https://example.com/page2", links)
         self.assertIn("https://example.com/page3", links)
 
-    def test_get_uniq_a_href_from_html_multiple_links(self):
+    def test_unique_links(self):
         html_content = '''
             <div>
                 <a href="https://example.com/page">Link</a>
