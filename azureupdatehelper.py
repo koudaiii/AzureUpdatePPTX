@@ -205,7 +205,7 @@ def remove_html_tags(text):
 # description から a タグの href を取得
 def get_a_href_from_html(html):
     soup = BeautifulSoup(html, 'html.parser')
-    return [a['href'] for a in soup.find_all('a', href=True)]
+    return list(set([a['href'] for a in soup.find_all('a', href=True)]))
 
 
 # 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
