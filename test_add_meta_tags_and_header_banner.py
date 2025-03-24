@@ -64,6 +64,29 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
                 found_path = add_meta_tags_and_header_banner.find_streamlit_index_path()
                 self.assertEqual(found_path, test_path)
 
+    def test_create_backup(self):
+        """create_backup関数のテスト"""
+
+        # バックアップを作成するファイルのパス
+        file_path = os.path.join(self.test_dir, 'test_index.html')
+        add_meta_tags_and_header_banner.create_backup(file_path)
+        self.assertTrue(os.path.exists(file_path + '.bak'))
+
+    def test_get_meta_tags(self):
+        """get_meta_tags関数のテスト"""
+        tags = add_meta_tags_and_header_banner.get_meta_tags()
+
+        # タグがリストであることを確認
+        self.assertIsInstance(tags, list)
+
+        # タグが辞書であることを確認
+        for tag in tags:
+            self.assertIsInstance(tag, dict)
+
+        # 必要なメタタグが含まれていることを確認
+        self.assertIn({'name': 'description', 'content': 'Azure Update PPTXを使用してAzureアップデート情報を要約します。'}, tags)
+        self.assertIn({'property': 'og:title', 'content': 'Azure Update PPTX'}, tags)
+
     def test_get_banner_style(self):
         """get_banner_style関数のテスト"""
 
