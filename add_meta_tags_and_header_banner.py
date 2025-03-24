@@ -77,20 +77,13 @@ def get_banner_style():
     """ヘッダーバナーのスタイルを返す"""
     return """
     .header-banner {
+        color: black;
+        text-align: center;
+        font-size: 14px;
         position: fixed;
         top: 0;
-        left: 0;
         width: 100%;
-        background-color: #0078D4;
-        color: white;
-        text-align: center;
-        padding: 8px 0;
-        font-weight: bold;
-        font-size: 14px;
-        z-index: 1000;
-    }
-    body {
-        padding-top: 40px;
+        z-index: 999991;
     }
     """
 
