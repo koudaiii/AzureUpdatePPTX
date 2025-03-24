@@ -1,5 +1,4 @@
 import os
-import sys
 import unittest
 from unittest import mock
 import tempfile
@@ -7,50 +6,12 @@ import shutil
 from bs4 import BeautifulSoup
 import add_meta_tags_and_header_banner
 
-# まず、add_meta_tags_and_header_banner.pyの内容を変更してインポート前に初期化しないようにする
-# add_meta_tags_and_header_banner.pyを編集してモジュールレベルでの実行を防止する方法が理想的ですが、
-# テストコードで一時的に対応する方法も提供します
-
 possible_paths = [
     "/app/streamlit/frontend/build/index.html",
     "/usr/local/lib/python3.9/site-packages/streamlit/static/index.html",
     "/usr/local/lib/python3.8/dist-packages/streamlit/static/index.html",
     "/usr/local/lib/python3.12/site-packages/streamlit/static/index.html"
 ]
-
-# モジュールをインポートする前にモックを設定（これまでの方法を強化）
-with mock.patch('builtins.open', mock.mock_open(read_data="<html><head></head><body></body></html>")), \
-     mock.patch('os.path.exists', return_value=True), \
-     mock.patch('shutil.copyfile'), \
-     mock.patch('shutil.copy2'), \
-     mock.patch('sys.exit'):
-
-    # モジュール内のグローバル変数をモック
-    sys.modules['add_meta_tags_and_header_banner'] = mock.MagicMock()
-
-    # テスト対象のモジュールをインポート
-    try:
-        import add_meta_tags_and_header_banner as target
-        print("モジュールのインポートに成功しました")
-    except Exception as e:
-        print(f"モジュールのインポートに失敗しました: {e}")
-        raise
-
-# 実際のモジュール関数をモックに置き換え
-target.create_backup = mock.MagicMock(return_value=True)
-target.get_meta_tags = mock.MagicMock(return_value=[
-    {"name": "description", "content": "Test description"},
-    {"property": "og:title", "content": "Test title"}
-])
-target.get_banner_style = mock.MagicMock(return_value="""
-.header-banner {
-    position: fixed;
-    top: 0;
-    width: 100%;
-}
-""")
-target.modify_html = mock.MagicMock(return_value=True)
-target.main = mock.MagicMock()
 
 
 class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
