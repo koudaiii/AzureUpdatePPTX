@@ -88,7 +88,6 @@ def get_meta_tags():
         {'property': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
         {'name': 'twitter:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
         {'name': 'twitter:title', 'content': 'Azure Updates Summary'},
-        {'name': 'twitter:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'name': 'twitter:card', 'content': 'summary_large_image'},
         {'name': 'twitter:site', 'content': '@koudaiii'},
         {'name': 'twitter:creator', 'content': '@koudaiii'}
