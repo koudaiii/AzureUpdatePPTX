@@ -82,8 +82,8 @@ def get_meta_tags():
         {'property': 'og:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
         # Twitter
         {'name': 'twitter:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
-        {'property': 'twitter:domain', 'content': 'azure.koudaiii.com'},
-        {'property': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
+        {'name': 'twitter:domain', 'content': 'azure.koudaiii.com'},
+        {'name': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
         {'name': 'twitter:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
         {'name': 'twitter:title', 'content': 'Azure Updates Summary'},
         {'name': 'twitter:card', 'content': 'summary_large_image'},
