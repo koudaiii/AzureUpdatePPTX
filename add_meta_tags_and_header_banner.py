@@ -64,13 +64,31 @@ def create_backup(file_path):
 def get_meta_tags():
     """追加するメタタグのリストを返す"""
     return [
-        {"name": "description", "content": "Azure Update PPTXを使用してAzureアップデート情報を要約します。"},
-        {"property": "og:title", "content": "Azure Update PPTX"},
-        {"property": "og:description", "content": "Azureのアップデート情報を簡単に要約して共有"},
-        {"property": "og:type", "content": "website"},
-        {"name": "twitter:card", "content": "summary"},
-        {"name": "twitter:title", "content": "Azure Update PPTX"},
-        {"name": "twitter:description", "content": "Azureのアップデート情報をGPTで要約"}
+        # General SEO
+        {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
+        {'name': 'author', 'content': 'Kodai Sakabe'},
+        {
+            'name': 'keywords',
+            'content': (
+                'azure updates, azure, azure updates summary, '
+                'azure updates generate pptx, updates, summary, powerpoint'
+            )
+        },
+        # Open Graph
+        {'property': 'og:title', 'content': 'Azure Updates Summary'},
+        {'property': 'og:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
+        {'property': 'og:type', 'content': 'website'},
+        {'property': 'og:url', 'content': 'https://azure.koudaiii.com'},
+        {'property': 'og:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
+        # Twitter
+        {'name': 'twitter:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
+        {'name': 'twitter:domain', 'content': 'azure.koudaiii.com'},
+        {'name': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
+        {'name': 'twitter:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
+        {'name': 'twitter:title', 'content': 'Azure Updates Summary'},
+        {'name': 'twitter:card', 'content': 'summary_large_image'},
+        {'name': 'twitter:site', 'content': '@koudaiii'},
+        {'name': 'twitter:creator', 'content': '@koudaiii'}
     ]
 
 

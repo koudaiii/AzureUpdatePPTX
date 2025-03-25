@@ -84,8 +84,8 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
             self.assertIsInstance(tag, dict)
 
         # 必要なメタタグが含まれていることを確認
-        self.assertIn({'name': 'description', 'content': 'Azure Update PPTXを使用してAzureアップデート情報を要約します。'}, tags)
-        self.assertIn({'property': 'og:title', 'content': 'Azure Update PPTX'}, tags)
+        self.assertIn({'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'}, tags)
+        self.assertIn({'property': 'og:title', 'content': 'Azure Updates Summary'}, tags)
 
     def test_get_banner_style(self):
         """get_banner_style関数のテスト"""
