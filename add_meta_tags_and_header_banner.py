@@ -65,7 +65,7 @@ def get_meta_tags():
     """追加するメタタグのリストを返す"""
     return [
         # General SEO
-        {"name": "description", "content": "Azure Updates を要約して PPTX にまとめます。"},
+        {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'name': 'author', 'content': 'Kodai Sakabe'},
         {
             'name': 'keywords',
@@ -77,11 +77,11 @@ def get_meta_tags():
         # Open Graph
         {'property': 'og:title', 'content': 'Azure Updates Summary'},
         {'property': 'og:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
-        {"property": "og:type", "content": "website"},
+        {"property": 'og:type', 'content': 'website'},
         {'property': 'og:url', 'content': 'https://azure.koudaiii.com'},
         {'property': 'og:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
         # Twitter
-        {"name": "twitter:description", "content": "Azure Updates を要約して PPTX にまとめます。"},
+        {'name': 'twitter:description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'property': 'twitter:domain', 'content': 'azure.koudaiii.com'},
         {'property': 'twitter:url', 'content': 'https://azure.koudaiii.com'},
         {'name': 'twitter:image', 'content': 'https://koudaiii.com/azure_update_summary.png'},
