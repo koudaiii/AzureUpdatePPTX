@@ -51,8 +51,8 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         """find_streamlit_index_path関数のテスト - カスタムパスとデフォルトパスの両方をテスト"""
 
         # カスタムパスのテスト - 存在するパス
-        custom_path = os.path.join(self.test_dir, self.test_html)
-        self.assertEqual(add_meta_tags_and_header_banner.find_streamlit_index_path(custom_path), custom_path)
+        custom_path = self.test_html
+        self.assertEqual(add_meta_tags_and_header_banner.find_streamlit_index_path(custom_path), self.test_html)
 
         # カスタムパスのテスト - 存在しないパス
         custom_path = "/non-existent/path/index.html"

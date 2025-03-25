@@ -3,6 +3,7 @@ import sys
 import shutil
 from bs4 import BeautifulSoup
 import logging
+import textwrap
 
 # ロギング設定
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -75,7 +76,7 @@ def get_meta_tags():
 
 def get_banner_style():
     """ヘッダーバナーのスタイルを返す"""
-    return """
+    return textwrap.dedent("""
     .header-banner {
         color: black;
         text-align: center;
@@ -85,7 +86,7 @@ def get_banner_style():
         width: 100%;
         z-index: 999991;
     }
-    """
+    """)
 
 
 def modify_html(file_path):
