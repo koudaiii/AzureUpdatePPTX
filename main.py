@@ -270,46 +270,70 @@ def end_date():
     return datetime.now().astimezone()
 
 
-# ボタンを押すと Azure Updates API からデータを取得して PPTX を生成
-if st.button('データを取得'):
-    # 環境変数が不足している場合はエラーを表示して終了
-    if not azup.environment_check():
-        st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
-        st.stop()
+# セッション状態の初期化（ページ最上部に配置）
+if 'processing' not in st.session_state:
+    st.session_state.processing = False
 
-    st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
-    urls = azup.target_update_urls(entries, start_date(days))
-    display_update_urls(urls)
+# ボタン表示とクリックハンドラを分離
+button_clicked = st.button('データを取得', disabled=st.session_state.processing, key='get_data_button')
 
-    # PPTX 生成処理
-    st.write('要約を生成中...')
+# ボタンがクリックされたらすぐに状態を変更して再読み込み
+if button_clicked and not st.session_state.processing:
+    st.session_state.processing = True
+    st.rerun()  # 状態を即座にUIに反映
 
-    # Generate slide title and date string
-    slide_title = generate_slide_info(start_date(days), end_date())
-
-    # Create a temporary PPTX file using a template
-    pptx_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pptx")
-    prs = Presentation("template/gpstemplate.pptx")
-
-    # スライド一枚目（タイトルスライド）
-    slide = create_title_slide(prs, slide_title, end_date().strftime('%Y%m%d%H%M%S'))
-    # スライド二枚目（セクションタイトルスライド）
-    slide, date_ph = create_section_title_slide(prs, len(urls))
-
-    # Azure OpenAI のクライアントを取得
-    client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
-    # Azure Updates の情報を取得してスライドを作成
-    for url in urls:
-        process_update(url, client, deployment_name, prs)
-
-    # PPTX を保存
-    prs.save(pptx_file.name)
-    st.write('Done!')
-
+# 処理中の場合のみ実行される処理ブロック
+if st.session_state.processing:
     try:
-        with open(pptx_file.name, "rb") as f:
-            st.download_button("Download PPTX", f.read(), file_name=save_name)
+        # 環境変数が不足している場合はエラーを表示して終了
+        if not azup.environment_check():
+            st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
+            st.session_state.processing = False  # 処理終了フラグをリセット
+            st.rerun()  # 状態を即座にUIに反映
+            st.stop()
+
+        st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
+        urls = azup.target_update_urls(entries, start_date(days))
+        display_update_urls(urls)
+
+        # PPTX 生成処理
+        st.write('要約を生成中...')
+
+        # Generate slide title and date string
+        slide_title = generate_slide_info(start_date(days), end_date())
+
+        # Create a temporary PPTX file using a template
+        pptx_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pptx")
+        prs = Presentation("template/gpstemplate.pptx")
+
+        # スライド一枚目（タイトルスライド）
+        slide = create_title_slide(prs, slide_title, end_date().strftime('%Y%m%d%H%M%S'))
+        # スライド二枚目（セクションタイトルスライド）
+        slide, date_ph = create_section_title_slide(prs, len(urls))
+
+        # Azure OpenAI のクライアントを取得
+        client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+        # Azure Updates の情報を取得してスライドを作成
+        for url in urls:
+            process_update(url, client, deployment_name, prs)
+
+        # PPTX を保存
+        prs.save(pptx_file.name)
+        st.write('Done!')
+
+        try:
+            with open(pptx_file.name, "rb") as f:
+                st.download_button("Download PPTX", f.read(), file_name=save_name)
+        finally:
+            pptx_file.close()
+            # 一時ファイルを削除
+            os.remove(pptx_file.name)
+
+    except Exception as e:
+        # エラーが発生した場合はエラーメッセージを表示
+        st.error(f"エラーが発生しました: {str(e)}")
+        logging.error(f"処理中にエラーが発生しました: {e}", exc_info=True)
+
     finally:
-        pptx_file.close()
-        # 一時ファイルを削除
-        os.remove(pptx_file.name)
+        # 処理終了フラグをリセットして再描画
+        st.session_state.processing = False
