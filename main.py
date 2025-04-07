@@ -288,8 +288,6 @@ if st.session_state.processing:
         # 環境変数が不足している場合はエラーを表示して終了
         if not azup.environment_check():
             st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
-            st.session_state.processing = False  # 処理終了フラグをリセット
-            st.rerun()  # 状態を即座にUIに反映
             st.stop()
 
         st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
