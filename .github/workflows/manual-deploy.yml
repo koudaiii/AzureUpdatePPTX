@@ -1,0 +1,66 @@
+name: Manual Environment Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: 'Environment name (e.g., dev, test, pr-123)'
+        required: true
+        default: 'dev'
+      docker_image_tag:
+        description: 'Docker image tag (default: latest)'
+        required: true
+        default: 'latest'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_CORE_OUTPUT: json
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Set Docker image
+      id: docker
+      run: |
+        if [ "${{ github.event.inputs.docker_image_tag }}" = "latest" ]; then
+          echo "image=koudaiii/azureupdatepptx:latest" >> $GITHUB_OUTPUT
+        else
+          echo "image=koudaiii/azureupdatepptx:${{ github.event.inputs.docker_image_tag }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Deploy Bicep template
+      working-directory: ./infra
+      id: deploy
+      run: |
+        DEPLOYMENT_OUTPUT=$(az deployment sub create \
+          --location "East US" \
+          --template-file main.bicep \
+          --parameters environmentName="${{ github.event.inputs.environment_name }}" \
+          --parameters dockerImage="${{ steps.docker.outputs.image }}" \
+          --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.environment_name }}"}' \
+          --query 'properties.outputs.appServiceUrl.value' \
+          --output tsv)
+        echo "url=$DEPLOYMENT_OUTPUT" >> $GITHUB_OUTPUT
+
+    - name: Output deployment info
+      run: |
+        echo "## 🚀 Environment Deployed"
+        echo ""
+        echo "**Environment:** ${{ github.event.inputs.environment_name }}"
+        echo "**App URL:** ${{ steps.deploy.outputs.url }}"
+        echo "**Docker Image:** ${{ steps.docker.outputs.image }}"

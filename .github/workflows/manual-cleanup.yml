@@ -1,0 +1,46 @@
+name: Manual Environment Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: 'Environment name to delete (e.g., dev, test, pr-123)'
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_CORE_OUTPUT: json
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Delete Resource Group
+      run: |
+        echo "az group delete \
+          --name rg-azureupdatepptx-${{ github.event.inputs.environment_name }}\" \
+          --yes \
+          --no-wait"
+
+    - name: Output cleanup info
+      run: |
+        echo "## 🗑️ Environment Cleaned Up"
+        echo ""
+        echo "**Environment:** ${{ github.event.inputs.environment_name }}"
+        echo "**Resource Group:** rg-azureupdatepptx-${{ github.event.inputs.environment_name }}"
+        echo ""
+        echo "All Azure resources have been removed."
