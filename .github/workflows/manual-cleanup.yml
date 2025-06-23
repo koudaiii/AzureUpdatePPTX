@@ -3,7 +3,7 @@ name: Manual Environment Cleanup
 on:
   workflow_dispatch:
     inputs:
-      environment_name:
+      suffix_name:
         description: 'Environment name to delete (e.g., dev, test, pr-123)'
         required: true
 
@@ -32,7 +32,7 @@ jobs:
     - name: Delete Resource Group
       run: |
         az group delete \
-          --name "srg-azureupdatepptx-${{ github.event.inputs.environment_name }}" \
+          --name "srg-azureupdatepptx-${{ github.event.inputs.suffix_name }}" \
           --yes \
           --no-wait
 
@@ -40,7 +40,7 @@ jobs:
       run: |
         echo "## 🗑️ Environment Cleaned Up"
         echo ""
-        echo "**Environment:** ${{ github.event.inputs.environment_name }}"
-        echo "**Resource Group:** rg-azureupdatepptx-${{ github.event.inputs.environment_name }}"
+        echo "**Environment:** ${{ github.event.inputs.suffix_name }}"
+        echo "**Resource Group:** rg-azureupdatepptx-${{ github.event.inputs.suffix_name }}"
         echo ""
         echo "All Azure resources have been removed."

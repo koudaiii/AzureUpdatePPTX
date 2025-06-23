@@ -3,7 +3,7 @@ name: Manual Environment Deploy
 on:
   workflow_dispatch:
     inputs:
-      environment_name:
+      suffix_name:
         description: 'Environment name (e.g., dev, test, pr-123)'
         required: true
         default: 'dev'
@@ -50,9 +50,9 @@ jobs:
         DEPLOYMENT_OUTPUT=$(az deployment sub create \
           --location "East US" \
           --template-file main.bicep \
-          --parameters environmentName="${{ github.event.inputs.environment_name }}" \
+          --parameters environmentName="${{ github.event.inputs.suffix_name }}" \
           --parameters dockerImage="${{ steps.docker.outputs.image }}" \
-          --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.environment_name }}"}' \
+          --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.suffix_name }}"}' \
           --query 'properties.outputs.appServiceUrl.value' \
           --output tsv)
         echo "url=$DEPLOYMENT_OUTPUT" >> $GITHUB_OUTPUT
@@ -61,6 +61,6 @@ jobs:
       run: |
         echo "## 🚀 Environment Deployed"
         echo ""
-        echo "**Environment:** ${{ github.event.inputs.environment_name }}"
+        echo "**Environment:** ${{ github.event.inputs.suffix_name }}"
         echo "**App URL:** ${{ steps.deploy.outputs.url }}"
         echo "**Docker Image:** ${{ steps.docker.outputs.image }}"
