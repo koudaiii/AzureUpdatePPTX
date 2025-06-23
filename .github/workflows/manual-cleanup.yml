@@ -29,10 +29,26 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - name: Validate inputs
+      run: |
+        if [[ ! "${{ github.event.inputs.suffix_name }}" =~ ^[a-zA-Z0-9-]+$ ]]; then
+          echo "Invalid suffix name. Only alphanumeric characters and hyphens allowed."
+          exit 1
+        fi
+
+    - name: Check if resource group exists
+      run: |
+        if az group show --name rg-azureupdatepptx-${{ github.event.inputs.suffix_name }} &>/dev/null; then
+          echo "Resource group exists, proceeding with cleanup..."
+        else
+          echo "Resource group not found, nothing to clean up."
+          exit 0
+        fi
+
     - name: Delete Resource Group
       run: |
         az group delete \
-          --name "srg-azureupdatepptx-${{ github.event.inputs.suffix_name }}" \
+          --name "rg-azureupdatepptx-${{ github.event.inputs.suffix_name }}" \
           --yes \
           --no-wait
 
@@ -40,7 +56,6 @@ jobs:
       run: |
         echo "## 🗑️ Environment Cleaned Up"
         echo ""
-        echo "**Environment:** ${{ github.event.inputs.suffix_name }}"
         echo "**Resource Group:** rg-azureupdatepptx-${{ github.event.inputs.suffix_name }}"
         echo ""
         echo "All Azure resources have been removed."

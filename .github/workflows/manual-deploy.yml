@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       suffix_name:
-        description: 'Environment name (e.g., dev, test, pr-123)'
+        description: 'suffix name (e.g., dev, test, pr-123)'
         required: true
         default: 'dev'
       docker_image_tag:
@@ -34,6 +34,13 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - name: Validate inputs
+      run: |
+        if [[ ! "${{ github.event.inputs.suffix_name }}" =~ ^[a-zA-Z0-9-]+$ ]]; then
+          echo "Invalid suffix name. Only alphanumeric characters and hyphens allowed."
+          exit 1
+        fi
+
     - name: Set Docker image
       id: docker
       run: |
@@ -47,10 +54,11 @@ jobs:
       working-directory: ./infra
       id: deploy
       run: |
+        set -e  # Exit on any error
         DEPLOYMENT_OUTPUT=$(az deployment sub create \
           --location "East US" \
           --template-file main.bicep \
-          --parameters environmentName="${{ github.event.inputs.suffix_name }}" \
+          --parameters suffixName="${{ github.event.inputs.suffix_name }}" \
           --parameters dockerImage="${{ steps.docker.outputs.image }}" \
           --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.suffix_name }}"}' \
           --query 'properties.outputs.appServiceUrl.value' \
