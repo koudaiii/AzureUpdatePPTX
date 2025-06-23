@@ -31,10 +31,10 @@ jobs:
 
     - name: Delete Resource Group
       run: |
-        echo "az group delete \
-          --name rg-azureupdatepptx-${{ github.event.inputs.environment_name }}\" \
+        az group delete \
+          --name "srg-azureupdatepptx-${{ github.event.inputs.environment_name }}" \
           --yes \
-          --no-wait"
+          --no-wait
 
     - name: Output cleanup info
       run: |
