@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       suffix_name:
-        description: 'Environment name to delete (e.g., dev, test, pr-123)'
+        description: 'suffix name to delete (e.g., dev, test, pr-123)'
         required: true
 
 permissions:
