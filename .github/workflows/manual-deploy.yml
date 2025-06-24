@@ -40,6 +40,11 @@ jobs:
           echo "Invalid suffix name. Only alphanumeric characters and hyphens allowed."
           exit 1
         fi
+        # Optional: Validate Docker tag format
+        if [[ ! "${{ github.event.inputs.docker_image_tag }}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+          echo "Invalid Docker image tag format."
+          exit 1
+        fi
 
     - name: Set Docker image
       id: docker
@@ -51,7 +56,7 @@ jobs:
         fi
 
     - name: Deploy Bicep template
-      working-directory: ./infra
+      working-directory: ./infra # TODO
       id: deploy
       run: |
         set -e  # Exit on any error
