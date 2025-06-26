@@ -56,14 +56,13 @@ jobs:
         fi
 
     - name: Deploy Bicep template
-      working-directory: ./infra # TODO
       id: deploy
       run: |
         set -e  # Exit on any error
         DEPLOYMENT_OUTPUT=$(az deployment sub create \
           --location "Australia East" \
-          --template-file main.bicep \
-          --parameters main.bicepparam \
+          --template-file infra/main.bicep \
+          --parameters infra/main.bicepparam \
           --parameters suffixName="${{ github.event.inputs.suffix_name }}" \
           --parameters dockerImage="${{ steps.docker.outputs.image }}" \
           --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.suffix_name }}"}' \
@@ -75,6 +74,5 @@ jobs:
       run: |
         echo "## 🚀 Environment Deployed"
         echo ""
-        echo "**Environment:** ${{ github.event.inputs.suffix_name }}"
         echo "**App URL:** ${{ steps.deploy.outputs.url }}"
         echo "**Docker Image:** ${{ steps.docker.outputs.image }}"
