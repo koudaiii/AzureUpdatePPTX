@@ -1,0 +1,61 @@
+name: Manual Environment Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      suffix_name:
+        description: 'suffix name to delete (e.g., dev, test, pr-123)'
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_CORE_OUTPUT: json
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Validate inputs
+      run: |
+        if [[ ! "${{ github.event.inputs.suffix_name }}" =~ ^[a-zA-Z0-9-]+$ ]]; then
+          echo "Invalid suffix name. Only alphanumeric characters and hyphens allowed."
+          exit 1
+        fi
+
+    - name: Check if resource group exists
+      run: |
+        if az group show --name rg-azureupdatepptx-${{ github.event.inputs.suffix_name }} &>/dev/null; then
+          echo "Resource group exists, proceeding with cleanup..."
+        else
+          echo "Resource group not found, nothing to clean up."
+          exit 0
+        fi
+
+    - name: Delete Resource Group
+      run: |
+        az group delete \
+          --name "rg-azureupdatepptx-${{ github.event.inputs.suffix_name }}" \
+          --yes \
+          --no-wait
+
+    - name: Output cleanup info
+      run: |
+        echo "## 🗑️ Environment Cleaned Up"
+        echo ""
+        echo "**Resource Group:** rg-azureupdatepptx-${{ github.event.inputs.suffix_name }}"
+        echo ""
+        echo "All Azure resources have been removed."

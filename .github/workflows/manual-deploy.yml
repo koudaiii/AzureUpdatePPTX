@@ -1,0 +1,133 @@
+name: Manual Environment Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      suffix_name:
+        description: 'suffix name (e.g., yyyymmddHHMM, dev, prod)'
+        required: false
+        type: string
+        default: ''
+      docker_image_tag:
+        description: 'Docker image tag (default: latest)'
+        required: true
+        default: 'latest'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_CORE_OUTPUT: json
+  DOCKER_REGISTRY: koudaiii
+  DOCKER_IMAGE_NAME: azureupdatepptx
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Set suffix name
+      id: suffix
+      run: |
+        name="${{ github.event.inputs.suffix_name }}"
+        if [[ -z "$name" ]]; then
+          echo "No suffix name provided. Using current timestamp."
+          name=$(date -u +%Y%m%d%H%M)
+        fi
+        if [[ -n "$name" && ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$ ]]; then
+          echo "Invalid suffix name. Must start/end with alphanumeric, hyphens only in middle."
+          exit 1
+        fi
+        echo "name=$name" >> $GITHUB_OUTPUT
+
+
+    - name: Set Docker image
+      id: docker
+      run: |
+        if [[ ! "${{ github.event.inputs.docker_image_tag }}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+          echo "Invalid Docker image tag format."
+          exit 1
+        fi
+        if [ "${{ github.event.inputs.docker_image_tag }}" = "latest" ]; then
+          echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME}}:latest" >> $GITHUB_OUTPUT
+        else
+          echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME}}:${{ github.event.inputs.docker_image_tag }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Validate Bicep template
+      run: |
+        az deployment sub validate \
+          --location "Australia East" \
+          --template-file infra/main.bicep \
+          --parameters infra/main.bicepparam \
+          --parameters suffixName="${{ steps.suffix.outputs.name }}" \
+          --parameters dockerImage="${{ steps.docker.outputs.image }}"
+    
+    - name: Deploy Bicep template
+      id: deploy
+      run: |
+        set -e  # Exit on any error
+        DEPLOYMENT_OUTPUT=$(az deployment sub create \
+          --location "Australia East" \
+          --template-file infra/main.bicep \
+          --parameters infra/main.bicepparam \
+          --parameters suffixName="${{ steps.suffix.outputs.name }}" \
+          --parameters dockerImage="${{ steps.docker.outputs.image }}" \
+          --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ steps.suffix.outputs.name }}","created_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","created_by":"github-actions"}' \
+          --query 'properties.outputs.appServiceUrl.value' \
+          --output tsv)
+        echo "url=$DEPLOYMENT_OUTPUT" >> $GITHUB_OUTPUT
+
+    - name: Verify deployment
+      run: |
+        echo "Checking if app is responding..."
+        MAX_ATTEMPTS=10
+        ATTEMPT=1
+
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          if curl -f -s --max-time 10 "${{ steps.deploy.outputs.url }}" > /dev/null; then
+            echo "✅ Application is responding"
+            break
+          fi
+
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "⚠️ Application not responding after $MAX_ATTEMPTS attempts"
+            break
+          fi
+
+          sleep 10
+          ATTEMPT=$((ATTEMPT + 1))
+        done
+
+    - name: Rollback on failure
+      if: failure()
+      run: |
+        echo "Deployment failed. Resource group: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}"
+        echo "Resource group: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}"
+        echo "Docker image: ${{ steps.docker.outputs.image }}"
+        echo "Consider running cleanup workflow if needed."
+
+    - name: Output deployment info
+      run: |
+        echo "## 🚀 Environment Deployed"
+        echo ""
+        echo "**App URL:** ${{ steps.deploy.outputs.url }}"
+        echo "**Docker Image:** ${{ steps.docker.outputs.image }}"
+
+    - name: Add to job summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **App URL**: ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Resource Group**: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}" >> $GITHUB_STEP_SUMMARY
