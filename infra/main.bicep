@@ -31,7 +31,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 }
 
 // Deploy resources in the resource group
-module resources 'modules/resources.bicep' = {
+module resources 'resources.bicep' = {
   scope: rg
   name: 'resources'
   params: {
