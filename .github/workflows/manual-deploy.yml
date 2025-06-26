@@ -63,6 +63,7 @@ jobs:
         DEPLOYMENT_OUTPUT=$(az deployment sub create \
           --location "Australia East" \
           --template-file main.bicep \
+          --parameters main.bicepparam \
           --parameters suffixName="${{ github.event.inputs.suffix_name }}" \
           --parameters dockerImage="${{ steps.docker.outputs.image }}" \
           --parameters tags='{"project":"AzureUpdatePPTX","managed_by":"bicep","environment":"${{ github.event.inputs.suffix_name }}"}' \
