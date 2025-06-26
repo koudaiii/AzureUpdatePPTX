@@ -46,7 +46,7 @@ jobs:
           echo "No suffix name provided. Using current timestamp."
           name=$(date -u +%Y%m%d%H%M)
         fi
-        if [[ ! "${{ github.event.inputs.suffix_name }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$ ]]; then
+        if [[ -n "$name" && ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$ ]]; then
           echo "Invalid suffix name. Must start/end with alphanumeric, hyphens only in middle."
           exit 1
         fi
