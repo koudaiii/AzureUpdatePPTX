@@ -61,7 +61,7 @@ jobs:
       run: |
         set -e  # Exit on any error
         DEPLOYMENT_OUTPUT=$(az deployment sub create \
-          --location "East US" \
+          --location "Australia East" \
           --template-file main.bicep \
           --parameters suffixName="${{ github.event.inputs.suffix_name }}" \
           --parameters dockerImage="${{ steps.docker.outputs.image }}" \
