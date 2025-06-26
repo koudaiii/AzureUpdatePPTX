@@ -115,6 +115,8 @@ jobs:
       if: failure()
       run: |
         echo "Deployment failed. Resource group: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}"
+        echo "Resource group: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}"
+        echo "Docker image: ${{ steps.docker.outputs.image }}"
         echo "Consider running cleanup workflow if needed."
 
     - name: Output deployment info
@@ -123,3 +125,9 @@ jobs:
         echo ""
         echo "**App URL:** ${{ steps.deploy.outputs.url }}"
         echo "**Docker Image:** ${{ steps.docker.outputs.image }}"
+
+    - name: Add to job summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **App URL**: ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Resource Group**: rg-azureupdatepptx-${{ steps.suffix.outputs.name }}" >> $GITHUB_STEP_SUMMARY
