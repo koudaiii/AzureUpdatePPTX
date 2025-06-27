@@ -18,7 +18,6 @@ permissions:
   id-token: write
 
 env:
-  AZURE_CORE_OUTPUT: json
   DOCKER_REGISTRY: koudaiii
   DOCKER_IMAGE_NAME: azureupdatepptx
 
