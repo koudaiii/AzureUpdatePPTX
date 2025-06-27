@@ -37,10 +37,15 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Update Azure CLI
+      # https://github.com/actions/runner-images/issues/12361#issuecomment-2977369450
+      # https://github.com/Azure/azure-cli/issues/31581#issuecomment-2944491341
+      # Avoid RuntimeError: The content for this response was already consumed
+    - name: Fix Azure CLI version issue
       run: |
-        az version
-        az upgrade --yes || true
+        apt-cache policy azure-cli
+        AZ_DIST=$(lsb_release -cs)
+        AZ_VER=2.72.0
+        sudo apt-get install azure-cli=${AZ_VER}-1~${AZ_DIST} --allow-downgrades
 
     - name: Set suffix name
       id: suffix
