@@ -75,14 +75,16 @@ jobs:
           echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME}}:${{ github.event.inputs.docker_image_tag }}" >> $GITHUB_OUTPUT
         fi
 
-#    - name: Validate Bicep template
-#      run: |
-#        az deployment sub validate \
-#          --location "Australia East" \
-#          --template-file infra/main.bicep \
-#          --parameters infra/main.bicepparam \
-#          --parameters suffixName="${{ steps.suffix.outputs.name }}" \
-#          --parameters dockerImage="${{ steps.docker.outputs.image }}"
+    - name: Validate Bicep template
+      run: |
+        set -e  # Exit on any error
+
+        az deployment sub validate \
+          --location "Australia East" \
+          --template-file infra/main.bicep \
+          --parameters infra/main.bicepparam \
+          --parameters suffixName="${{ steps.suffix.outputs.name }}" \
+          --parameters dockerImage="${{ steps.docker.outputs.image }}"
     
     - name: Deploy Bicep template
       id: deploy
