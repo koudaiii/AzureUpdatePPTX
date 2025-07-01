@@ -200,5 +200,5 @@ __azurite_db_blob_extent__.json
 __blobstorage__/
 .azure
 .DS_Store
-app_creation_output.json
-policy.json
+*app_creation_output.json
+*policy.json
