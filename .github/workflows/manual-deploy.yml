@@ -21,6 +21,8 @@ env:
   AZURE_CORE_OUTPUT: json
   DOCKER_REGISTRY: koudaiii
   DOCKER_IMAGE_NAME: azureupdatepptx
+  API_KEY: ${{ secrets.API_KEY }}
+  API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
 
 jobs:
   deploy:
