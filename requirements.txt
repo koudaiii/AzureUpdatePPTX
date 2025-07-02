@@ -59,7 +59,7 @@ python-pptx==1.0.2
 pytz==2024.2
 pywin32-ctypes==0.2.3
 referencing==0.35.1
-requests==2.32.3
+requests==2.32.4
 rich==13.9.4
 rpds-py==0.22.3
 setuptools==78.1.1
