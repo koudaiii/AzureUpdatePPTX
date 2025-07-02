@@ -58,3 +58,13 @@ jobs:
         echo "  - $DOCKER_IMAGE:latest"
         echo "Docker Hub URL: https://hub.docker.com/r/koudaiii/azureupdatepptx"
         echo "================================="
+    -
+      name: Add to job summary
+      if: success()  # Only add to summary if previous steps succeeded
+      run: |
+        DOCKER_IMAGE=koudaiii/azureupdatepptx
+        GIT_COMMIT=$(git rev-parse --short HEAD)
+        echo "### Docker Build & Push Summary" >> $GITHUB_STEP_SUMMARY
+        echo "Pushed Tags:" >> $GITHUB_STEP_SUMMARY
+        echo "  - $DOCKER_IMAGE:$GIT_COMMIT" >> $GITHUB_STEP_SUMMARY
+        echo "  - $DOCKER_IMAGE:latest" >> $GITHUB_STEP_SUMMARY
