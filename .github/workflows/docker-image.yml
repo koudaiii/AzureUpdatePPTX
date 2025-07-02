@@ -44,3 +44,17 @@ jobs:
     -
       name: Push to Docker Hub
       run: script/docker-push
+    -
+      name: Display build summary
+      if: success()  # Only show summary if previous steps succeeded
+      run: |
+        DOCKER_IMAGE=koudaiii/azureupdatepptx
+        GIT_COMMIT=$(git rev-parse --short HEAD)
+        echo "=== Docker Build & Push Summary ==="
+        echo "Repository: $DOCKER_IMAGE"
+        echo "Git Commit: $GIT_COMMIT"
+        echo "Pushed Tags:"
+        echo "  - $DOCKER_IMAGE:$GIT_COMMIT"
+        echo "  - $DOCKER_IMAGE:latest"
+        echo "Docker Hub URL: https://hub.docker.com/r/koudaiii/azureupdatepptx"
+        echo "================================="
