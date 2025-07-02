@@ -46,6 +46,7 @@ jobs:
       run: script/docker-push
     -
       name: Display build summary
+      if: success()  # Only show summary if previous steps succeeded
       run: |
         DOCKER_IMAGE=koudaiii/azureupdatepptx
         GIT_COMMIT=$(git rev-parse --short HEAD)
