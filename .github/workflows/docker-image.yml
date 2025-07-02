@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  DOCKER_IMAGE: "koudaiii/azureupdatepptx"
+
 jobs:
 
   build:
@@ -44,3 +47,27 @@ jobs:
     -
       name: Push to Docker Hub
       run: script/docker-push
+    -
+      name: Display build summary and add to job summary
+      if: success()
+      run: |
+        GIT_COMMIT=$(git rev-parse --short HEAD)
+
+        # Display in console
+        echo "=== Docker Build & Push Summary ==="
+        echo "Repository: $DOCKER_IMAGE"
+        echo "Git Commit: $GIT_COMMIT"
+        echo "Pushed Tags:"
+        echo "  - $DOCKER_IMAGE:$GIT_COMMIT"
+        echo "  - $DOCKER_IMAGE:latest"
+        echo "Docker Hub URL: https://hub.docker.com/r/koudaiii/azureupdatepptx"
+        echo "================================="
+
+        # Add to GitHub step summary
+        echo "### Docker Build & Push Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Repository:** $DOCKER_IMAGE" >> $GITHUB_STEP_SUMMARY
+        echo "**Git Commit:** $GIT_COMMIT" >> $GITHUB_STEP_SUMMARY
+        echo "**Pushed Tags:**" >> $GITHUB_STEP_SUMMARY
+        echo "- \`$DOCKER_IMAGE:$GIT_COMMIT\`" >> $GITHUB_STEP_SUMMARY
+        echo "- \`$DOCKER_IMAGE:latest\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Docker Hub:** https://hub.docker.com/r/koudaiii/azureupdatepptx" >> $GITHUB_STEP_SUMMARY
