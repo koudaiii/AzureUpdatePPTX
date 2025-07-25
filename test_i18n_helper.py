@@ -86,6 +86,18 @@ class TestLanguageDetection(unittest.TestCase):
     
     @patch('streamlit.session_state', new_callable=lambda: MagicMock())
     @patch('locale.getdefaultlocale')
+    def test_japanese_locale_detection(self, mock_locale, mock_session_state):
+        """日本語ロケール検出のテスト"""
+        mock_locale.return_value = ('ja_JP', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'ja')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
     def test_korean_locale_detection(self, mock_locale, mock_session_state):
         """韓国語ロケール検出のテスト"""
         mock_locale.return_value = ('ko_KR', 'UTF-8')
@@ -134,8 +146,8 @@ class TestLanguageDetection(unittest.TestCase):
     
     @patch('streamlit.session_state', new_callable=lambda: MagicMock())
     @patch('locale.getdefaultlocale')
-    def test_english_locale_detection(self, mock_locale, mock_session_state):
-        """英語ロケール検出のテスト"""
+    def test_english_us_locale_detection(self, mock_locale, mock_session_state):
+        """英語（米国）ロケール検出のテスト"""
         mock_locale.return_value = ('en_US', 'UTF-8')
         mock_session_state.__contains__ = lambda key: False
         mock_session_state.__setitem__ = lambda key, value: None
@@ -146,9 +158,201 @@ class TestLanguageDetection(unittest.TestCase):
     
     @patch('streamlit.session_state', new_callable=lambda: MagicMock())
     @patch('locale.getdefaultlocale')
+    def test_english_gb_locale_detection(self, mock_locale, mock_session_state):
+        """英語（英国）ロケール検出のテスト"""
+        mock_locale.return_value = ('en_GB', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'en')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_chinese_generic_locale_detection(self, mock_locale, mock_session_state):
+        """中国語（汎用）ロケール検出のテスト（簡体字として扱う）"""
+        mock_locale.return_value = ('zh', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'zh-cn')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_thai_locale_detection(self, mock_locale, mock_session_state):
+        """タイ語ロケール検出のテスト"""
+        mock_locale.return_value = ('th_TH', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'th')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_vietnamese_locale_detection(self, mock_locale, mock_session_state):
+        """ベトナム語ロケール検出のテスト"""
+        mock_locale.return_value = ('vi_VN', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'vi')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_indonesian_locale_detection(self, mock_locale, mock_session_state):
+        """インドネシア語ロケール検出のテスト"""
+        mock_locale.return_value = ('id_ID', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'id')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_hindi_locale_detection(self, mock_locale, mock_session_state):
+        """ヒンディー語ロケール検出のテスト"""
+        mock_locale.return_value = ('hi_IN', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'hi')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
     def test_unsupported_locale_detection(self, mock_locale, mock_session_state):
         """サポート外ロケール検出のテスト（デフォルト英語）"""
         mock_locale.return_value = ('fr_FR', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'en')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_thai_generic_locale_detection(self, mock_locale, mock_session_state):
+        """タイ語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('th', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'th')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_vietnamese_generic_locale_detection(self, mock_locale, mock_session_state):
+        """ベトナム語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('vi', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'vi')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_indonesian_generic_locale_detection(self, mock_locale, mock_session_state):
+        """インドネシア語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('id', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'id')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_hindi_generic_locale_detection(self, mock_locale, mock_session_state):
+        """ヒンディー語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('hi', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'hi')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_korean_region_locale_detection(self, mock_locale, mock_session_state):
+        """韓国語（地域指定）ロケール検出のテスト"""
+        mock_locale.return_value = ('ko_KR', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'ko')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_korean_generic_locale_detection(self, mock_locale, mock_session_state):
+        """韓国語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('ko', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'ko')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_chinese_cn_region_locale_detection(self, mock_locale, mock_session_state):
+        """中国語（中国本土）ロケール検出のテスト"""
+        mock_locale.return_value = ('zh_CN', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'zh-cn')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_japanese_region_locale_detection(self, mock_locale, mock_session_state):
+        """日本語（地域指定）ロケール検出のテスト"""
+        mock_locale.return_value = ('ja_JP', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'ja')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_japanese_generic_locale_detection(self, mock_locale, mock_session_state):
+        """日本語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('ja', 'UTF-8')
+        mock_session_state.__contains__ = lambda key: False
+        mock_session_state.__setitem__ = lambda key, value: None
+        
+        i18n = I18nHelper()
+        detected_lang = i18n._detect_system_locale()
+        self.assertEqual(detected_lang, 'ja')
+    
+    @patch('streamlit.session_state', new_callable=lambda: MagicMock())
+    @patch('locale.getdefaultlocale')
+    def test_english_generic_locale_detection(self, mock_locale, mock_session_state):
+        """英語（汎用）ロケール検出のテスト"""
+        mock_locale.return_value = ('en', 'UTF-8')
         mock_session_state.__contains__ = lambda key: False
         mock_session_state.__setitem__ = lambda key, value: None
         

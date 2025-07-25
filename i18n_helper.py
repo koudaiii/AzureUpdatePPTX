@@ -94,14 +94,19 @@ class I18nHelper:
         try:
             system_locale = locale.getdefaultlocale()[0]
             if system_locale:
+                # JavaScript mapping に基づく言語検出
                 if system_locale.startswith('ja'):
                     return 'ja'
+                elif system_locale.startswith('en'):
+                    return 'en'
                 elif system_locale.startswith('ko'):
                     return 'ko'
                 elif system_locale.startswith('zh_CN'):
                     return 'zh-cn'
                 elif system_locale.startswith('zh_TW') or system_locale.startswith('zh_HK'):
                     return 'zh-tw'
+                elif system_locale == 'zh':  # 汎用中国語は簡体字にマップ
+                    return 'zh-cn'
                 elif system_locale.startswith('th'):
                     return 'th'
                 elif system_locale.startswith('vi'):
