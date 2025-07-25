@@ -7,8 +7,19 @@ from pptx import Presentation
 from pptx.util import Pt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from i18n_helper import i18n
+from i18n_helper import i18n, LANGUAGES
 load_dotenv()
+
+# Check for browser language in query parameters BEFORE st.set_page_config
+query_params = st.query_params
+if 'browser_lang' in query_params:
+    browser_lang = query_params['browser_lang']
+    if browser_lang in LANGUAGES:
+        # Initialize language in session state before any UI rendering
+        st.session_state.language = browser_lang
+        st.session_state.browser_detected_lang = browser_lang
+        st.session_state.detected_browser_language = browser_lang
+        st.session_state.language_auto_detected = True
 
 # Set the browser page title
 st.set_page_config(

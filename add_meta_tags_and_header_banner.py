@@ -106,9 +106,73 @@ def get_banner_style():
     }
     """)
 
+def get_language_detector_script():
+    """Return language detector JavaScript code"""
+    return textwrap.dedent("""
+    // ブラウザの言語設定を検出してStreamlitに送信
+    function detectBrowserLanguage() {
+        // ブラウザの言語設定を取得
+        let browserLang = navigator.language || navigator.userLanguage;
+        console.log('Browser language detected:', browserLang);
+
+        // 言語コードをマッピング
+        const langMapping = {
+            'ja': 'ja',
+            'ja-JP': 'ja',
+            'en': 'en',
+            'en-US': 'en', 
+            'en-GB': 'en',
+            'ko': 'ko',
+            'ko-KR': 'ko',
+            'zh': 'zh-cn',
+            'zh-CN': 'zh-cn',
+            'zh-TW': 'zh-tw',
+            'zh-HK': 'zh-tw',
+            'th': 'th',
+            'th-TH': 'th',
+            'vi': 'vi',
+            'vi-VN': 'vi',
+            'id': 'id',
+            'id-ID': 'id',
+            'hi': 'hi',
+            'hi-IN': 'hi'
+        };
+
+        // 対応する言語コードを取得（デフォルトは英語）
+        let detectedLang = langMapping[browserLang] || 'en';
+
+        // 言語の優先順位を考慮（ブラウザが複数の言語を返す場合）
+        if (navigator.languages && navigator.languages.length > 0) {
+            for (let lang of navigator.languages) {
+                if (langMapping[lang]) {
+                    detectedLang = langMapping[lang];
+                    break;
+                }
+            }
+        }
+
+        console.log('Mapped language:', detectedLang);
+
+        // URLにbrowser_langパラメータを追加してリダイレクト
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('browser_lang') && !urlParams.has('lang_detected')) {
+            urlParams.set('browser_lang', detectedLang);
+            window.location.search = urlParams.toString();
+        }
+
+        return detectedLang;
+    }
+
+    // ページ読み込み時に実行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', detectBrowserLanguage);
+    } else {
+        detectBrowserLanguage();
+    }
+    """)
 
 def modify_html(file_path):
-    """Add meta tags and header banner to HTML file"""
+    """Add meta tags, header banner, and language detector to HTML file"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
@@ -127,6 +191,11 @@ def modify_html(file_path):
         style_tag.string = get_banner_style()
         soup.head.append(style_tag)
 
+        # Add language detector script
+        script_tag = soup.new_tag('script')
+        script_tag.string = get_language_detector_script()
+        soup.head.append(script_tag)
+
         # Add header banner
         banner = soup.new_tag('div', attrs={'class': 'header-banner'})
         banner.string = "Public Preview"
@@ -136,7 +205,7 @@ def modify_html(file_path):
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(str(soup))
 
-        logging.info("Meta tags and header banner have been added")
+        logging.info("Meta tags, header banner, and language detector have been added")
         return True
     except Exception as e:
         logging.error(f"Failed to modify HTML file: {e}")
