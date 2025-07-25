@@ -7,7 +7,6 @@ Thai, Vietnamese, Indonesian, and Hindi.
 """
 
 import json
-import locale
 import os
 from datetime import datetime
 from typing import Dict, Any
@@ -94,22 +93,6 @@ DATE_FORMATS: Dict[str, str] = {
 }
 
 
-# Locale mapping for system language detection
-LOCALE_LANGUAGE_MAP: Dict[str, str] = {
-    'ja': 'ja',
-    'en': 'en',
-    'ko': 'ko',
-    'zh_CN': 'zh-cn',
-    'zh_TW': 'zh-tw',
-    # Defaulting 'zh_HK' (Hong Kong) to 'zh-tw' (Traditional Chinese). This is based on common usage patterns
-    # but may not be universally correct. To override this mapping, set the 'ZH_HK_LANGUAGE' environment variable.
-    'zh_HK': os.getenv('ZH_HK_LANGUAGE', 'zh-tw'),
-    'zh': 'zh-cn',
-    'th': 'th',
-    'vi': 'vi',
-    'id': 'id',
-    'hi': 'hi'
-}
 
 
 class I18nHelper:
@@ -273,7 +256,7 @@ class I18nHelper:
 
     def _detect_browser_language(self) -> str:
         """
-        Detect the browser/system language.
+        Detect the browser language.
 
         Returns:
             Detected language code, defaults to 'en' if detection fails.
@@ -288,39 +271,11 @@ class I18nHelper:
             st.session_state.detected_browser_language = detected
             return detected
 
-        # Fall back to system locale detection
-        detected = self._detect_system_locale()
+        # Default to English if no browser detection
+        detected = 'en'
         st.session_state.detected_browser_language = detected
         return detected
 
-    def _detect_system_locale(self) -> str:
-        """
-        Detect language from system locale settings.
-
-        Returns:
-            Detected language code based on system locale.
-        """
-        try:
-            system_locale = locale.getdefaultlocale()[0]
-            if not system_locale:
-                return 'en'
-
-            # Check exact match first
-            if system_locale in LOCALE_LANGUAGE_MAP:
-                return LOCALE_LANGUAGE_MAP[system_locale]
-
-            # Check prefix matches
-            for locale_prefix, lang_code in LOCALE_LANGUAGE_MAP.items():
-                if system_locale.startswith(locale_prefix + '_'):
-                    return lang_code
-
-            # Check if it's an English locale variant
-            if system_locale.startswith('en_'):
-                return 'en'
-
-            return 'en'
-        except (OSError, AttributeError):
-            return 'en'
 
     def _process_language_query_param(self) -> None:
         """
