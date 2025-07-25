@@ -209,10 +209,10 @@ def extract_update_data(result):
 
 
 # Create Azure Updates
-def process_update(url, client, deployment_name, prs):
+def process_update(url, client, deployment_name, prs, system_prompt):
     # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
-    result = azup.read_and_summary(client, deployment_name, url, i18n.get_system_prompt())
+    result = azup.read_and_summary(client, deployment_name, url, system_prompt)
     logging.debug("Result: %s", result)
     for key, value in result.items():
         logging.info("%s : %s", key, value)
@@ -296,9 +296,13 @@ if st.button(i18n.t("button_text")):
 
     # Get Azure OpenAI client
     client, deployment_name = azup.azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
+
+    # system prompt for Azure OpenAI
+    system_prompt = i18n.get_system_prompt()
+
     # Get Azure Updates information and create slides
     for url in urls:
-        process_update(url, client, deployment_name, prs)
+        process_update(url, client, deployment_name, prs, system_prompt)
 
     # Save PPTX
     prs.save(pptx_file.name)
