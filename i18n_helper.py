@@ -233,8 +233,7 @@ class I18nHelper:
 
         Handles browser language detection and user language selection.
         """
-        # Inject JavaScript for browser language detection
-        self._inject_language_detector()
+        self._process_language_query_param()
         current_lang = self.get_current_language()
 
         # Get index of current language
