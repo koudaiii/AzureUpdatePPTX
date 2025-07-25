@@ -101,7 +101,9 @@ LOCALE_LANGUAGE_MAP: Dict[str, str] = {
     'ko': 'ko',
     'zh_CN': 'zh-cn',
     'zh_TW': 'zh-tw',
-    'zh_HK': 'zh-tw',
+    # Defaulting 'zh_HK' (Hong Kong) to 'zh-tw' (Traditional Chinese). This is based on common usage patterns
+    # but may not be universally correct. To override this mapping, set the 'ZH_HK_LANGUAGE' environment variable.
+    'zh_HK': os.getenv('ZH_HK_LANGUAGE', 'zh-tw'),
     'zh': 'zh-cn',
     'th': 'th',
     'vi': 'vi',
