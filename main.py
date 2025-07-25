@@ -212,7 +212,7 @@ def extract_update_data(result):
 def process_update(url, client, deployment_name, prs):
     # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
-    result = azup.read_and_summary(client, deployment_name, url, i18n.get_system_prompt())
+    result = azup.read_and_summary(client, deployment_name, url, system_prompt=i18n.get_system_prompt())
     logging.debug("Result: %s", result)
     for key, value in result.items():
         logging.info("%s : %s", key, value)
