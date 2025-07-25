@@ -256,19 +256,20 @@ class I18nHelper:
                     f"🌐 {lang_name} was selected based on system settings"
                 )
 
-        # Display select box
+        # Display select box with on_change callback
+        def on_language_change():
+            selected_lang = st.session_state.language_selector
+            if selected_lang != st.session_state.get('language', 'en'):
+                st.session_state.language = selected_lang
+
         selected_lang = st.selectbox(
             "Language / 言語",
             options=lang_codes,
             format_func=lambda x: LANGUAGES[x],
             index=current_index,
-            key="language_selector"
+            key="language_selector",
+            on_change=on_language_change
         )
-
-        # If language was changed
-        if selected_lang != current_lang:
-            self.set_language(selected_lang)
-            st.rerun()
 
     def _detect_browser_language(self) -> str:
         """
@@ -328,8 +329,8 @@ class I18nHelper:
         Checks for browser_lang in query parameters and sets the language
         accordingly.
         """
-        # Skip if already detected
-        if 'browser_detected_lang' in st.session_state:
+        # Skip if already processed
+        if 'browser_lang_processed' in st.session_state:
             return
 
         # Check for browser language in query parameters
@@ -338,21 +339,19 @@ class I18nHelper:
             browser_lang = query_params['browser_lang']
             if browser_lang in LANGUAGES:
                 # Set the detected language in session state
-                if ('language' not in st.session_state or
-                        st.session_state.language != browser_lang):
-                    st.session_state.language = browser_lang
-                    st.session_state.browser_detected_lang = browser_lang
-                    st.session_state.detected_browser_language = browser_lang
-                    st.session_state.language_auto_detected = True
-                    # Clear the query parameter and rerun to apply the language
-                    st.query_params.clear()
-                    st.rerun()
-                else:
-                    # Language already set correctly, just clear the parameter
-                    st.query_params.clear()
+                st.session_state.language = browser_lang
+                st.session_state.browser_detected_lang = browser_lang
+                st.session_state.detected_browser_language = browser_lang
+                st.session_state.language_auto_detected = True
+                # Mark as processed and clear parameter
+                st.session_state.browser_lang_processed = True
+                st.query_params.clear()
             else:
                 # Clear invalid parameter
                 st.query_params.clear()
+                st.session_state.browser_lang_processed = True
+        else:
+            st.session_state.browser_lang_processed = True
 
 
 # Global instance for easy access
