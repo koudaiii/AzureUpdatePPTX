@@ -168,8 +168,7 @@ class I18nHelper:
         """
         if not isinstance(language_code, str) or language_code not in LANGUAGES:
             st.error(
-                f"Invalid language code: {language_code}, "
-                "Setting to default (English)."
+                self.t("invalid_language_code", language_code=language_code)
             )
             st.session_state.language = 'en'
             return
