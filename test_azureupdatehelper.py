@@ -187,7 +187,10 @@ class TestSummarizeArticle(unittest.TestCase):
         summary = azureupdatehelper.summarize_article(mock_client, mock_deployment_name, article)
         self.assertEqual(summary, ('Fake Summary', 'https://example.com'))
 
-        content = 'Title: Dummy article content\nProduct: Azure\nDescription: Some description with link\nLinks in description: https://example.com'
+        content = ('Title: Dummy article content\n'
+                   'Product: Azure\n'
+                   'Description: Some description with link\n'
+                   'Links in description: https://example.com')
         mock_chat_completions.create.assert_called_once_with(
             model=mock_deployment_name,
             messages=[

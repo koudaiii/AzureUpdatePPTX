@@ -39,7 +39,8 @@ save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
 # Get data from Azure Updates API
 entries = azup.get_rss_feed_entries()
-st.write(i18n.t("entries_count", 
+st.write(i18n.t(
+    "entries_count",
     oldest=azup.oldest_article_date(entries),
     latest=azup.latest_article_date(entries),
     count=len(entries)
@@ -235,7 +236,8 @@ def process_update(url, client, deployment_name, prs):
 
 # Title slide title
 def generate_slide_info(start_date, end_date) -> tuple[str, str]:
-    slide_title = i18n.t("slide_title", 
+    slide_title = i18n.t(
+        "slide_title",
         start=start_date.strftime('%Y/%m/%d'),
         end=end_date.strftime('%Y/%m/%d')
     )
@@ -266,7 +268,8 @@ if st.button(i18n.t("button_text")):
         st.error(i18n.t("env_error"))
         st.stop()
 
-    st.write(i18n.t("date_range", 
+    st.write(i18n.t(
+        "date_range",
         start=start_date(days).strftime("%Y-%m-%d"),
         end=end_date().strftime("%Y-%m-%d")
     ))
