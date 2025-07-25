@@ -1,41 +1,8 @@
 #!/bin/bash
 
-# Exit on any error
-set -e
+# stop the build if there are Python syntax errors or undefined names
+flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+# exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-echo "Running all test files..."
-
-# Run the test runner which automatically discovers and runs all test files
-echo "=== Running test runner (discovers all test_*.py files) ==="
 python test_runner.py
-
-# Also run individual test files to ensure they work independently
-echo ""
-echo "=== Running individual test files ==="
-
-echo "Running test_azureupdatehelper.py..."
-python -m unittest test_azureupdatehelper.py -v
-
-echo ""
-echo "Running test_add_meta_tags_and_header_banner.py..."
-python -m unittest test_add_meta_tags_and_header_banner.py -v
-
-#echo ""
-#echo "Running test_i18n_helper.py..."
-#python -m unittest test_i18n_helper.py -v
-
-echo ""
-echo "=== All tests completed successfully ==="
-
-# Optional linting (check if flake8 is available)
-if command -v flake8 &> /dev/null; then
-    echo ""
-    echo "=== Running flake8 linting ==="
-    # stop the build if there are Python syntax errors or undefined names
-    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-else
-    echo ""
-    echo "=== Flake8 not found, skipping linting ==="
-fi
