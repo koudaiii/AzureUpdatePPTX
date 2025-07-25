@@ -1,51 +1,92 @@
 # AzureUpdatePPTX
 
-## 概要
+[日本語版はこちら / Japanese version here](README_ja.md)
 
-AzureUpdatePPTX は、Azure の最新情報を自動的に取得し、PowerPoint プレゼンテーションを生成するツールです。
+## Overview
 
-## 特徴
+AzureUpdatePPTX is a multilingual tool that automatically retrieves Azure updates and generates PowerPoint presentations with AI-powered summaries.
 
-- Azure の最新情報を自動取得(最大90日分)
-- Azure OpenAI を利用して Azure の最新情報を三行に要約ならびにリンクを取得
-- PowerPoint プレゼンテーションの自動生成
+## Features
 
-## 事前にデプロイする Azure サービス
+- Automatic retrieval of Azure updates (up to 90 days)
+- AI-powered summarization of Azure updates in 9 languages using Azure OpenAI
+- Automatic PowerPoint presentation generation
+- Browser language detection and multilingual support
+- Support for Japanese, English, Korean, Chinese (Simplified/Traditional), Thai, Vietnamese, Indonesian, and Hindi
 
-- Azure OpenAI(GPT-4o のモデルデプロイメント)
+## Required Azure Services
 
-## Docker での実行
+- Azure OpenAI (with GPT-4o model deployment)
+
+## Running with Docker
 
 ```console
-$ docker run --rm -p 8000:8000 --env API_KEY=<fake_key> --env API_ENDPOINT=https://example.com/deployments/test/?api-version=2024-08-01-preview koudaiii/azureupdatepptx
-or
-$ cp .env.sample
+$ docker run --rm -p 8000:8000 --env API_KEY=<your_api_key> --env API_ENDPOINT=https://example.com/deployments/gpt-4o/?api-version=2024-08-01-preview koudaiii/azureupdatepptx
+```
+
+Or using environment file:
+```console
+$ cp .env.sample .env
 $ docker run --rm -p 8000:8000 --env-file .env koudaiii/azureupdatepptx
 ```
 
-ブラウザで `http://localhost:8000` にアクセスします
+Access the application at `http://localhost:8000`
 
-## 開発
+## Development
 
-1. `git clone https://github.com/koudaiii/AzureUpdatePPTX.git`
-2. `cd AzureUpdatePPTX`
-3. .env.sample を .env としてコピーします。Azure OpenAI の API Key, API Endpoint の接続文字列を設定します。
+1. Clone the repository:
+   ```console
+   git clone https://github.com/koudaiii/AzureUpdatePPTX.git
+   ```
+
+2. Navigate to the project directory:
+   ```console
+   cd AzureUpdatePPTX
+   ```
+
+3. Copy the environment sample and configure Azure OpenAI credentials:
    ```console
    cp .env.sample .env
    ```
-4. セットアップします。
+   Edit `.env` file and set your Azure OpenAI API Key and API Endpoint.
+
+4. Install dependencies:
    ```console
-   $ script/bootstrap
+   script/bootstrap
    ```
-6. サーバーを起動します。
+
+5. Start the development server:
    ```console
    script/server
    ```
 
-ブラウザで `http://localhost:8000` にアクセスします
+Access the application at `http://localhost:8000`
 
-## 貢献
-貢献を歓迎します。プルリクエストを送る前に、問題を報告してください。
+## Supported Languages
 
-## ライセンス
-このプロジェクトは MIT ライセンスの下でライセンスされています。
+The application automatically detects browser language and supports:
+
+- **Japanese (ja)**: 日本語 - Default
+- **English (en)**: English
+- **Korean (ko)**: 한국어
+- **Chinese Simplified (zh-cn)**: 中文(简体)
+- **Chinese Traditional (zh-tw)**: 中文(繁體)
+- **Thai (th)**: ไทย
+- **Vietnamese (vi)**: Tiếng Việt
+- **Indonesian (id)**: Bahasa Indonesia
+- **Hindi (hi)**: हिन्दी
+
+## Testing
+
+Run all tests using:
+```console
+python test_runner.py
+```
+
+## Contributing
+
+Contributions are welcome! Please report issues before submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License.
