@@ -105,8 +105,6 @@ class I18nHelper:
             print(f"[DEBUG] Using browser_detected_lang: {detected}")
             return detected
 
-        # Fallback: infer from system locale
-        print(f"[DEBUG] No browser language detected, falling back to system locale")
         detected = self._detect_system_locale()
         st.session_state.detected_browser_language = detected
         return detected
@@ -115,7 +113,6 @@ class I18nHelper:
         """Infer language from system locale"""
         try:
             system_locale = locale.getdefaultlocale()[0]
-            print(f"[DEBUG] System locale detected: {system_locale}")
             if not system_locale:
                 return 'en'
 
@@ -129,24 +126,19 @@ class I18nHelper:
 
             # Check exact match first
             if system_locale in locale_map:
-                print(f"[DEBUG] Exact locale match found: {locale_map[system_locale]}")
                 return locale_map[system_locale]
 
             # Check prefix matches
             for locale_prefix, lang_code in locale_map.items():
                 if system_locale.startswith(locale_prefix + '_'):
-                    print(f"[DEBUG] Prefix locale match found: {lang_code}")
                     return lang_code
 
             # Check if it's an English locale variant
             if system_locale.startswith('en_'):
-                print(f"[DEBUG] English locale variant detected: en")
                 return 'en'
 
-            print(f"[DEBUG] No locale match found, defaulting to: en")
             return 'en'
-        except (OSError, AttributeError) as e:
-            print(f"[DEBUG] Error detecting system locale: {e}")
+        except (OSError, AttributeError):
             pass
         return 'en'  # Default
 
@@ -234,16 +226,14 @@ class I18nHelper:
         """Inject JavaScript for browser language detection"""
         # Skip if already detected
         if 'browser_detected_lang' in st.session_state:
-            return        
+            return
         # Check for browser language in query parameters first
         query_params = st.query_params
         if 'browser_lang' in query_params:
             browser_lang = query_params['browser_lang']
-            print(f"[DEBUG] Found browser_lang in query params: {browser_lang}")
             if browser_lang in LANGUAGES:
                 # Set the detected language in session state
                 if 'language' not in st.session_state or st.session_state.language != browser_lang:
-                    print(f"[DEBUG] Setting language to: {browser_lang}")
                     st.session_state.language = browser_lang
                     st.session_state.browser_detected_lang = browser_lang
                     st.session_state.detected_browser_language = browser_lang
@@ -256,7 +246,6 @@ class I18nHelper:
                     st.query_params.clear()
             else:
                 # Clear invalid parameter
-                print(f"[DEBUG] Invalid browser_lang: {browser_lang}")
                 st.query_params.clear()
 
 

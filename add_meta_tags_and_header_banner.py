@@ -106,6 +106,7 @@ def get_banner_style():
     }
     """)
 
+
 def get_language_detector_script():
     """Return language detector JavaScript code"""
     return textwrap.dedent("""
@@ -120,7 +121,7 @@ def get_language_detector_script():
             'ja': 'ja',
             'ja-JP': 'ja',
             'en': 'en',
-            'en-US': 'en', 
+            'en-US': 'en',
             'en-GB': 'en',
             'ko': 'ko',
             'ko-KR': 'ko',
@@ -170,6 +171,7 @@ def get_language_detector_script():
         detectBrowserLanguage();
     }
     """)
+
 
 def modify_html(file_path):
     """Add meta tags, header banner, and language detector to HTML file"""
