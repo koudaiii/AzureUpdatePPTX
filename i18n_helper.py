@@ -40,7 +40,8 @@ SYSTEM_PROMPTS = {
   "vi": ("Vui lòng tóm tắt thông tin cập nhật Azure có trong dữ liệu được cung cấp bằng tiếng Việt trong khoảng 3 dòng." +
          "Đối với các khu vực trong từng khu vực được cung cấp, vui lòng không dịch và giữ nguyên ký hiệu tiếng Anh." +
          "Không bao gồm URL cho liên kết hoặc markdown và xuất ra dưới dạng văn bản thuần túy."),
-  "id": ("Harap meringkas informasi pembaruan Azure yang terdapat dalam data yang diberikan dalam bahasa Indonesia sekitar 3 baris." +
+  "id": ("Harap meringkas informasi pembaruan Azure yang terdapat dalam data yang diberikan " +
+         "dalam bahasa Indonesia sekitar 3 baris." +
          "Untuk wilayah di setiap area yang disediakan, jangan diterjemahkan dan tetap gunakan notasi bahasa Inggris." +
          "Jangan menyertakan URL untuk tautan atau markdown dan output dalam teks biasa."),
   "hi": ("कृपया प्रदान किए गए डेटा में निहित Azure अपडेट जानकारी को हिंदी में लगभग 3 पंक्तियों में सारांशित करें।" +
