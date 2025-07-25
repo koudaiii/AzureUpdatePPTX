@@ -319,7 +319,7 @@ class I18nHelper:
         except (OSError, AttributeError):
             return 'en'
 
-    def _inject_language_detector(self) -> None:
+    def _process_language_query_param(self) -> None:
         """
         Handle browser language detection via query parameters.
 
