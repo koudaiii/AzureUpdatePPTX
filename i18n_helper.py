@@ -139,9 +139,11 @@ class I18nHelper:
                 return json.load(f)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             st.error(f"Failed to load translation files: {e}")
-            # Fallback: return minimal empty translations
-            return {"ja": {}, "en": {}}
-
+            return {
+                "ja": {"main_title": "Azure Updates Summary", "button_text": "データを取得"},
+                "en": {"main_title": "Azure Updates Summary", "button_text": "Get Data"}
+            }
+    
     def get_current_language(self) -> str:
         """
         Get the currently selected language.

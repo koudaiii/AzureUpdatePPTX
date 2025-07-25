@@ -10,13 +10,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 
 def find_streamlit_index_path(custom_path=None):
-    """Streamlitのindex.htmlファイルのパスを探す
+    """Find the path to Streamlit's index.html file
 
     Args:
-        custom_path: 優先的に確認する任意のパス
+        custom_path: Optional path to check with priority
 
     Returns:
-        見つかったindex.htmlのパス、見つからない場合はNone
+        Path to the found index.html file, or None if not found
     """
     # If a custom path is specified, check it first
     if custom_path and os.path.exists(custom_path):
@@ -110,13 +110,13 @@ def get_banner_style():
 def get_language_detector_script():
     """Return language detector JavaScript code"""
     return textwrap.dedent("""
-    // ブラウザの言語設定を検出してStreamlitに送信
+    // Detect browser language settings and send to Streamlit
     function detectBrowserLanguage() {
-        // ブラウザの言語設定を取得
+        // Get browser language settings
         let browserLang = navigator.language || navigator.userLanguage;
         console.log('Browser language detected:', browserLang);
 
-        // 言語コードをマッピング
+        // Map language codes
         const langMapping = {
             'ja': 'ja',
             'ja-JP': 'ja',
@@ -139,10 +139,10 @@ def get_language_detector_script():
             'hi-IN': 'hi'
         };
 
-        // 対応する言語コードを取得（デフォルトは英語）
+        // Get corresponding language code (default is English)
         let detectedLang = langMapping[browserLang] || 'en';
 
-        // 言語の優先順位を考慮（ブラウザが複数の言語を返す場合）
+        // Consider language priority (when browser returns multiple languages)
         if (navigator.languages && navigator.languages.length > 0) {
             for (let lang of navigator.languages) {
                 if (langMapping[lang]) {
@@ -154,7 +154,7 @@ def get_language_detector_script():
 
         console.log('Mapped language:', detectedLang);
 
-        // URLにbrowser_langパラメータを追加してリダイレクト
+        // Add browser_lang parameter to URL and redirect
         const urlParams = new URLSearchParams(window.location.search);
         if (!urlParams.has('browser_lang') && !urlParams.has('lang_detected')) {
             urlParams.set('browser_lang', detectedLang);
@@ -164,7 +164,7 @@ def get_language_detector_script():
         return detectedLang;
     }
 
-    // ページ読み込み時に実行
+    // Execute on page load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', detectBrowserLanguage);
     } else {

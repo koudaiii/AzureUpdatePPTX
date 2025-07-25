@@ -5,24 +5,24 @@ import traceback
 
 
 def run_tests():
-    """テストを実行する"""
+    """Run tests"""
     try:
-        # 現在の作業ディレクトリを表示
+        # Display current working directory
         current_dir = os.getcwd()
         print(f"現在の作業ディレクトリ: {current_dir}")
 
-        # スクリプトのディレクトリに移動
+        # Move to script directory
         test_dir = os.path.dirname(os.path.abspath(__file__))
         os.chdir(test_dir)
         print(f"テストディレクトリに移動: {test_dir}")
 
-        # 利用可能なPythonモジュールを確認
+        # Check available Python modules
         print("ディレクトリ内のPythonファイル:")
         for file in os.listdir(test_dir):
             if file.endswith('.py'):
                 print(f" - {file}")
 
-        # テストを検索して実行
+        # Search and run tests
         print("テストの検索と実行を開始...")
         suite = unittest.defaultTestLoader.discover('.', pattern='test_*.py')
         result = unittest.TextTestRunner(verbosity=2).run(suite)
@@ -34,7 +34,7 @@ def run_tests():
             print(f"テストに失敗しました: {len(result.failures)} failures, {len(result.errors)} errors")
             return 1
     except Exception as e:
-        print(f"テスト実行中に予期せぬエラーが発生しました: {e}")
+        print(f"Unexpected error occurred during test execution: {e}")
         traceback.print_exc()
         return 1
 

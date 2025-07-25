@@ -101,12 +101,14 @@ def get_update_urls(days):
     start_date = datetime.now().astimezone() - timedelta(days=days)  # Start date for retrieval
     urls = []
     for entry in entries:
-        # Convert from DATE_FORMAT to datetime
-        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
-        if published_at is None:
-            continue
-        if (published_at > start_date):
-            urls.append(entry.link)
+        try:
+            # Convert from DATE_FORMAT to datetime
+            published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
+            if (published_at > start_date):
+                urls.append(entry.link)
+        except Exception as e:
+            logging.error(f"Error processing entry: {entry.title} - {e}")
+            continue  # Skip entries with parsing errors
     return urls
 
 
@@ -114,12 +116,14 @@ def get_update_urls(days):
 def target_update_urls(entries, start_date):
     urls = []
     for entry in entries:
-        # Convert from DATE_FORMAT to datetime
-        published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
-        if published_at is None:
-            continue
-        if (published_at >= start_date):
-            urls.append(entry.link)
+        try:
+            # Convert from DATE_FORMAT to datetime
+            published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
+            if (published_at >= start_date):
+                urls.append(entry.link)
+        except Exception as e:
+            logging.error(f"Error processing entry: {entry.title} - {e}")
+            continue  # Skip entries with parsing errors
     return urls
 
 
