@@ -5,15 +5,15 @@ import locale
 
 # Language settings
 LANGUAGES = {
-  "ja": "日本語",
-  "en": "English",
-  "ko": "한국어",
-  "zh-cn": "中文(简体)",
-  "zh-tw": "中文(繁體)",
-  "th": "ไทย",
-  "vi": "Tiếng Việt",
-  "id": "Bahasa Indonesia",
-  "hi": "हिन्दी"
+    "ja": "日本語",
+    "en": "English",
+    "ko": "한국어",
+    "zh-cn": "中文(简体)",
+    "zh-tw": "中文(繁體)",
+    "th": "ไทย",
+    "vi": "Tiếng Việt",
+    "id": "Bahasa Indonesia",
+    "hi": "हिन्दी"
 }
 
 # Azure OpenAI system prompts (by language)
@@ -50,20 +50,23 @@ SYSTEM_PROMPTS = {
 
 # Date formats (by language)
 DATE_FORMATS = {
-  "ja": "%Y年%m月%d日",
-  "en": "%B %d, %Y",
-  "ko": "%Y년 %m월 %d일",
-  "zh-cn": "%Y年%m月%d日",
-  "zh-tw": "%Y年%m月%d日", 
-  "th": "%d %B %Y",
-  "vi": "ngày %d tháng %m năm %Y",
-  "id": "%d %B %Y",
-  "hi": "%d %B %Y"
+    "ja": "%Y年%m月%d日",
+    "en": "%B %d, %Y",
+    "ko": "%Y년 %m월 %d일",
+    "zh-cn": "%Y年%m月%d日",
+    "zh-tw": "%Y年%m月%d日",
+    "th": "%d %B %Y",
+    "vi": "ngày %d tháng %m năm %Y",
+    "id": "%d %B %Y",
+    "hi": "%d %B %Y"
 }
 
+
 class I18nHelper:
+
     def __init__(self):
         self.translations = self._load_translations()
+
     def _load_translations(self):
         """Load translation files"""
         translations_path = os.path.join(
@@ -76,6 +79,7 @@ class I18nHelper:
             st.error(f"Failed to load translation files: {e}")
             # Fallback: return minimal empty translations
             return {"ja": {}, "en": {}}  # Minimal fallback
+
     def get_current_language(self):
         """Get currently selected language"""
         if 'language' not in st.session_state:
@@ -83,6 +87,7 @@ class I18nHelper:
             detected_lang = self._detect_browser_language()
             st.session_state.language = detected_lang
         return st.session_state['language']
+
     def _detect_browser_language(self):
         """Browser language detection fallback"""
         # Get detected language from session state
@@ -93,6 +98,7 @@ class I18nHelper:
         detected = self._detect_system_locale()
         st.session_state.detected_browser_language = detected
         return detected
+
     def _detect_system_locale(self):
         """Infer language from system locale"""
         try:
@@ -121,6 +127,7 @@ class I18nHelper:
         except (OSError, AttributeError):
             pass
         return 'en'  # Default
+
     def set_language(self, language_code):
         """Set language"""
         if not isinstance(language_code, str) or language_code not in LANGUAGES:
@@ -130,6 +137,7 @@ class I18nHelper:
             st.session_state.language = 'en'
         if language_code in LANGUAGES:
             st.session_state.language = language_code
+
     def t(self, key, **kwargs):
         """Get translated text (with placeholder support)"""
         current_lang = self.get_current_language()
@@ -151,15 +159,18 @@ class I18nHelper:
 
         # If key is not found
         return f"[Missing: {key}]"
+
     def get_system_prompt(self):
         """Get system prompt according to current language"""
         current_lang = self.get_current_language()
         return SYSTEM_PROMPTS.get(current_lang, SYSTEM_PROMPTS['ja'])
+
     def format_date(self, date_obj):
         """Apply date format according to current language"""
         current_lang = self.get_current_language()
         date_format = DATE_FORMATS.get(current_lang, DATE_FORMATS['ja'])
         return date_obj.strftime(date_format)
+
     def language_selector(self):
         """Display language selection widget"""
         current_lang = self.get_current_language()
@@ -193,6 +204,7 @@ class I18nHelper:
         if selected_lang != current_lang:
             self.set_language(selected_lang)
             st.rerun()
+
 
 # Global instance
 i18n = I18nHelper()
