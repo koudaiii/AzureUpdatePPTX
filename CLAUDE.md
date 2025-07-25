@@ -91,8 +91,7 @@ The system uses multiple methods for language detection:
 
 1. **Browser Language Detection**: JavaScript automatically detects browser language settings
 2. **URL Parameters**: `?browser_lang=` and `?lang_detected=` parameters
-3. **System Locale**: Fallback to system locale detection
-4. **Manual Selection**: Users can manually select language via UI
+3. **Manual Selection**: Users can manually select language via UI
 
 ### Translation Management
 
@@ -117,8 +116,7 @@ To add a new language:
 1. Add language code and name to `LANGUAGES` dict in `i18n_helper.py`
 2. Add system prompt to `SYSTEM_PROMPTS` dict in `i18n_helper.py`
 3. Add translation strings to `locales/translations.json`
-4. Add locale mapping to `_detect_system_locale()` method
-5. Update browser language detection in `add_meta_tags_and_header_banner.py`
+4. Update browser language detection in `add_meta_tags_and_header_banner.py`
 
 ## PowerPoint Template Structure
 
