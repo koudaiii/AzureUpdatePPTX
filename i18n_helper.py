@@ -155,10 +155,11 @@ class I18nHelper:
         if not isinstance(language_code, str) or language_code not in LANGUAGES:
             st.error(f"Invalid language code: {language_code}, "
                      "Setting to default (English).")
-            # default to English if invalid
+            # Default to English if invalid and return
             st.session_state.language = 'en'
-        if language_code in LANGUAGES:
-            st.session_state.language = language_code
+            return
+        # Set the language if valid
+        st.session_state.language = language_code
 
     def t(self, key, **kwargs):
         """Get translated text (with placeholder support)"""
