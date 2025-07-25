@@ -11,7 +11,7 @@ class TestI18nHelper(unittest.TestCase):
     
     def setUp(self):
         """テストの前準備"""
-        # Streamlitのセッション状態をモック
+        # Mock Streamlit session state
         self.mock_session_state = {}
         
     def tearDown(self):
@@ -38,7 +38,7 @@ class TestI18nHelper(unittest.TestCase):
         result = i18n.t('main_title')
         self.assertEqual(result, "Azure Updates 요약")
         
-        # ボタンテキストのテスト
+        # Button text test
         button_text = i18n.t('button_text')
         self.assertEqual(button_text, "데이터 가져오기")
     
@@ -51,7 +51,7 @@ class TestI18nHelper(unittest.TestCase):
         result = i18n.t('main_title')
         self.assertEqual(result, "Azure 更新摘要")
         
-        # ボタンテキストのテスト
+        # Button text test
         button_text = i18n.t('button_text')
         self.assertEqual(button_text, "获取数据")
     
@@ -64,7 +64,7 @@ class TestI18nHelper(unittest.TestCase):
         result = i18n.t('main_title')
         self.assertEqual(result, "Azure 更新摘要")
         
-        # ボタンテキストのテスト
+        # Button text test
         button_text = i18n.t('button_text')
         self.assertEqual(button_text, "取得資料")
     
@@ -77,7 +77,7 @@ class TestI18nHelper(unittest.TestCase):
         result = i18n.t('main_title')
         self.assertEqual(result, "Azure Updates Summary")
         
-        # ボタンテキストのテスト
+        # Button text test
         button_text = i18n.t('button_text')
         self.assertEqual(button_text, "Get Data")
 

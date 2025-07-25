@@ -3,7 +3,7 @@ import os
 import streamlit as st
 import locale
 
-# 言語設定
+# Language settings
 LANGUAGES = {
     "ja": "日本語",
     "en": "English", 
@@ -16,7 +16,7 @@ LANGUAGES = {
     "hi": "हिन्दी"
 }
 
-# Azure OpenAI システムプロンプト（言語別）
+# Azure OpenAI system prompts (by language)
 SYSTEM_PROMPTS = {
     "ja": ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
            "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。" +
@@ -47,7 +47,7 @@ SYSTEM_PROMPTS = {
            "लिंक के लिए URL या markdown शामिल न करें और सादे पाठ में आउटपुट करें।")
 }
 
-# 日付フォーマット（言語別）
+# Date formats (by language)
 DATE_FORMATS = {
     "ja": "%Y年%m月%d日",
     "en": "%B %d, %Y",
@@ -65,41 +65,41 @@ class I18nHelper:
         self.translations = self._load_translations()
         
     def _load_translations(self):
-        """翻訳ファイルを読み込み"""
+        """Load translation files"""
         translations_path = os.path.join(os.path.dirname(__file__), 'locales', 'translations.json')
         try:
             with open(translations_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            st.error(f"翻訳ファイルの読み込みに失敗しました: {e}")
-            # フォールバック: 最小限の空の翻訳を返す
+            st.error(f"Failed to load translation files: {e}")
+            # Fallback: return minimal empty translations
             return {"ja": {}, "en": {}}  # Minimal fallback
     
     def get_current_language(self):
-        """現在選択されている言語を取得"""
+        """Get currently selected language"""
         if 'language' not in st.session_state:
-            # 初回アクセス時はブラウザ言語を検出
+            # Detect browser language on first access
             detected_lang = self._detect_browser_language()
             st.session_state.language = detected_lang
         return st.session_state['language']
     
     def _detect_browser_language(self):
-        """ブラウザ言語検出のフォールバック"""
-        # セッション状態から検出された言語を取得
+        """Browser language detection fallback"""
+        # Get detected language from session state
         if 'detected_browser_language' in st.session_state:
             return st.session_state.detected_browser_language
         
-        # フォールバック: システムロケールから推測
+        # Fallback: infer from system locale
         detected = self._detect_system_locale()
         st.session_state.detected_browser_language = detected
         return detected
     
     def _detect_system_locale(self):
-        """システムロケールから言語を推測"""
+        """Infer language from system locale"""
         try:
             system_locale = locale.getdefaultlocale()[0]
             if system_locale:
-                # JavaScript mapping に基づく言語検出
+                # Language detection based on JavaScript mapping
                 if system_locale.startswith('ja'):
                     return 'ja'
                 elif system_locale.startswith('en'):
@@ -110,7 +110,7 @@ class I18nHelper:
                     return 'zh-cn'
                 elif system_locale.startswith('zh_TW') or system_locale.startswith('zh_HK'):
                     return 'zh-tw'
-                elif system_locale == 'zh':  # 汎用中国語は簡体字にマップ
+                elif system_locale == 'zh':  # Generic Chinese maps to simplified
                     return 'zh-cn'
                 elif system_locale.startswith('th'):
                     return 'th'
@@ -124,10 +124,10 @@ class I18nHelper:
                     return 'en'
         except (OSError, AttributeError):
             pass
-        return 'en'  # デフォルト
+        return 'en'  # Default
     
     def set_language(self, language_code):
-        """言語を設定"""
+        """Set language"""
         if not isinstance(language_code, str) or language_code not in LANGUAGES:
             st.error(f"Invalid language code: {language_code}, Setting to default (English).")
             # default to English if invalid
@@ -136,52 +136,52 @@ class I18nHelper:
             st.session_state.language = language_code
     
     def t(self, key, **kwargs):
-        """翻訳テキストを取得（プレースホルダー対応）"""
+        """Get translated text (with placeholder support)"""
         current_lang = self.get_current_language()
         
         if current_lang in self.translations and key in self.translations[current_lang]:
             text = self.translations[current_lang][key]
-            # プレースホルダーを置換
+            # Replace placeholders
             if kwargs:
                 text = text.format(**kwargs)
             return text
         
-        # フォールバック: 日本語
+        # Fallback: Japanese
         if key in self.translations['ja']:
             text = self.translations['ja'][key]
             if kwargs:
                 text = text.format(**kwargs)
             return text
         
-        # キーが見つからない場合
+        # If key is not found
         return f"[Missing: {key}]"
     
     def get_system_prompt(self):
-        """現在の言語に応じたシステムプロンプトを取得"""
+        """Get system prompt according to current language"""
         current_lang = self.get_current_language()
         return SYSTEM_PROMPTS.get(current_lang, SYSTEM_PROMPTS['ja'])
     
     def format_date(self, date_obj):
-        """現在の言語に応じた日付フォーマットを適用"""
+        """Apply date format according to current language"""
         current_lang = self.get_current_language()
         date_format = DATE_FORMATS.get(current_lang, DATE_FORMATS['ja'])
         return date_obj.strftime(date_format)
     
     def language_selector(self):
-        """言語選択ウィジェットを表示"""
+        """Display language selection widget"""
         current_lang = self.get_current_language()
         
-        # 現在の言語のインデックスを取得
+        # Get index of current language
         lang_codes = list(LANGUAGES.keys())
         current_index = lang_codes.index(current_lang) if current_lang in lang_codes else 0
         
-        # ブラウザ言語検出の情報を表示
+        # Display browser language detection info
         if 'language_auto_detected' not in st.session_state:
             st.session_state.language_auto_detected = True
-            if current_lang != 'en':  # デフォルト以外が検出された場合のみ表示
-                st.info(f"🌐 システム設定に基づいて{LANGUAGES.get(current_lang, current_lang)}が選択されました")
+            if current_lang != 'en':  # Display only when non-default is detected
+                st.info(f"🌐 {LANGUAGES.get(current_lang, current_lang)} was selected based on system settings")
         
-        # セレクトボックスを表示
+        # Display select box
         selected_lang = st.selectbox(
             "Language / 言語",
             options=lang_codes,
@@ -190,10 +190,10 @@ class I18nHelper:
             key="language_selector"
         )
         
-        # 言語が変更された場合
+        # If language was changed
         if selected_lang != current_lang:
             self.set_language(selected_lang)
             st.rerun()
 
-# グローバルインスタンス
+# Global instance
 i18n = I18nHelper()

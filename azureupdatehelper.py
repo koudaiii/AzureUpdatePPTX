@@ -9,45 +9,45 @@ from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from bs4 import BeautifulSoup
 
-# ログレベルの設定
+# Log level configuration
 logging.basicConfig(level=logging.CRITICAL)
 
-# 何日前のアップデートまでスライドに含めるかの設定
+# How many days back to include updates in slides
 DAYS = 7
 
-# Azure Updates の API の URL
+# Azure Updates API URL
 BASE_URL = "https://www.microsoft.com/releasecommunications/api/v2/azure/"
 
 
-# URL から RSS フィードの URL を生成
+# Generate RSS feed URL from URL
 def rss_url(url):
     return f"{url}rss"
 
 
-# システムプロンプトの設定（デフォルトは日本語、実際は呼び出し時に指定）
+# System prompt configuration (default is Japanese, actually specified when called)
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
 
 
-# 日付フォーマット 'Thu, 23 Jan 2025 21:30:21 Z' は RSS フィードの published で使用
+# Date format 'Thu, 23 Jan 2025 21:30:21 Z' is used in RSS feed published field
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
 
-# タイムゾーン指定
+# Timezone specification
 os.environ['TZ'] = 'UTC'
 
 
-# 環境変数のチェック
+# Environment variable check
 def environment_check():
     if (os.getenv("API_KEY") == "" or os.getenv("API_KEY") is None or
             os.getenv("API_ENDPOINT") == "") or os.getenv("API_ENDPOINT") is None:
-        logging.error('環境変数が不足しています。.env ファイルを確認してください。 (Environment variables are missing. Please check the .env file.)')
+        logging.error('Environment variables are missing. Please check the .env file. (環境変数が不足しています。.env ファイルを確認してください。)')
         return False
     else:
         return True
 
 
-# Azure OpenAI のクライアントを生成する関数
+# Function to generate Azure OpenAI client
 def azure_openai_client(key, endpoint):
     parsed_url = urlparse.urlparse(endpoint)
     query_params = dict(urlparse.parse_qsl(parsed_url.query))
@@ -73,35 +73,35 @@ def azure_openai_client(key, endpoint):
     return AzureOpenAI(api_key=key, api_version=api_version, azure_endpoint=endpoint), deployment_name
 
 
-# entries から published が指定された日数以内のエントリーの URL をリスト化
+# Get latest article date from entries
 def latest_article_date(entries):
     if len(entries) == 0:
         return None
-    # 日付 yyyy-mm-dd に変換
+    # Convert to date format yyyy-mm-dd
     return datetime.strptime(entries[0].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
 
 
-# entries から published が指定された日数以内のエントリーの URL をリスト化
+# Get oldest article date from entries
 def oldest_article_date(entries):
     if len(entries) == 0:
         return None
-    # 日付 yyyy-mm-dd に変換
+    # Convert to date format yyyy-mm-dd
     return datetime.strptime(entries[-1].published, DATE_FORMAT).astimezone().strftime('%Y-%m-%d')
 
 
-# Azure Updates の RSS フィードを読み込んでエントリーを取得
+# Read Azure Updates RSS feed and get entries
 def get_rss_feed_entries():
     feed = feedparser.parse(rss_url(BASE_URL))
     return feed.entries
 
 
-# entries から published が指定された日数以内のエントリーの URL をリスト化
+# List URLs of entries within specified days from entries
 def get_update_urls(days):
     entries = get_rss_feed_entries()
-    start_date = datetime.now().astimezone() - timedelta(days=days)  # 取得開始日
+    start_date = datetime.now().astimezone() - timedelta(days=days)  # Start date for retrieval
     urls = []
     for entry in entries:
-        # DATE_FORMAT から datetime に変換
+        # Convert from DATE_FORMAT to datetime
         published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
         if published_at is None:
             continue
@@ -110,11 +110,11 @@ def get_update_urls(days):
     return urls
 
 
-# entries から published が指定された日数以内のエントリーの URL をリスト化
+# List URLs of entries within specified days from entries based on start date
 def target_update_urls(entries, start_date):
     urls = []
     for entry in entries:
-        # DATE_FORMAT から datetime に変換
+        # Convert from DATE_FORMAT to datetime
         published_at = datetime.strptime(entry.published, DATE_FORMAT).astimezone()
         if published_at is None:
             continue
@@ -123,27 +123,27 @@ def target_update_urls(entries, start_date):
     return urls
 
 
-# URL から記事を順番に取得する
+# Get articles from URL in sequence
 def get_article(url):
-    # 記事用の url 生成
+    # Generate URL for article
     docid = docid_from_url(url)
     if docid is None:
-        logging.error(f"{url} から docid を取得できませんでした。")
+        logging.error(f"Could not get docid from {url}.")
         return None
     link = target_url(docid)
     if link is None:
-        logging.error(f"{url} から link を取得できませんでした。")
+        logging.error(f"Could not get link from {url}.")
         return None
 
-    # Azure Updates API 用に header に User-Agent 設定
+    # Set User-Agent in header for Azure Updates API
     headers = {
         "User-Agent": "Safari/605.1.15"
     }
 
-    # 記事取得
+    # Get article
     response = requests.get(link, headers=headers)
     if response.status_code != 200:
-        logging.error(f"{link} から記事を取得できませんでした。")
+        logging.error(f"Could not get article from {link}.")
         logging.error(f"Status Code is '{response.status_code}'")
         logging.error(f"Response Message is '{response.text}'")
         return None
@@ -151,18 +151,18 @@ def get_article(url):
     return response
 
 
-# 記事を要約する
+# Summarize article
 def summarize_article(client, deployment_name, article, system_prompt=None):
     try:
         link = ", ".join(get_unique_a_href_from_html(article['description']))
         content = (
-            "タイトル: " + article['title'] + "\n"
-            + "製品: " + ", ".join(article['products']) + "\n"
-            + "説明: " + remove_html_tags(article['description']) + "\n"
-            + "説明内のリンク: " + link
+            "Title: " + article['title'] + "\n"
+            + "Product: " + ", ".join(article['products']) + "\n"
+            + "Description: " + remove_html_tags(article['description']) + "\n"
+            + "Links in description: " + link
         )
-        # ダウンロードしたデータを Azure OpenAI で要約
-        # system_prompt が指定されていない場合はデフォルトのsystempromptを使用
+        # Summarize downloaded data with Azure OpenAI
+        # Use default systemprompt if system_prompt is not specified
         prompt_to_use = system_prompt if system_prompt is not None else systemprompt
         summary_list = client.chat.completions.create(
             model=deployment_name,
@@ -177,34 +177,34 @@ def summarize_article(client, deployment_name, article, system_prompt=None):
         return None
 
 
-# Azure Updates API の URL を生成
+# Generate Azure Updates API URL
 def target_url(id):
     if id is None or id == '':
         return None
     return BASE_URL + id
 
 
-# URL から記事 ID を取得
+# Get article ID from URL
 def docid_from_url(url):
     query = urlparse.urlparse(url).query
     if query is None or query == '':
-        logging.error(f"{url} からクエリ文字列を取得できませんでした。")
+        logging.error(f"Could not get query string from {url}.")
         return None
 
     query_list = dict(urlparse.parse_qsl(query))
     if query_list is None or query_list == '' or 'id' not in query_list:
-        logging.error(f"{url} からリスト化と id を取得できませんでした。")
+        logging.error(f"Could not get list and id from {url}.")
         return None
     return query_list['id']
 
 
-# description から HTML タグを削除
+# Remove HTML tags from description
 def remove_html_tags(text):
     soup = BeautifulSoup(text, 'html.parser')
     return soup.get_text()
 
 
-# description から a タグの href を取得
+# Get href from a tags in description
 def get_unique_a_href_from_html(html):
     """
     Extracts unique href attributes from all <a> tags in the given HTML.
@@ -219,9 +219,9 @@ def get_unique_a_href_from_html(html):
     return list(dict.fromkeys([a['href'] for a in soup.find_all('a', href=True)]))
 
 
-# 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
+# Get Azure Updates article ID from URL passed as argument, make HTTP Get to Azure Updates API, and summarize the article
 def read_and_summary(client, deployment_name, url, system_prompt=None):
-    # URL からデータをダウンロード
+    # Download data from URL
     response = get_article(url)
     if response is None:
         return None
@@ -229,21 +229,21 @@ def read_and_summary(client, deployment_name, url, system_prompt=None):
 
     summary, link = summarize_article(client, deployment_name, response.json(), system_prompt)
     if summary is None:
-        logging.error("要約が生成されませんでした。")
+        logging.error("Summary was not generated.")
         return None
 
-    # URL から記事 ID を取得
+    # Get article ID from URL
     docid = docid_from_url(url)
     if docid is None:
-        logging.error(f"{url} から docid を取得できませんでした。")
+        logging.error(f"Could not get docid from {url}.")
         docid = ""
-    # description から HTML タグを削除
+    # Remove HTML tags from description
     description = remove_html_tags(response.json()['description'])
     if description is None:
-        logging.error(f"{response.json()['description']} の HTML タグの削除に失敗しました。")
+        logging.error(f"Failed to remove HTML tags from {response.json()['description']}.")
         description = response.json()['description']
 
-    # retval に title と description と summary を JSON 形式で格納
+    # Store title, description, and summary in retval in JSON format
     retval = {
         "url": url,
         "apiUrl": target_url(docid),
@@ -266,32 +266,32 @@ def main():
 
     load_dotenv()
 
-    # ログの設定
+    # Log configuration
     logging.basicConfig(force=True, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
         print("Usage: cp .env.template .env; python azureupdatehelper.py")
         return
-    # コマンドライン引数の取得
+    # Get command line arguments
     # python azureupdatehelper.py [--days 7]
     if len(sys.argv) > 2 and sys.argv[1] == "--days":
         global DAYS
         DAYS = int(sys.argv[2])
 
     print("Checking environment variables...")
-    # 環境変数が不足している場合はエラーを表示して終了
+    # Display error and exit if environment variables are missing
     if not environment_check():
-        logging.error('環境変数が不足しています。.env ファイルを確認してください。')
+        logging.error('Environment variables are missing. Please check the .env file.  (環境変数が不足しています。.env ファイルを確認してください。)')
         return
     print("Environment variables OK.")
     client, deployment_name = azure_openai_client(os.getenv("API_KEY"), os.getenv("API_ENDPOINT"))
     print("Client: ", client)
     entries = get_rss_feed_entries()
-    print(f"RSS フィードのエントリーは {len(entries)} 件です。")
+    print(f"RSS feed has {len(entries)} entries.")
     start_date = datetime.now().astimezone() - timedelta(days=DAYS)
-    print(f"開始日時: {start_date.strftime('%Y-%m-%d')}")
+    print(f"Start date: {start_date.strftime('%Y-%m-%d')}")
     urls = target_update_urls(entries, start_date)
-    print(f"Azureアップデートは {len(urls)} 件です。")
-    print('含まれる Azure Updates の URL は以下の通りです。')
+    print(f"There are {len(urls)} Azure updates.")
+    print('The included Azure Updates URLs are as follows:')
     print(urls)
     for url in urls:
         result = read_and_summary(client, deployment_name, url)
