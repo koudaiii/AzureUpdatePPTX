@@ -67,8 +67,13 @@ class I18nHelper:
     def _load_translations(self):
         """翻訳ファイルを読み込み"""
         translations_path = os.path.join(os.path.dirname(__file__), 'locales', 'translations.json')
-        with open(translations_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(translations_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            st.error(f"翻訳ファイルの読み込みに失敗しました: {e}")
+            # フォールバック: 最小限の空の翻訳を返す
+            return {"ja": {}, "en": {}}  # Minimal fallback
     
     def get_current_language(self):
         """現在選択されている言語を取得"""
@@ -117,12 +122,16 @@ class I18nHelper:
                     return 'hi'
                 else:
                     return 'en'
-        except:
+        except (OSError, AttributeError):
             pass
         return 'en'  # デフォルト
     
     def set_language(self, language_code):
         """言語を設定"""
+        if not isinstance(language_code, str) or language_code not in LANGUAGES:
+            st.error(f"Invalid language code: {language_code}, Setting to default (English).")
+            # default to English if invalid
+            st.session_state.language = 'en'
         if language_code in LANGUAGES:
             st.session_state.language = language_code
     

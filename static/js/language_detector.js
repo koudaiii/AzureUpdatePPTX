@@ -44,7 +44,7 @@ function detectBrowserLanguage() {
         window.parent.postMessage({
             type: 'SET_BROWSER_LANGUAGE',
             language: detectedLang
-        }, '*');
+        }, window.location.origin);
     }
     
     return detectedLang;
