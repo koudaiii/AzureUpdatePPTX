@@ -7,57 +7,46 @@ from pptx import Presentation
 from pptx.util import Pt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from i18n_helper import i18n
 load_dotenv()
 
 # Set the browser page title
 st.set_page_config(
-    page_title="Azure Updates Summary",
+    page_title=i18n.t("page_title"),
     page_icon=":cloud:",
     initial_sidebar_state="auto",
     layout="centered",
     menu_items={
         "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
-        "About": """
-                 ### Azure Updates Summary
-                 本サイトの使用においては、次の制限、制約をご理解の上、活用ください。
-                 ### 目的外利用の禁止
-                 本サイトは Azure Updates において、円滑に情報を受け取ることを目的に作成されています。
-                 また、非公式の有志によって運営されています。この目的に反する利用はお断りいたします。
-                 ### 公式情報の確認
-                 本サイトの記載内容について一切の責任を負いません。公式情報については、 Azure Updates をご確認ください。
-                 ### Disclaimer
-                 本サイトの記載内容によって発生したいかなる損害について、一切の責任を負いません。
-                 本サイトの記載内容は、予告なく変更されることがあります。現在パブリックプレビュー中のため、
-                 予告なくサービスが終了する可能性があります。
-                 ### Author
-                 Kodai Sakabe @koudaiii https://koudaiii.com
+        "About": f"""
+                 ### {i18n.t("about_title")}
+                 {i18n.t("about_content")}
                  """,
     }
 )
 
+# 言語選択をサイドバーに追加
+with st.sidebar:
+    i18n.language_selector()
+
 # Set the browser tab title
-st.title('Azure Updates Summary')
+st.title(i18n.t("main_title"))
 # description
-st.markdown("""
-            <a href="https://azure.microsoft.com/updates" target="_blank">Azure Updates</a> から要約します。
-            公式情報についてはリンク先よりご確認ください。<br>
-            本サイトの利用に際しては、Aboutページの記載内容に同意したものとみなします。<br>
-            Microsoft 365 Roadmap の要約については、
-            <a href="https://m365.koudaiii.com" target="_blank">Microsoft 365 Roadmap Summary</a> になります。
-            """, unsafe_allow_html=True)
+st.markdown(i18n.t("description"), unsafe_allow_html=True)
 
 # ファイル名が重複しないように今日の日付(YYYYMMDDHHMMSS)
 save_name = 'AzureUpdates' + datetime.now().strftime('%Y%m%d%H%M%S') + '.pptx'
 
 # Azure Updates API からデータを取得
 entries = azup.get_rss_feed_entries()
-st.write(
-    f"取得した Azure Updates のエントリーは {azup.oldest_article_date(entries)} から "
-    f"{azup.latest_article_date(entries)} の {len(entries)} 件です。"
-)
+st.write(i18n.t("entries_count", 
+    oldest=azup.oldest_article_date(entries),
+    latest=azup.latest_article_date(entries),
+    count=len(entries)
+))
 
 # 何日前までのアップデートを取得するか streamlit で指定
-days = st.slider('何日前までのアップデートを取得しますか？', 1, 90, 7)
+days = st.slider(i18n.t("slider_label"), 1, 90, 7)
 
 
 # Azure Updates スライドにタイトル設定
@@ -146,10 +135,7 @@ def create_section_title_slide(prs, update_count):
     """
     layout = prs.slide_layouts[27]
     slide = prs.slides.add_slide(layout)
-    slide.shapes.title.text = (
-        f"Azureアップデートは {update_count} 件です。\n"
-        "※ Azure OpenAI で要約しています。"
-    )
+    slide.shapes.title.text = i18n.t("section_title", count=update_count)
     return slide, slide.placeholders[0]
 
 
@@ -208,12 +194,12 @@ def extract_update_data(result):
     published_date_str = published_date_raw.split(".")[0] if published_date_raw else ""
     try:
         dt = datetime.strptime(published_date_str, '%Y-%m-%dT%H:%M:%S')
-        published_date_text = f"公開日: {dt.strftime('%Y年%m月%d日')}"
+        published_date_text = i18n.t("published_date", date=i18n.format_date(dt))
     except ValueError:
-        published_date_text = "公開日: 不明"
+        published_date_text = i18n.t("published_date", date="Unknown")
     url = result.get("url", "")
     summary = result.get("summary", "")
-    ref_label = "参照リンク: "
+    ref_label = i18n.t("reference_links")
     ref_links = [link.strip() for link in result.get("referenceLink", "").split(",") if link.strip()]
     return title, published_date_text, url, summary, ref_label, ref_links
 
@@ -222,7 +208,7 @@ def extract_update_data(result):
 def process_update(url, client, deployment_name, prs):
     # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
-    result = azup.read_and_summary(client, deployment_name, url)
+    result = azup.read_and_summary(client, deployment_name, url, i18n.get_system_prompt())
     logging.debug("Result: %s", result)
     for key, value in result.items():
         logging.info("%s : %s", key, value)
@@ -249,14 +235,17 @@ def process_update(url, client, deployment_name, prs):
 
 # 表紙のタイトル
 def generate_slide_info(start_date, end_date) -> tuple[str, str]:
-    slide_title = f"Azure Updates {start_date.strftime('%Y/%m/%d')} ~ {end_date.strftime('%Y/%m/%d')}"
+    slide_title = i18n.t("slide_title", 
+        start=start_date.strftime('%Y/%m/%d'),
+        end=end_date.strftime('%Y/%m/%d')
+    )
     return slide_title
 
 
 # Azure Updates の URL 一覧を表示
 def display_update_urls(urls):
     update_count = len(urls)
-    st.write(f"アップデートは {update_count} 件です。")
+    st.write(i18n.t("update_count", count=update_count))
     st.write(urls)
 
 
@@ -271,18 +260,21 @@ def end_date():
 
 
 # ボタンを押すと Azure Updates API からデータを取得して PPTX を生成
-if st.button('データを取得'):
+if st.button(i18n.t("button_text")):
     # 環境変数が不足している場合はエラーを表示して終了
     if not azup.environment_check():
-        st.error('環境変数が不足しています。API_ENDPOINT と API_KEY を環境変数で指定してください。')
+        st.error(i18n.t("env_error"))
         st.stop()
 
-    st.write(f'{start_date(days).strftime("%Y-%m-%d")} から {end_date().strftime("%Y-%m-%d")} のアップデートを取得します。')
+    st.write(i18n.t("date_range", 
+        start=start_date(days).strftime("%Y-%m-%d"),
+        end=end_date().strftime("%Y-%m-%d")
+    ))
     urls = azup.target_update_urls(entries, start_date(days))
     display_update_urls(urls)
 
     # PPTX 生成処理
-    st.write('要約を生成中...')
+    st.write(i18n.t("generating"))
 
     # Generate slide title and date string
     slide_title = generate_slide_info(start_date(days), end_date())
@@ -304,11 +296,11 @@ if st.button('データを取得'):
 
     # PPTX を保存
     prs.save(pptx_file.name)
-    st.write('Done!')
+    st.write(i18n.t("done"))
 
     try:
         with open(pptx_file.name, "rb") as f:
-            st.download_button("Download PPTX", f.read(), file_name=save_name)
+            st.download_button(i18n.t("download_button"), f.read(), file_name=save_name)
     finally:
         pptx_file.close()
         # 一時ファイルを削除

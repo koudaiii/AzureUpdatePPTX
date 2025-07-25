@@ -24,7 +24,7 @@ def rss_url(url):
     return f"{url}rss"
 
 
-# システムプロンプトの設定
+# システムプロンプトの設定（デフォルトは日本語、実際は呼び出し時に指定）
 systemprompt = ("渡されたデータに含まれている Azure のアップデート情報を日本語で 3 行程度で要約してください。" +
                 "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。" +
                 "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。")
@@ -152,7 +152,7 @@ def get_article(url):
 
 
 # 記事を要約する
-def summarize_article(client, deployment_name, article):
+def summarize_article(client, deployment_name, article, system_prompt=None):
     try:
         link = ", ".join(get_unique_a_href_from_html(article['description']))
         content = (
@@ -162,10 +162,12 @@ def summarize_article(client, deployment_name, article):
             + "説明内のリンク: " + link
         )
         # ダウンロードしたデータを Azure OpenAI で要約
+        # system_prompt が指定されていない場合はデフォルトのsystempromptを使用
+        prompt_to_use = system_prompt if system_prompt is not None else systemprompt
         summary_list = client.chat.completions.create(
             model=deployment_name,
             messages=[
-                {"role": "system", "content": systemprompt},
+                {"role": "system", "content": prompt_to_use},
                 {"role": "user", "content": content}
             ]
         )
@@ -218,14 +220,14 @@ def get_unique_a_href_from_html(html):
 
 
 # 引数に渡された URL から、Azure Updates の記事 ID を取得して Azure Updates API に HTTP Get を行い、その記事を要約する
-def read_and_summary(client, deployment_name, url):
+def read_and_summary(client, deployment_name, url, system_prompt=None):
     # URL からデータをダウンロード
     response = get_article(url)
     if response is None:
         return None
     logging.debug(response.text)
 
-    summary, link = summarize_article(client, deployment_name, response.json())
+    summary, link = summarize_article(client, deployment_name, response.json(), system_prompt)
     if summary is None:
         logging.error("要約が生成されませんでした。")
         return None
