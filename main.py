@@ -139,7 +139,27 @@ def create_section_title_slide(prs, update_count):
     """
     layout = prs.slide_layouts[27]
     slide = prs.slides.add_slide(layout)
-    slide.shapes.title.text = i18n.t("section_title", count=update_count)
+
+    # Get the title text with proper newline handling
+    title_text = i18n.t("section_title", count=update_count)
+
+    # Handle newlines in title by using text frame paragraphs
+    title_shape = slide.shapes.title
+    title_shape.text = ""  # Clear default text
+    text_frame = title_shape.text_frame
+    text_frame.clear()  # Clear any existing paragraphs
+
+    # Split text by newlines and create paragraphs
+    lines = title_text.split('\n')
+    for i, line in enumerate(lines):
+        if i == 0:
+            # Use the first paragraph
+            p = text_frame.paragraphs[0]
+        else:
+            # Add new paragraphs for additional lines
+            p = text_frame.add_paragraph()
+        p.text = line
+
     return slide, slide.placeholders[0]
 
 
