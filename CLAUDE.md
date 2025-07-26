@@ -4,26 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-AzureUpdatePPTX is a Streamlit web application that generates PowerPoint presentations summarizing Azure updates. The system:
+AzureUpdatePPTX is a multilingual Streamlit web application that generates PowerPoint presentations summarizing Azure updates. The system:
 
 1. Fetches Azure updates via RSS feed from Microsoft's API
-2. Uses Azure OpenAI to summarize each update in Japanese (3 lines)
+2. Uses Azure OpenAI to summarize each update in the selected language (3 lines)
 3. Generates PowerPoint slides using a template
 4. Provides downloadable PPTX files through a web interface
+5. Supports 9 languages with automatic language detection
 
 ### Core Components
 
 - `main.py`: Streamlit web interface and PowerPoint generation logic
 - `azureupdatehelper.py`: Azure updates data fetching and OpenAI integration
+- `i18n_helper.py`: Internationalization helper for language detection and translations
 - `template/gpstemplate.pptx`: PowerPoint template file
 - `add_meta_tags_and_header_banner.py`: Utility for PowerPoint metadata
+- `locales/translations.json`: Translation files for all supported languages
 
 ### Data Flow
 
-1. RSS feed parsing from `https://www.microsoft.com/releasecommunications/api/v2/azure/`
-2. Article content retrieval via Azure Updates API
-3. Content summarization using Azure OpenAI GPT-4o
-4. PowerPoint slide generation with hyperlinks and references
+1. Browser language detection and user language selection
+2. RSS feed parsing from `https://www.microsoft.com/releasecommunications/api/v2/azure/`
+3. Article content retrieval via Azure Updates API
+4. Content summarization using Azure OpenAI GPT-4o in the selected language
+5. PowerPoint slide generation with hyperlinks and references
 
 ## Development Commands
 
@@ -64,6 +68,55 @@ Example: `https://example.com/deployments/gpt-4o/?api-version=2024-08-01-preview
 ## Testing
 
 Tests are located in files prefixed with `test_*`. The `test_runner.py` script discovers and runs all tests with verbosity.
+
+## Internationalization (i18n)
+
+### Supported Languages
+
+The application supports 9 languages with automatic browser language detection:
+
+- **Japanese (ja)**: 日本語 - Default language
+- **English (en)**: English
+- **Korean (ko)**: 한국어
+- **Chinese Simplified (zh-cn)**: 中文(简体)
+- **Chinese Traditional (zh-tw)**: 中文(繁體)
+- **Thai (th)**: ไทย
+- **Vietnamese (vi)**: Tiếng Việt
+- **Indonesian (id)**: Bahasa Indonesia
+- **Hindi (hi)**: हिन्दी
+
+### Language Detection
+
+The system uses multiple methods for language detection:
+
+1. **Browser Language Detection**: JavaScript automatically detects browser language settings
+2. **URL Parameters**: `?browser_lang=` and `?lang_detected=` parameters
+3. **Manual Selection**: Users can manually select language via UI
+
+### Translation Management
+
+- **Translation Files**: Located in `locales/translations.json`
+- **I18n Helper**: `i18n_helper.py` provides the `I18nHelper` class for:
+  - Language detection and mapping
+  - Translation string retrieval with placeholder support
+  - Date formatting for each locale
+  - System prompt generation for Azure OpenAI
+
+### Azure OpenAI Language Support
+
+Each supported language has custom system prompts for Azure OpenAI summarization:
+- Maintains consistent 3-line summaries across all languages
+- Preserves Azure region names in English regardless of target language
+- Outputs plain text without markdown formatting
+
+### Adding New Languages
+
+To add a new language:
+
+1. Add language code and name to `LANGUAGES` dict in `i18n_helper.py`
+2. Add system prompt to `SYSTEM_PROMPTS` dict in `i18n_helper.py`
+3. Add translation strings to `locales/translations.json`
+4. Update browser language detection in `add_meta_tags_and_header_banner.py`
 
 ## PowerPoint Template Structure
 

@@ -2,6 +2,8 @@
 !azureupdatehelper.py
 !add_meta_tags_and_header_banner.py
 !main.py
+!i18n_helper.py
 !requirements.txt
 !script/
 !template/
+!locales/
