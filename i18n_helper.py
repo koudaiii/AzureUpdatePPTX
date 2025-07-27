@@ -93,8 +93,6 @@ DATE_FORMATS: Dict[str, str] = {
 }
 
 
-
-
 class I18nHelper:
     """
     Helper class for internationalization support.
@@ -128,7 +126,7 @@ class I18nHelper:
                 "ja": {"main_title": "Azure Updates Summary", "button_text": "データを取得"},
                 "en": {"main_title": "Azure Updates Summary", "button_text": "Get Data"}
             }
-    
+
     def get_current_language(self) -> str:
         """
         Get the currently selected language.
@@ -245,7 +243,7 @@ class I18nHelper:
             if selected_lang != st.session_state.get('language', 'en'):
                 st.session_state.language = selected_lang
 
-        selected_lang = st.selectbox(
+        st.selectbox(
             "Language / 言語",
             options=lang_codes,
             format_func=lambda x: LANGUAGES[x],
@@ -275,7 +273,6 @@ class I18nHelper:
         detected = 'en'
         st.session_state.detected_browser_language = detected
         return detected
-
 
     def _process_language_query_param(self) -> None:
         """
