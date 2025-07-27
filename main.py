@@ -21,10 +21,7 @@ st.set_page_config(
     layout="centered",
     menu_items={
         "Report a bug": "https://github.com/koudaiii/AzureUpdatePPTX/issues",
-        "About": f"""
-                 ### {i18n.t("about_title")}
-                 {i18n.t("about_content")}
-                 """,
+        "About": f"""### {i18n.t("about_title")}\n{i18n.t("about_content")}""",
     }
 )
 
