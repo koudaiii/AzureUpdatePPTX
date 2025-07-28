@@ -2,70 +2,100 @@ import unittest
 import tempfile
 import os
 import shutil
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from create_static_files import (
     get_robots_txt_content,
     get_sitemap_xml_content,
     find_streamlit_static_root,
-    create_static_files
+    create_static_files,
+    BASE_URL,
+    current_date
 )
 
 
 class TestStaticFileContent(unittest.TestCase):
+
+    @patch('create_static_files.BASE_URL', 'https://custom.example.com')
+    def test_get_robots_txt_content_custom_base_url(self):
+        """Test robots.txt content generation with custom BASE_URL"""
+        content = get_robots_txt_content()
+        self.assertIn("User-agent: *", content)
+        self.assertIn("Allow: /", content)
+        self.assertIn("Sitemap: https://custom.example.com/sitemap.xml", content)
 
     def test_get_robots_txt_content(self):
         """Test robots.txt content generation"""
         content = get_robots_txt_content()
         self.assertIn("User-agent: *", content)
         self.assertIn("Allow: /", content)
-        self.assertIn("Sitemap: https://azure.koudaiii.com/sitemap.xml", content)
+        self.assertIn(f"Sitemap: {BASE_URL}/sitemap.xml", content)
 
     def test_get_sitemap_xml_content(self):
         """Test sitemap.xml content generation"""
         content = get_sitemap_xml_content()
         self.assertIn('<?xml version="1.0" encoding="UTF-8"?>', content)
         self.assertIn('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=ja</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=en</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=ko</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=zh-cn</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=zh-tw</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=th</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=vi</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=id</loc>', content)
-        self.assertIn('<loc>https://azure.koudaiii.com/?lang=hi</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=ja</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=en</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=ko</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=zh-cn</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=zh-tw</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=th</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=vi</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=id</loc>', content)
+        self.assertIn(f'<loc>{BASE_URL}/?lang=hi</loc>', content)
+        self.assertIn(f'<lastmod>{current_date}</lastmod>', content)
+
+    @patch('create_static_files.BASE_URL', 'https://test.example.com')
+    @patch('create_static_files.current_date', '2025-12-25')
+    def test_get_sitemap_xml_content_custom_config(self):
+        """Test sitemap.xml content generation with custom configuration"""
+        content = get_sitemap_xml_content()
+        self.assertIn('<?xml version="1.0" encoding="UTF-8"?>', content)
+        self.assertIn('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', content)
+        self.assertIn('<loc>https://test.example.com/</loc>', content)
+        self.assertIn('<loc>https://test.example.com/?lang=ja</loc>', content)
+        self.assertIn('<lastmod>2025-12-25</lastmod>', content)
 
 
 class TestFindStreamlitStaticRoot(unittest.TestCase):
 
     @patch('os.path.exists')
-    def test_find_via_index_html(self, mock_exists):
-        """Test finding static directory via index.html"""
+    @patch('streamlit.__file__', '/usr/local/lib/python3.12/site-packages/streamlit/__init__.py')
+    def test_find_via_package_introspection(self, mock_exists):
+        """Test finding static directory via package introspection"""
         def side_effect(path):
-            return path == "/usr/local/lib/python3.12/site-packages/streamlit/static/index.html"
-        
+            return path == "/usr/local/lib/python3.12/site-packages/streamlit/static"
+
         mock_exists.side_effect = side_effect
-        
+
         result = find_streamlit_static_root()
         self.assertEqual(result, "/usr/local/lib/python3.12/site-packages/streamlit/static")
 
     @patch('os.path.exists')
-    def test_find_via_static_directory(self, mock_exists):
-        """Test finding static directory directly"""
+    @patch('streamlit.__file__', '/usr/local/lib/python3.12/site-packages/streamlit/__init__.py')
+    def test_find_via_fallback_paths(self, mock_exists):
+        """Test finding static directory via fallback when package introspection fails"""
         def side_effect(path):
-            return path == "/usr/local/lib/python3.12/site-packages/streamlit/static"
-        
+            # Package introspection path doesn't exist
+            if path == "/usr/local/lib/python3.12/site-packages/streamlit/static":
+                return False
+            # But fallback path exists (different path)
+            elif path == "/app/streamlit/frontend/build/static":
+                return True
+            return False
+
         mock_exists.side_effect = side_effect
-        
+
         result = find_streamlit_static_root()
-        self.assertEqual(result, "/usr/local/lib/python3.12/site-packages/streamlit/static")
+        self.assertEqual(result, "/app/streamlit/frontend/build/static")
 
     @patch('os.path.exists')
     def test_find_not_found(self, mock_exists):
         """Test when static directory is not found"""
         mock_exists.return_value = False
-        
+
         result = find_streamlit_static_root()
         self.assertIsNone(result)
 
