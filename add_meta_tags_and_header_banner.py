@@ -47,8 +47,10 @@ def find_streamlit_index_path(custom_path=None):
         "/usr/local/lib/python3.12/site-packages/streamlit/static/index.html"
     ]
 
+    logging.info("Falling back to hardcoded path search...")
     for path in possible_paths:
         if os.path.exists(path):
+            logging.info(f"Found index.html via fallback: {path}")
             return path
     logging.error("Streamlit's index.html file not found")
     return None

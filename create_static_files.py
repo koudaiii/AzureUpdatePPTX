@@ -7,126 +7,104 @@ This script should be run during Docker build process.
 import os
 import logging
 import sys
+import datetime
+from os import getenv
 
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Configuration
+BASE_URL = getenv('BASE_URL', 'https://azure.koudaiii.com')
+current_date = datetime.date.today().isoformat()
+
 
 def get_robots_txt_content():
     """Return robots.txt content"""
-    return """User-agent: *
+    return f"""User-agent: *
 Allow: /
 
 # This is a web application for generating Azure Updates summaries
 # All content is dynamically generated and safe for crawling
-Sitemap: https://azure.koudaiii.com/sitemap.xml
+Sitemap: {BASE_URL}/sitemap.xml
 """
 
 
 def get_sitemap_xml_content():
     """Return sitemap.xml content"""
-    return """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    # Supported languages with their priorities
+    languages = [
+        ('', 1.0),  # Main page (no lang parameter)
+        ('ja', 0.9),  # Japanese (default)
+        ('en', 0.9),  # English
+        ('ko', 0.8),  # Korean
+        ('zh-cn', 0.8),  # Chinese Simplified
+        ('zh-tw', 0.8),  # Chinese Traditional
+        ('th', 0.7),  # Thai
+        ('vi', 0.7),  # Vietnamese
+        ('id', 0.7),  # Indonesian
+        ('hi', 0.7),  # Hindi
+    ]
+
+    sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"""
+
+    for lang, priority in languages:
+        if lang:
+            url = f"{BASE_URL}/?lang={lang}"
+        else:
+            url = f"{BASE_URL}/"
+
+        sitemap_content += f"""
   <url>
-    <loc>https://azure.koudaiii.com/</loc>
-    <lastmod>2025-01-28</lastmod>
+    <loc>{url}</loc>
+    <lastmod>{current_date}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=ja</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=en</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=ko</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=zh-cn</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=zh-tw</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=th</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=vi</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=id</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://azure.koudaiii.com/?lang=hi</loc>
-    <lastmod>2025-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
+    <priority>{priority}</priority>
+  </url>"""
+
+    sitemap_content += """
 </urlset>
 """
+    return sitemap_content
 
 
 def find_streamlit_static_root():
-    """Find Streamlit's static file root directory"""
-    # First, try to find index.html and get its directory
-    possible_index_paths = [
-        "/app/streamlit/frontend/build/index.html",
-        "/usr/local/lib/python3.9/site-packages/streamlit/static/index.html",
-        "/usr/local/lib/python3.8/dist-packages/streamlit/static/index.html",
-        "/usr/local/lib/python3.12/site-packages/streamlit/static/index.html"
-    ]
-    
-    for index_path in possible_index_paths:
-        if os.path.exists(index_path):
-            static_dir = os.path.dirname(index_path)
-            logging.info(f"Found Streamlit static directory via index.html: {static_dir}")
-            return static_dir
-    
-    # Fallback to direct static directory search
+    """Find Streamlit's static directory using package introspection"""
+    # More robust path detection using streamlit package
+    try:
+        import streamlit
+        streamlit_path = os.path.dirname(streamlit.__file__)
+        static_path = os.path.join(streamlit_path, 'static')
+        if os.path.exists(static_path):
+            logging.info(f"Found Streamlit static directory via package introspection: {static_path}")
+            return static_path
+        else:
+            logging.warning(f"Streamlit static directory not found at expected location: {static_path}")
+    except ImportError:
+        logging.error("Streamlit package not found - cannot determine static directory")
+        return None
+
+    # Fallback to hardcoded paths (for edge cases)
     possible_static_paths = [
         "/app/streamlit/frontend/build/static",
         "/usr/local/lib/python3.9/site-packages/streamlit/static",
         "/usr/local/lib/python3.8/dist-packages/streamlit/static",
         "/usr/local/lib/python3.12/site-packages/streamlit/static"
     ]
-    
+
+    logging.info("Falling back to hardcoded path search...")
     for static_path in possible_static_paths:
         if os.path.exists(static_path):
-            logging.info(f"Found Streamlit static directory: {static_path}")
+            logging.info(f"Found Streamlit static directory via fallback: {static_path}")
             return static_path
-    
+
     logging.error("Streamlit static directory not found")
     return None
 
 
 def create_static_files(target_dir=None):
     """Create robots.txt and sitemap.xml files in the specified directory
-    
+
     Args:
         target_dir: Target directory to create files in. If None, will try to find Streamlit static dir.
     """
