@@ -58,6 +58,35 @@ class TestStaticFileContent(unittest.TestCase):
         self.assertIn('<loc>https://test.example.com/?lang=ja</loc>', content)
         self.assertIn('<lastmod>2025-12-25</lastmod>', content)
 
+    def test_sitemap_xml_valid_format(self):
+        """Test that generated sitemap.xml is valid XML"""
+        import xml.etree.ElementTree as ET
+        content = get_sitemap_xml_content()
+        try:
+            root = ET.fromstring(content)
+            # Verify root element (with namespace)
+            self.assertEqual(root.tag, '{http://www.sitemaps.org/schemas/sitemap/0.9}urlset')
+            # Verify we have URL entries (with namespace)
+            urls = root.findall('{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+            self.assertEqual(len(urls), 10)  # Should have 10 language variants
+            # Verify each URL has required elements (with namespace)
+            for url in urls:
+                self.assertIsNotNone(url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc'))
+                self.assertIsNotNone(url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}lastmod'))
+                self.assertIsNotNone(url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}changefreq'))
+                self.assertIsNotNone(url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}priority'))
+        except ET.ParseError as e:
+            self.fail(f"Generated sitemap.xml is not valid XML: {e}")
+
+    def test_sitemap_xml_url_count(self):
+        """Test that sitemap.xml contains the correct number of URLs"""
+        import xml.etree.ElementTree as ET
+        content = get_sitemap_xml_content()
+        root = ET.fromstring(content)
+        urls = root.findall('{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+        # Should have 10 URLs: 1 main + 9 language variants
+        self.assertEqual(len(urls), 10)
+
 
 class TestFindStreamlitStaticRoot(unittest.TestCase):
 
