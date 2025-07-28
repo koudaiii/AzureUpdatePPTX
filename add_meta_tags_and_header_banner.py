@@ -26,6 +26,20 @@ def find_streamlit_index_path(custom_path=None):
         logging.warning(f"index.html not found at specified path: {custom_path}")
         return None
 
+    # More robust path detection using streamlit package
+    try:
+        import streamlit
+        streamlit_path = os.path.dirname(streamlit.__file__)
+        index_path = os.path.join(streamlit_path, 'static', 'index.html')
+        if os.path.exists(index_path):
+            logging.info(f"Found index.html via package introspection: {index_path}")
+            return index_path
+        else:
+            logging.warning(f"index.html not found at expected location: {index_path}")
+    except ImportError:
+        logging.error("Streamlit package not found - cannot determine index.html location")
+
+    # Fallback to hardcoded paths (for edge cases)
     possible_paths = [
         "/app/streamlit/frontend/build/index.html",
         "/usr/local/lib/python3.9/site-packages/streamlit/static/index.html",
@@ -33,8 +47,10 @@ def find_streamlit_index_path(custom_path=None):
         "/usr/local/lib/python3.12/site-packages/streamlit/static/index.html"
     ]
 
+    logging.info("Falling back to hardcoded path search...")
     for path in possible_paths:
         if os.path.exists(path):
+            logging.info(f"Found index.html via fallback: {path}")
             return path
     logging.error("Streamlit's index.html file not found")
     return None

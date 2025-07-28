@@ -13,6 +13,7 @@ AzureUpdatePPTX is a multilingual tool that automatically retrieves Azure update
 - Automatic PowerPoint presentation generation
 - Browser language detection and multilingual support
 - Support for Japanese, English, Korean, Chinese (Simplified/Traditional), Thai, Vietnamese, Indonesian, and Hindi
+- SEO optimization with robots.txt and sitemap.xml support
 
 ## Required Azure Services
 
@@ -75,6 +76,17 @@ The application automatically detects browser language and supports:
 - **Vietnamese (vi)**: Tiếng Việt
 - **Indonesian (id)**: Bahasa Indonesia
 - **Hindi (hi)**: हिन्दी
+
+## SEO and Static Files
+
+The application includes SEO optimization features:
+
+- **robots.txt**: Available at `/robots.txt` - Allows search engine crawling
+- **sitemap.xml**: Available at `/sitemap.xml` - Includes all language variants with proper priorities
+- **Meta tags**: Automatic addition of SEO meta tags, Open Graph, and Twitter Card metadata
+- **Language detection**: Browser-based language detection with fallback to English
+
+These static files are automatically generated during Docker build process and served by Streamlit.
 
 ## Testing
 

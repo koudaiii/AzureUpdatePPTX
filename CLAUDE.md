@@ -18,7 +18,8 @@ AzureUpdatePPTX is a multilingual Streamlit web application that generates Power
 - `azureupdatehelper.py`: Azure updates data fetching and OpenAI integration
 - `i18n_helper.py`: Internationalization helper for language detection and translations
 - `template/gpstemplate.pptx`: PowerPoint template file
-- `add_meta_tags_and_header_banner.py`: Utility for PowerPoint metadata
+- `add_meta_tags_and_header_banner.py`: Utility for adding meta tags and SEO elements
+- `create_static_files.py`: Script for generating robots.txt and sitemap.xml
 - `locales/translations.json`: Translation files for all supported languages
 
 ### Data Flow
@@ -117,6 +118,43 @@ To add a new language:
 2. Add system prompt to `SYSTEM_PROMPTS` dict in `i18n_helper.py`
 3. Add translation strings to `locales/translations.json`
 4. Update browser language detection in `add_meta_tags_and_header_banner.py`
+
+## SEO and Static Files
+
+### Static File Generation
+
+The application includes SEO optimization through static files:
+
+- **robots.txt**: Generated automatically during Docker build
+  - Allows search engine crawling
+  - Includes sitemap reference
+  - Available at `/robots.txt`
+
+- **sitemap.xml**: Generated automatically during Docker build
+  - Includes all language variants (9 languages)
+  - Proper priority settings (main page: 1.0, language variants: 0.7-0.9)
+  - Available at `/sitemap.xml`
+
+### SEO Components
+
+- **Meta Tags**: Automatically added to Streamlit HTML
+  - General SEO meta tags (description, keywords, author)
+  - Open Graph tags for social media
+  - Twitter Card metadata
+  - Language-specific meta content
+
+- **Browser Language Detection**: JavaScript-based detection
+  - Automatic redirect with `browser_lang` parameter
+  - Fallback to English if language not supported
+  - Language preference persistence
+
+### Static File Generation Script
+
+`create_static_files.py`:
+- Auto-detects Streamlit static directory location
+- Generates robots.txt and sitemap.xml content
+- Runs during Docker build process
+- Includes comprehensive test coverage
 
 ## PowerPoint Template Structure
 
