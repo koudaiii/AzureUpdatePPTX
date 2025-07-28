@@ -113,13 +113,13 @@ def create_static_files(target_dir=None):
         if target_dir is None:
             logging.error("Could not find target directory for static files")
             return False
-    
+
     if not os.path.exists(target_dir):
         logging.error(f"Target directory does not exist: {target_dir}")
         return False
-    
+
     success = True
-    
+
     # Create robots.txt
     robots_path = os.path.join(target_dir, "robots.txt")
     try:
@@ -129,7 +129,7 @@ def create_static_files(target_dir=None):
     except Exception as e:
         logging.error(f"Failed to create robots.txt: {e}")
         success = False
-    
+
     # Create sitemap.xml
     sitemap_path = os.path.join(target_dir, "sitemap.xml")
     try:
@@ -139,19 +139,19 @@ def create_static_files(target_dir=None):
     except Exception as e:
         logging.error(f"Failed to create sitemap.xml: {e}")
         success = False
-    
+
     return success
 
 
 def main():
     """Main function"""
     import argparse
-    parser = argparse.ArgumentParser(description='Create static files for Streamlit app')
-    parser.add_argument('--target-dir', help='Target directory to create files in (optional, will auto-detect if not specified)')
+    parser = argparse.ArgumentParser(description='Create static files for Streamlit')
+    parser.add_argument('--target-dir', help='Target directory to create files in (optional)')
     args = parser.parse_args()
-    
+
     success = create_static_files(args.target_dir)
-    
+
     if success:
         print("Static files (robots.txt and sitemap.xml) created successfully")
         sys.exit(0)

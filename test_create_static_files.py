@@ -114,14 +114,14 @@ class TestCreateStaticFiles(unittest.TestCase):
         """Test successful creation of static files"""
         result = create_static_files(self.temp_dir)
         self.assertTrue(result)
-        
+
         # Check robots.txt
         robots_path = os.path.join(self.temp_dir, "robots.txt")
         self.assertTrue(os.path.exists(robots_path))
         with open(robots_path, 'r', encoding='utf-8') as f:
             robots_content = f.read()
         self.assertIn("User-agent: *", robots_content)
-        
+
         # Check sitemap.xml
         sitemap_path = os.path.join(self.temp_dir, "sitemap.xml")
         self.assertTrue(os.path.exists(sitemap_path))
@@ -139,10 +139,10 @@ class TestCreateStaticFiles(unittest.TestCase):
     def test_create_static_files_auto_detect_success(self, mock_find):
         """Test auto-detection of static directory"""
         mock_find.return_value = self.temp_dir
-        
+
         result = create_static_files()
         self.assertTrue(result)
-        
+
         # Verify files were created
         self.assertTrue(os.path.exists(os.path.join(self.temp_dir, "robots.txt")))
         self.assertTrue(os.path.exists(os.path.join(self.temp_dir, "sitemap.xml")))
@@ -151,7 +151,7 @@ class TestCreateStaticFiles(unittest.TestCase):
     def test_create_static_files_auto_detect_failure(self, mock_find):
         """Test auto-detection failure"""
         mock_find.return_value = None
-        
+
         result = create_static_files()
         self.assertFalse(result)
 
