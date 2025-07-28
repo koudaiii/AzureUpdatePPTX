@@ -13,10 +13,9 @@ COPY add_meta_tags_and_header_banner.py .
 COPY create_static_files.py .
 
 # Run the script to add meta tags and header banner
-RUN python add_meta_tags_and_header_banner.py
-
 # Run the script to create static files (robots.txt and sitemap.xml)
-RUN python create_static_files.py
+RUN python add_meta_tags_and_header_banner.py && \
+    python create_static_files.py
 
 COPY . .
 
