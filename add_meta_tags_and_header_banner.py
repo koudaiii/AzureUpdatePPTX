@@ -77,9 +77,35 @@ def create_backup(file_path):
     return True
 
 
+def get_csp_policy():
+    """Return Content Security Policy for Streamlit application"""
+    return (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+        "*.streamlit.io *.googleapis.com www.google-analytics.com "
+        "www.googletagmanager.com; "
+        "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
+        "font-src 'self' fonts.gstatic.com; "
+        "img-src 'self' data: *.koudaiii.com *.microsoft.com; "
+        "connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
+        "*.openai.azure.com; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'; "
+        "media-src 'self'; "
+        "worker-src 'self' blob:; "
+        "child-src 'self' blob:; "
+        "base-uri 'self';"
+    )
+
+
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
+        # Content Security Policy
+        {
+            'http-equiv': 'Content-Security-Policy',
+            'content': get_csp_policy()
+        },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'name': 'author', 'content': 'Kodai Sakabe'},
