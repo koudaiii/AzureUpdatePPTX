@@ -81,7 +81,7 @@ def get_csp_policy():
     """Return Content Security Policy for Streamlit application"""
     return (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+        "script-src 'self' "
         "*.streamlit.io *.googleapis.com www.google-analytics.com "
         "www.googletagmanager.com; "
         "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
