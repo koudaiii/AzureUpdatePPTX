@@ -83,7 +83,7 @@ def get_csp_policy():
         "default-src 'self'; "
         "script-src 'self' "
         "*.streamlit.io *.googleapis.com www.google-analytics.com "
-        "www.googletagmanager.com; "
+        "www.googletagmanager.com webhooks.fivetran.com; "
         "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
         "font-src 'self' fonts.gstatic.com; "
         "img-src 'self' data: *.koudaiii.com *.microsoft.com; "
