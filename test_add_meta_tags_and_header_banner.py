@@ -115,6 +115,11 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
         self.assertIn("default-src 'self'", csp_tag['content'])
 
+        # Verify X-Content-Type-Options meta tag is included as the second tag
+        x_content_type_tag = tags[1]
+        self.assertEqual(x_content_type_tag['http-equiv'], 'X-Content-Type-Options')
+        self.assertEqual(x_content_type_tag['content'], 'nosniff')
+
         # Verify required meta tags are included
         self.assertIn({'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'}, tags)
         self.assertIn({'property': 'og:title', 'content': 'Azure Updates Summary'}, tags)
@@ -146,6 +151,11 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         # Verify meta tags have been added
         meta_tags = soup.find_all('meta')
         self.assertTrue(len(meta_tags) > 0)
+
+        # Verify X-Content-Type-Options header is present
+        x_content_type_meta = soup.find('meta', {'http-equiv': 'X-Content-Type-Options'})
+        self.assertIsNotNone(x_content_type_meta)
+        self.assertEqual(x_content_type_meta.get('content'), 'nosniff')
 
         # Verify style tag has been added
         style_tag = soup.find('style')
