@@ -7,6 +7,7 @@ from pptx import Presentation
 from pptx.util import Pt
 from datetime import datetime, timedelta
 from i18n_helper import i18n, initialize_language_from_query_params
+from security_headers import init_security_headers
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -24,6 +25,9 @@ st.set_page_config(
         "About": f"""### {i18n.t("about_title")}\n{i18n.t("about_content")}""",
     }
 )
+
+# Initialize security headers after Streamlit setup
+init_security_headers()
 
 # Add language selection to sidebar
 with st.sidebar:
