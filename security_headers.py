@@ -84,10 +84,8 @@ def init_security_headers():
     This function should be called early in the main.py file.
     """
     try:
-        # Inject security headers HTML via components
-        st.components.v1.html(inject_security_headers_html(), height=0)
-
-        # Also try the markdown approach as fallback
+        # Inject security headers HTML via markdown with unsafe_allow_html
+        # This is safer and more reliable than components approach
         st.markdown(inject_security_headers_html(), unsafe_allow_html=True)
 
         # Log initialization
@@ -95,3 +93,4 @@ def init_security_headers():
 
     except Exception as e:
         logging.error(f"Failed to initialize security headers: {e}")
+        # Don't re-raise the exception to avoid breaking the app startup
