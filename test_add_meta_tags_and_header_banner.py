@@ -81,12 +81,16 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
 
         # Verify required CSP directives are included
         self.assertIn("default-src 'self'", csp)
-        self.assertIn("script-src 'self' *.streamlit.io *.googleapis.com www.google-analytics.com www.googletagmanager.com", csp)
+        # Verify script-src includes nonce and required domains
+        self.assertIn("script-src 'self' 'nonce-", csp)
+        self.assertIn("*.streamlit.io *.googleapis.com www.google-analytics.com "
+                      "www.googletagmanager.com", csp)
         self.assertIn("style-src 'self' 'unsafe-inline' fonts.googleapis.com", csp)
         self.assertIn("font-src 'self' fonts.gstatic.com", csp)
-        self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com", csp)
-        self.assertIn("connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com *.openai.azure.com", csp)
-        self.assertIn("frame-ancestors 'none'", csp)
+        self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net", csp)
+        self.assertIn("connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
+                      "*.openai.azure.com webhooks.fivetran.com", csp)
+        # Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag
         self.assertIn("object-src 'none'", csp)
         self.assertIn("media-src 'self'", csp)
         self.assertIn("worker-src 'self' blob:", csp)

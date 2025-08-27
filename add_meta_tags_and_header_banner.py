@@ -4,9 +4,13 @@ import shutil
 from bs4 import BeautifulSoup
 import logging
 import textwrap
+import secrets
 
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Generate nonce at application startup
+APP_NONCE = secrets.token_urlsafe(32)
 
 
 def find_streamlit_index_path(custom_path=None):
@@ -78,18 +82,21 @@ def create_backup(file_path):
 
 
 def get_csp_policy():
-    """Return Content Security Policy for Streamlit application"""
+    """Return Content Security Policy for Streamlit application
+
+    Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag.
+    If frame protection is needed, it should be set via HTTP headers or X-Frame-Options.
+    """
     return (
         "default-src 'self'; "
-        "script-src 'self' "
+        f"script-src 'self' 'nonce-{APP_NONCE}' "
         "*.streamlit.io *.googleapis.com www.google-analytics.com "
         "www.googletagmanager.com; "
         "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
         "font-src 'self' fonts.gstatic.com; "
-        "img-src 'self' data: *.koudaiii.com *.microsoft.com; "
+        "img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net; "
         "connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
-        "*.openai.azure.com; "
-        "frame-ancestors 'none'; "
+        "*.openai.azure.com webhooks.fivetran.com; "
         "object-src 'none'; "
         "media-src 'self'; "
         "worker-src 'self' blob:; "
@@ -101,7 +108,8 @@ def get_csp_policy():
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy
+        # Content Security Policy (note: frame-ancestors is excluded as it's ignored via meta tag)
+        # If frame protection is needed, consider setting X-Frame-Options header instead
         {
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
@@ -236,7 +244,7 @@ def modify_html(file_path):
         soup.head.append(style_tag)
 
         # Add language detector script
-        script_tag = soup.new_tag('script')
+        script_tag = soup.new_tag('script', nonce=APP_NONCE)
         script_tag.string = get_language_detector_script()
         soup.head.append(script_tag)
 
