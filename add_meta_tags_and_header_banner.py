@@ -82,7 +82,11 @@ def create_backup(file_path):
 
 
 def get_csp_policy():
-    """Return Content Security Policy for Streamlit application"""
+    """Return Content Security Policy for Streamlit application
+
+    Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag.
+    If frame protection is needed, it should be set via HTTP headers or X-Frame-Options.
+    """
     return (
         "default-src 'self'; "
         f"script-src 'self' 'nonce-{APP_NONCE}' "
@@ -93,7 +97,6 @@ def get_csp_policy():
         "img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net; "
         "connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
         "*.openai.azure.com webhooks.fivetran.com; "
-        "frame-ancestors 'none'; "
         "object-src 'none'; "
         "media-src 'self'; "
         "worker-src 'self' blob:; "
@@ -105,7 +108,8 @@ def get_csp_policy():
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy
+        # Content Security Policy (note: frame-ancestors is excluded as it's ignored via meta tag)
+        # If frame protection is needed, consider setting X-Frame-Options header instead
         {
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()

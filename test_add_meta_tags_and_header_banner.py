@@ -90,7 +90,7 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net", csp)
         self.assertIn("connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
                       "*.openai.azure.com webhooks.fivetran.com", csp)
-        self.assertIn("frame-ancestors 'none'", csp)
+        # Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag
         self.assertIn("object-src 'none'", csp)
         self.assertIn("media-src 'self'", csp)
         self.assertIn("worker-src 'self' blob:", csp)
