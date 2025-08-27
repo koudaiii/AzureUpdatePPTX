@@ -106,6 +106,11 @@ def get_meta_tags():
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
         },
+        # X-Content-Type-Options
+        {
+            'http-equiv': 'X-Content-Type-Options',
+            'content': 'nosniff'
+        },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'name': 'author', 'content': 'Kodai Sakabe'},
