@@ -72,6 +72,33 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         add_meta_tags_and_header_banner.create_backup(file_path)
         self.assertTrue(os.path.exists(file_path + '.bak'))
 
+    def test_get_csp_policy(self):
+        """Test get_csp_policy function"""
+        csp = add_meta_tags_and_header_banner.get_csp_policy()
+
+        # Verify CSP is a string
+        self.assertIsInstance(csp, str)
+
+        # Verify required CSP directives are included
+        self.assertIn("default-src 'self'", csp)
+        self.assertIn("script-src 'self' *.streamlit.io *.googleapis.com www.google-analytics.com www.googletagmanager.com", csp)
+        self.assertIn("style-src 'self' 'unsafe-inline' fonts.googleapis.com", csp)
+        self.assertIn("font-src 'self' fonts.gstatic.com", csp)
+        self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com", csp)
+        self.assertIn("connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com *.openai.azure.com", csp)
+        self.assertIn("frame-ancestors 'none'", csp)
+        self.assertIn("object-src 'none'", csp)
+        self.assertIn("media-src 'self'", csp)
+        self.assertIn("worker-src 'self' blob:", csp)
+        self.assertIn("child-src 'self' blob:", csp)
+        self.assertIn("base-uri 'self'", csp)
+
+        # Verify specific domains for security
+        self.assertIn("*.streamlit.io", csp)
+        self.assertIn("*.googleapis.com", csp)
+        self.assertIn("www.google-analytics.com", csp)
+        self.assertIn("www.googletagmanager.com", csp)
+
     def test_get_meta_tags(self):
         """Test get_meta_tags function"""
         tags = add_meta_tags_and_header_banner.get_meta_tags()
@@ -82,6 +109,11 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         # Verify tags are dictionaries
         for tag in tags:
             self.assertIsInstance(tag, dict)
+
+        # Verify CSP meta tag is included as the first tag
+        csp_tag = tags[0]
+        self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
+        self.assertIn("default-src 'self'", csp_tag['content'])
 
         # Verify required meta tags are included
         self.assertIn({'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'}, tags)
