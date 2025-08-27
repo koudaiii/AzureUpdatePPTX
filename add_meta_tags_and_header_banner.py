@@ -114,6 +114,11 @@ def get_meta_tags():
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
         },
+        # HSTS (Strict-Transport-Security) - starting with shorter period for safe rollout
+        {
+            'http-equiv': 'Strict-Transport-Security',
+            'content': 'max-age=86400; includeSubDomains'
+        },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
         {'name': 'author', 'content': 'Kodai Sakabe'},
