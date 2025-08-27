@@ -84,8 +84,7 @@ def create_backup(file_path):
 def get_csp_policy():
     """Return Content Security Policy for Streamlit application
 
-    Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag.
-    If frame protection is needed, it should be set via HTTP headers or X-Frame-Options.
+    Includes frame-ancestors directive to prevent clickjacking attacks.
     """
     return (
         "default-src 'self'; "
@@ -101,18 +100,23 @@ def get_csp_policy():
         "media-src 'self'; "
         "worker-src 'self' blob:; "
         "child-src 'self' blob:; "
-        "base-uri 'self';"
+        "base-uri 'self'; "
+        "frame-ancestors 'none';"
     )
 
 
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy (note: frame-ancestors is excluded as it's ignored via meta tag)
-        # If frame protection is needed, consider setting X-Frame-Options header instead
+        # Content Security Policy with frame-ancestors directive
         {
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
+        },
+        # X-Frame-Options header for additional frame protection
+        {
+            'http-equiv': 'X-Frame-Options',
+            'content': 'DENY'
         },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},

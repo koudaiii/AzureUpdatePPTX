@@ -90,12 +90,13 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net", csp)
         self.assertIn("connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com "
                       "*.openai.azure.com webhooks.fivetran.com", csp)
-        # Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag
         self.assertIn("object-src 'none'", csp)
         self.assertIn("media-src 'self'", csp)
         self.assertIn("worker-src 'self' blob:", csp)
         self.assertIn("child-src 'self' blob:", csp)
         self.assertIn("base-uri 'self'", csp)
+        # Verify frame-ancestors directive is included for clickjacking protection
+        self.assertIn("frame-ancestors 'none'", csp)
 
         # Verify specific domains for security
         self.assertIn("*.streamlit.io", csp)
@@ -118,6 +119,11 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         csp_tag = tags[0]
         self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
         self.assertIn("default-src 'self'", csp_tag['content'])
+
+        # Verify X-Frame-Options meta tag is included as the second tag
+        xfo_tag = tags[1]
+        self.assertEqual(xfo_tag['http-equiv'], 'X-Frame-Options')
+        self.assertEqual(xfo_tag['content'], 'DENY')
 
         # Verify required meta tags are included
         self.assertIn({'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'}, tags)
