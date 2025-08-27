@@ -47,30 +47,24 @@ def setup_security_headers_middleware():
 
 def inject_security_headers_html():
     """
-    Inject security headers via HTML meta tags as fallback.
+    Inject frame-busting protection via JavaScript.
+
+    Note: Security headers like X-Frame-Options and CSP frame-ancestors
+    should be set via HTTP headers, not meta tags for proper enforcement.
 
     Returns:
-        str: HTML string with security headers
+        str: HTML string with frame-busting protection
     """
     return """
     <script>
-        // Add security headers via JavaScript for enhanced protection
-        if (window.parent === window) {
-            // Not in iframe, safe to proceed
-            document.addEventListener('DOMContentLoaded', function() {
-                // Add X-Content-Type-Options header simulation
-                const metaContentType = document.createElement('meta');
-                metaContentType.httpEquiv = 'X-Content-Type-Options';
-                metaContentType.content = 'nosniff';
-                document.head.appendChild(metaContentType);
-
-                // Log security measures
-                console.log('Security headers applied');
-            });
-        } else {
-            // In iframe, apply frame-busting
-            if (window.top !== window.self) {
+        // Frame-busting protection
+        if (window.top !== window.self) {
+            // If the page is in an iframe, break out of it
+            try {
                 window.top.location = window.self.location;
+            } catch (e) {
+                // If cross-origin error, at least hide the content
+                document.body.style.display = 'none';
             }
         }
     </script>

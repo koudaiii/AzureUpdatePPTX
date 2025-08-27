@@ -109,20 +109,10 @@ def get_csp_policy():
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy with frame-ancestors for defense-in-depth
-        {
-            'http-equiv': 'Content-Security-Policy',
-            'content': get_csp_policy()
-        },
         # X-Content-Type-Options to prevent MIME type sniffing
         {
             'http-equiv': 'X-Content-Type-Options',
             'content': 'nosniff'
-        },
-        # X-Frame-Options to prevent clickjacking (fallback via meta tag)
-        {
-            'http-equiv': 'X-Frame-Options',
-            'content': 'DENY'
         },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},

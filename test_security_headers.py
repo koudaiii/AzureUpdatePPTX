@@ -115,12 +115,8 @@ class TestInjectSecurityHeadersHTML(unittest.TestCase):
 
         # Verify it contains expected elements
         self.assertIn('<script>', html_content)
-        self.assertIn('X-Content-Type-Options', html_content)
-        self.assertIn('nosniff', html_content)
-        self.assertIn('window.parent === window', html_content)
-        self.assertIn('DOMContentLoaded', html_content)
-        self.assertIn('Security headers applied', html_content)
         self.assertIn('window.top !== window.self', html_content)
+        self.assertIn('Frame-busting protection', html_content)
         self.assertIn('</script>', html_content)
 
     def test_inject_security_headers_html_structure(self):
@@ -130,13 +126,12 @@ class TestInjectSecurityHeadersHTML(unittest.TestCase):
         # Verify frame-busting protection is included
         self.assertIn('window.top.location = window.self.location', html_content)
 
-        # Verify meta tag creation for content type options
-        self.assertIn("metaContentType.httpEquiv = 'X-Content-Type-Options'", html_content)
-        self.assertIn("metaContentType.content = 'nosniff'", html_content)
+        # Verify frame-busting fallback
+        self.assertIn('document.body.style.display', html_content)
 
-        # Verify DOM manipulation
-        self.assertIn('document.createElement', html_content)
-        self.assertIn('document.head.appendChild', html_content)
+        # Verify error handling
+        self.assertIn('try {', html_content)
+        self.assertIn('} catch (e) {', html_content)
 
 
 class TestInitSecurityHeaders(unittest.TestCase):
@@ -170,7 +165,7 @@ class TestInitSecurityHeaders(unittest.TestCase):
         call_args = mock_markdown.call_args
         html_content = call_args[0][0]
         self.assertIn('<script>', html_content)
-        self.assertIn('X-Content-Type-Options', html_content)
+        self.assertIn('Frame-busting protection', html_content)
 
         # Verify unsafe_allow_html=True was passed
         self.assertTrue(call_args[1]['unsafe_allow_html'])
@@ -199,15 +194,11 @@ class TestSecurityHeadersIntegration(unittest.TestCase):
         """Test that HTML injection contains all necessary security measures"""
         html_content = security_headers.inject_security_headers_html()
 
-        # List of expected security features
+        # List of expected security features (updated for simplified frame-busting)
         security_features = [
-            'X-Content-Type-Options',
-            'nosniff',
-            'window.parent === window',  # Iframe detection
             'window.top !== window.self',  # Frame busting condition
             'window.top.location = window.self.location',  # Frame busting action
-            'DOMContentLoaded',  # Proper DOM loading
-            'console.log',  # Logging for debugging
+            'document.body.style.display = \'none\'',  # Content hiding fallback
         ]
 
         for feature in security_features:

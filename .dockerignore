@@ -1,4 +1,5 @@
 *
+!security_headers.py
 !azureupdatehelper.py
 !add_meta_tags_and_header_banner.py
 !create_static_files.py

@@ -115,13 +115,8 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         for tag in tags:
             self.assertIsInstance(tag, dict)
 
-        # Verify CSP meta tag is included as the first tag
-        csp_tag = tags[0]
-        self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
-        self.assertIn("default-src 'self'", csp_tag['content'])
-
-        # Verify X-Content-Type-Options meta tag is included as the second tag
-        x_content_type_tag = tags[1]
+        # Verify X-Content-Type-Options meta tag is included as the first tag
+        x_content_type_tag = tags[0]
         self.assertEqual(x_content_type_tag['http-equiv'], 'X-Content-Type-Options')
         self.assertEqual(x_content_type_tag['content'], 'nosniff')
 
