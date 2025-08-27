@@ -119,10 +119,7 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
         self.assertIn("default-src 'self'", csp_tag['content'])
 
-        # Verify HSTS meta tag is included as the second tag
-        hsts_tag = tags[1]
-        self.assertEqual(hsts_tag['http-equiv'], 'Strict-Transport-Security')
-        self.assertEqual(hsts_tag['content'], 'max-age=86400; includeSubDomains')
+        # HSTS header is no longer set via meta tag (not supported by browsers)
 
         # Verify required meta tags are included
         self.assertIn({'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'}, tags)
@@ -156,10 +153,7 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         meta_tags = soup.find_all('meta')
         self.assertTrue(len(meta_tags) > 0)
 
-        # Verify HSTS header has been added
-        hsts_meta = soup.find('meta', attrs={'http-equiv': 'Strict-Transport-Security'})
-        self.assertIsNotNone(hsts_meta)
-        self.assertEqual(hsts_meta.get('content'), 'max-age=86400; includeSubDomains')
+        # HSTS is not set via meta tag (browsers don't support it)
 
         # Verify style tag has been added
         style_tag = soup.find('style')
