@@ -81,7 +81,7 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
 
         # Verify required CSP directives are included
         self.assertIn("default-src 'self'", csp)
-        self.assertIn("script-src 'self' 'unsafe-inline' 'unsafe-eval'", csp)
+        self.assertIn("script-src 'self' *.streamlit.io *.googleapis.com www.google-analytics.com www.googletagmanager.com", csp)
         self.assertIn("style-src 'self' 'unsafe-inline' fonts.googleapis.com", csp)
         self.assertIn("font-src 'self' fonts.gstatic.com", csp)
         self.assertIn("img-src 'self' data: *.koudaiii.com *.microsoft.com", csp)
