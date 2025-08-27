@@ -84,8 +84,8 @@ def create_backup(file_path):
 def get_csp_policy():
     """Return Content Security Policy for Streamlit application
 
-    Note: frame-ancestors directive is omitted as it's ignored when delivered via meta tag.
-    If frame protection is needed, it should be set via HTTP headers or X-Frame-Options.
+    Note: frame-ancestors directive is included for defense-in-depth,
+    but primary frame protection should be via HTTP headers.
     """
     return (
         "default-src 'self'; "
@@ -101,23 +101,28 @@ def get_csp_policy():
         "media-src 'self'; "
         "worker-src 'self' blob:; "
         "child-src 'self' blob:; "
-        "base-uri 'self';"
+        "base-uri 'self'; "
+        "frame-ancestors 'none';"
     )
 
 
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy (note: frame-ancestors is excluded as it's ignored via meta tag)
-        # If frame protection is needed, consider setting X-Frame-Options header instead
+        # Content Security Policy with frame-ancestors for defense-in-depth
         {
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
         },
-        # X-Content-Type-Options
+        # X-Content-Type-Options to prevent MIME type sniffing
         {
             'http-equiv': 'X-Content-Type-Options',
             'content': 'nosniff'
+        },
+        # X-Frame-Options to prevent clickjacking (fallback via meta tag)
+        {
+            'http-equiv': 'X-Frame-Options',
+            'content': 'DENY'
         },
         # General SEO
         {'name': 'description', 'content': 'Azure Updates を要約して PPTX にまとめます。'},
@@ -162,9 +167,28 @@ def get_banner_style():
     """)
 
 
+def get_frame_protection_script():
+    """Return frame protection JavaScript code"""
+    return textwrap.dedent("""
+    // Frame protection - prevent clickjacking
+    if (window.top !== window.self) {
+        // If the page is in an iframe, break out of it
+        try {
+            window.top.location = window.self.location;
+        } catch (e) {
+            // If cross-origin error, at least hide the content
+            document.body.style.display = 'none';
+        }
+    }
+    """)
+
+
 def get_language_detector_script():
     """Return language detector JavaScript code"""
     return textwrap.dedent("""
+    // Frame protection
+    """ + get_frame_protection_script().strip() + """
+
     // Detect browser language settings and send to Streamlit
     function detectBrowserLanguage() {
         // Get browser language settings
