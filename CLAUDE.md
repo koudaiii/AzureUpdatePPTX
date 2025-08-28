@@ -161,3 +161,25 @@ The application includes SEO optimization through static files:
 The template uses specific placeholder indices:
 - Slide layouts: 0 (title), 27 (section), 10 (content)
 - Placeholders: 13 (date), 10 (hyperlink), 11 (body/references)
+
+## Security Considerations
+
+### Content Security Policy (CSP) and Security Headers
+
+**Important Security Issue**: Both `frame-ancestors` directive in Content Security Policy and `X-Frame-Options` header are ignored when delivered via `<meta>` elements. Even using `http-equiv` in meta tags is still considered meta tag delivery and will be ignored by browsers.
+
+**Required Tasks**:
+
+1. **Move CSP Headers to nginx**: Configure Content Security Policy headers in `nginx.conf` instead of meta tags
+   ```nginx
+   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' *.streamlit.io *.googleapis.com www.google-analytics.com www.googletagmanager.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: *.koudaiii.com *.microsoft.com cdn.jsdelivr.net; connect-src 'self' *.streamlit.io *.microsoft.com *.azure.com *.openai.azure.com webhooks.fivetran.com; object-src 'none'; media-src 'self'; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'; frame-ancestors 'none';" always;
+   ```
+
+2. **Configure HSTS in nginx**: HTTP Strict Transport Security should also be configured via HTTP headers
+   ```nginx
+   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+   ```
+
+3. **Remove security headers from Python meta tags**: Update `add_meta_tags_and_header_banner.py` to remove both `frame-ancestors` from CSP policy and `X-Frame-Options` from meta tags since these must be delivered via HTTP headers only.
+
+**Current Status**: Security headers are partially configured in both Python (meta tags) and nginx (HTTP headers), but `frame-ancestors` and `X-Frame-Options` specifically require HTTP header delivery to function properly.
