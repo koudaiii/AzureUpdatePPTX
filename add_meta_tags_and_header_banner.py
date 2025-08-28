@@ -84,7 +84,7 @@ def create_backup(file_path):
 def get_csp_policy():
     """Return Content Security Policy for Streamlit application
 
-    Includes frame-ancestors directive to prevent clickjacking attacks.
+    Note: frame-ancestors directive must be delivered via HTTP header, not meta tag.
     """
     return (
         "default-src 'self'; "
@@ -100,18 +100,22 @@ def get_csp_policy():
         "media-src 'self'; "
         "worker-src 'self' blob:; "
         "child-src 'self' blob:; "
-        "base-uri 'self'; "
-        "frame-ancestors 'none';"
+        "base-uri 'self';"
     )
 
 
 def get_meta_tags():
     """Return list of meta tags to add"""
     return [
-        # Content Security Policy with frame-ancestors directive
+        # Content Security Policy (frame-ancestors handled by HTTP header)
         {
             'http-equiv': 'Content-Security-Policy',
             'content': get_csp_policy()
+        },
+        # Content Security Policy for frame-ancestors (must be HTTP header)
+        {
+            'http-equiv': 'Content-Security-Policy',
+            'content': "frame-ancestors 'none';"
         },
         # X-Frame-Options header for additional frame protection
         {

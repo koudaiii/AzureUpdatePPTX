@@ -95,8 +95,8 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertIn("worker-src 'self' blob:", csp)
         self.assertIn("child-src 'self' blob:", csp)
         self.assertIn("base-uri 'self'", csp)
-        # Verify frame-ancestors directive is included for clickjacking protection
-        self.assertIn("frame-ancestors 'none'", csp)
+        # Verify frame-ancestors directive is NOT included in meta CSP (must be HTTP header)
+        self.assertNotIn("frame-ancestors", csp)
 
         # Verify specific domains for security
         self.assertIn("*.streamlit.io", csp)
@@ -120,8 +120,13 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         self.assertEqual(csp_tag['http-equiv'], 'Content-Security-Policy')
         self.assertIn("default-src 'self'", csp_tag['content'])
 
-        # Verify X-Frame-Options meta tag is included as the second tag
-        xfo_tag = tags[1]
+        # Verify frame-ancestors CSP tag is included as the second tag
+        frame_ancestors_tag = tags[1]
+        self.assertEqual(frame_ancestors_tag['http-equiv'], 'Content-Security-Policy')
+        self.assertEqual(frame_ancestors_tag['content'], "frame-ancestors 'none';")
+
+        # Verify X-Frame-Options meta tag is included as the third tag
+        xfo_tag = tags[2]
         self.assertEqual(xfo_tag['http-equiv'], 'X-Frame-Options')
         self.assertEqual(xfo_tag['content'], 'DENY')
 
