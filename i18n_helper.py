@@ -79,6 +79,66 @@ SYSTEM_PROMPTS: Dict[str, str] = {
 }
 
 
+# Azure OpenAI system prompts for table summary (one-sentence) for each language
+TABLE_SUMMARY_PROMPTS: Dict[str, str] = {
+    "ja": (
+        "渡されたデータに含まれているAzureのアップデート情報を日本語で1文で簡潔に要約してください。"
+        "各提供する地域のリージョンについては、翻訳せずに英語表記のままにしてください。"
+        "リンク用のURLやマークダウンは含まず、プレーンテキストで出力してください。"
+        "表形式での表示に適した短い要約にしてください。"
+    ),
+    "en": (
+        "Please concisely summarize the Azure update information contained in the provided data in one sentence in English."
+        "For regions in each provided area, keep them in English notation without translation."
+        "Output in plain text without including URLs for links or markdown."
+        "Make it a brief summary suitable for table display."
+    ),
+    "ko": (
+        "제공된 데이터에 포함된 Azure 업데이트 정보를 한국어로 한 문장으로 간결하게 요약해 주세요."
+        "각 제공 지역의 리전에 대해서는 번역하지 말고 영어 표기 그대로 두세요."
+        "링크용 URL이나 마크다운은 포함하지 말고 일반 텍스트로 출력해 주세요."
+        "표 형식 표시에 적합한 짧은 요약으로 만들어 주세요."
+    ),
+    "zh-cn": (
+        "请用中文(简体)将提供数据中包含的 Azure 更新信息用一句话简洁总结。"
+        "对于各提供地区的区域，请不要翻译，保持英文表示。"
+        "不要包含链接用的URL或markdown，请用纯文本输出。"
+        "请做成适合表格显示的简短摘要。"
+    ),
+    "zh-tw": (
+        "請用中文(繁體)將提供數據中包含的 Azure 更新資訊用一句話簡潔總結。"
+        "對於各提供地區的區域，請不要翻譯，保持英文表示。"
+        "不要包含連結用的URL或markdown，請用純文字輸出。"
+        "請做成適合表格顯示的簡短摘要。"
+    ),
+    "th": (
+        "โปรดสรุปข้อมูลอัปเดต Azure ที่มีอยู่ในข้อมูลที่ให้มาอย่างกระชับในหนึ่งประโยคเป็นภาษาไทย"
+        "สำหรับภูมิภาคในแต่ละพื้นที่ที่ให้บริการ โปรดไม่ต้องแปลและให้คงไว้เป็นภาษาอังกฤษ"
+        "อย่าใส่ URL สำหรับลิงก์หรือ markdown และให้แสดงผลเป็นข้อความธรรมดา"
+        "ให้เป็นสรุปสั้นๆ ที่เหมาะสมสำหรับการแสดงผลในตาราง"
+    ),
+    "vi": (
+        "Vui lòng tóm tắt ngắn gọn thông tin cập nhật Azure có trong dữ liệu được cung cấp bằng tiếng Việt trong một câu."
+        "Đối với các khu vực trong từng khu vực được cung cấp, vui lòng không dịch và giữ nguyên ký hiệu tiếng Anh."
+        "Không bao gồm URL cho liên kết hoặc markdown và xuất ra dưới dạng văn bản thuần túy."
+        "Hãy làm cho nó trở thành một bản tóm tắt ngắn gọn phù hợp để hiển thị bảng."
+    ),
+    "id": (
+        "Harap meringkas informasi pembaruan Azure yang terdapat dalam data yang diberikan "
+        "secara singkat dalam satu kalimat dalam bahasa Indonesia."
+        "Untuk wilayah di setiap area yang disediakan, jangan diterjemahkan dan tetap gunakan notasi bahasa Inggris."
+        "Jangan menyertakan URL untuk tautan atau markdown dan output dalam teks biasa."
+        "Buatlah ringkasan singkat yang cocok untuk tampilan tabel."
+    ),
+    "hi": (
+        "कृपया प्रदान किए गए डेटा में निहित Azure अपडेट जानकारी को हिंदी में एक वाक्य में संक्षेप में सारांशित करें।"
+        "प्रत्येक प्रदान किए गए क्षेत्र के क्षेत्रों के लिए, अनुवाद न करें और अंग्रेजी संकेतन को वैसा ही रखें।"
+        "लिंक के लिए URL या markdown शामिल न करें और सादे पाठ में आउटपुट करें।"
+        "इसे तालिका प्रदर्शन के लिए उपयुक्त एक संक्षिप्त सारांश बनाएं।"
+    )
+}
+
+
 # Date format patterns for each language
 DATE_FORMATS: Dict[str, str] = {
     "ja": "%Y年%m月%d日",
