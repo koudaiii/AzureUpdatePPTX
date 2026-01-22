@@ -257,6 +257,16 @@ class I18nHelper:
         current_lang = self.get_current_language()
         return SYSTEM_PROMPTS.get(current_lang, SYSTEM_PROMPTS['ja'])
 
+    def get_table_summary_prompt(self) -> str:
+        """
+        Get the Azure OpenAI system prompt for table summary (one-sentence) in the current language.
+
+        Returns:
+            Table summary system prompt string in the current language.
+        """
+        current_lang = self.get_current_language()
+        return TABLE_SUMMARY_PROMPTS.get(current_lang, TABLE_SUMMARY_PROMPTS['ja'])
+
     def format_date(self, date_obj: datetime) -> str:
         """
         Format a date object according to the current language's format.
