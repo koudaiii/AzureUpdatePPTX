@@ -74,6 +74,6 @@ tornado==6.5
 tqdm==4.67.1
 typing_extensions==4.12.2
 tzdata==2024.2
-urllib3==2.5.0
+urllib3==2.6.3
 watchdog==6.0.0
 XlsxWriter==3.2.0
