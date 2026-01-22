@@ -10,30 +10,36 @@ class TestTableSummaryPrompts(unittest.TestCase):
     def test_table_summary_prompts_exist_for_all_languages(self):
         """Test that TABLE_SUMMARY_PROMPTS has entries for all supported languages"""
         for lang_code in LANGUAGES.keys():
-            self.assertIn(lang_code, TABLE_SUMMARY_PROMPTS,
-                         f"TABLE_SUMMARY_PROMPTS missing entry for language: {lang_code}")
+            self.assertIn(
+                lang_code, TABLE_SUMMARY_PROMPTS,
+                f"TABLE_SUMMARY_PROMPTS missing entry for language: {lang_code}")
 
     def test_table_summary_prompts_are_not_empty(self):
         """Test that all TABLE_SUMMARY_PROMPTS entries are non-empty strings"""
         for lang_code, prompt in TABLE_SUMMARY_PROMPTS.items():
-            self.assertIsInstance(prompt, str,
-                                 f"Prompt for {lang_code} is not a string")
-            self.assertGreater(len(prompt), 0,
-                             f"Prompt for {lang_code} is empty")
+            self.assertIsInstance(
+                prompt, str,
+                f"Prompt for {lang_code} is not a string")
+            self.assertGreater(
+                len(prompt), 0,
+                f"Prompt for {lang_code} is empty")
 
     def test_table_summary_prompts_contain_key_instructions(self):
         """Test that table summary prompts contain key instructions for one-sentence summaries"""
         # Check Japanese prompt as reference
         ja_prompt = TABLE_SUMMARY_PROMPTS['ja']
-        self.assertIn('1文', ja_prompt,
-                     "Japanese prompt should request one sentence")
-        self.assertIn('簡潔', ja_prompt,
-                     "Japanese prompt should request conciseness")
+        self.assertIn(
+            '1文', ja_prompt,
+            "Japanese prompt should request one sentence")
+        self.assertIn(
+            '簡潔', ja_prompt,
+            "Japanese prompt should request conciseness")
 
         # Check English prompt
         en_prompt = TABLE_SUMMARY_PROMPTS['en']
-        self.assertIn('one sentence', en_prompt.lower(),
-                     "English prompt should request one sentence")
+        self.assertIn(
+            'one sentence', en_prompt.lower(),
+            "English prompt should request one sentence")
 
 
 class TestI18nHelperTableSummaryPrompt(unittest.TestCase):
@@ -190,7 +196,10 @@ class TestSummarizeArticleForTable(unittest.TestCase):
         article = {
             'title': 'Test',
             'products': ['Test Product'],
-            'description': '<p>Content with <a href="https://docs.example.com/ref1">link 1</a> and <a href="https://docs.example.com/ref2">link 2</a>.</p>'
+            'description': (
+                '<p>Content with <a href="https://docs.example.com/ref1">link 1</a> '
+                'and <a href="https://docs.example.com/ref2">link 2</a>.</p>'
+            )
         }
 
         result = azup.summarize_article_for_table(

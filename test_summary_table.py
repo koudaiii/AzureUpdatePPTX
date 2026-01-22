@@ -1,8 +1,7 @@
 import unittest
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 import main
 from pptx import Presentation
-from pptx.util import Inches
 import tempfile
 import os
 
@@ -301,7 +300,7 @@ class TestAddSummaryTable(unittest.TestCase):
             }
         ]
 
-        table_pages = main.add_summary_table(self.prs, self.slide, updates_data)
+        _ = main.add_summary_table(self.prs, self.slide, updates_data)
 
         # Get the newly created slide
         new_slide = self.prs.slides[-1]
@@ -393,7 +392,12 @@ class TestSummaryTruncation(unittest.TestCase):
             'url': 'https://example.com/update/1',
             'title': 'Azure Load Testing',
             'published_date_text': 'Published: 2024-01-15',
-            'summary': 'Azure Load TestingがSwitzerland Northリージョンで正式提供開始されました。これにより、大規模な負荷テストやパフォーマンスボトルネックの特定、AIによる分析結果の取得が可能です。CI/CDワークフローへの統合や既存のJMeter・Locustスクリプトも利用できます。',
+            'summary': (
+                'Azure Load TestingがSwitzerland Northリージョンで正式提供開始されました。'
+                'これにより、大規模な負荷テストやパフォーマンスボトルネックの特定、'
+                'AIによる分析結果の取得が可能です。CI/CDワークフローへの統合や'
+                '既存のJMeter・Locustスクリプトも利用できます。'
+            ),
             'table_summary': 'Azure Load Testing is now generally available in Switzerland North region.',
             'reference_link_label': 'Reference Links',
             'reference_links': []
