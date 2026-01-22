@@ -160,6 +160,133 @@ def create_section_title_slide(prs, update_count):
     return slide, slide.placeholders[0]
 
 
+# Add summary table to a single slide
+def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, font_size=Pt(12)):
+    """
+    Adds a summary table to a slide.
+
+    Args:
+        slide: The slide object to add the table to.
+        updates_data_chunk: List of update data dictionaries (subset for this page).
+        start_page_number: The starting page number for this chunk.
+        font_size: Font size for table content (default: Pt(12)).
+
+    The table contains:
+    - Column 1: Page number (starting from 3)
+    - Column 2: Title
+    - Column 3: Summary (truncated at first 。)
+    - Column 4: URL (as hyperlink)
+    """
+    if not updates_data_chunk:
+        return
+
+    # Header row + data rows
+    rows = 1 + len(updates_data_chunk)
+    cols = 4  # Page, Title, Summary, URL
+
+    # Position the table: 1cm from top (1cm ≈ 28.35pt)
+    # More compact layout with smaller font
+    left = Pt(40)
+    top = Pt(28)
+    width = Pt(880)
+    height = Pt(540)  # Increased height for more rows
+
+    # Create the table
+    table_shape = slide.shapes.add_table(rows, cols, left, top, width, height)
+    table = table_shape.table
+
+    # Set column widths
+    table.columns[0].width = Pt(50)   # Page number - narrow
+    table.columns[1].width = Pt(220)  # Title - medium
+    table.columns[2].width = Pt(380)  # Summary - wide
+    table.columns[3].width = Pt(230)  # URL - medium
+
+    # Set row heights to make table more compact
+    for row in table.rows:
+        row.height = Pt(30)  # Compact row height
+
+    # Set header row with unified font size
+    header_cells = table.rows[0].cells
+    header_cells[0].text = i18n.t("table_header_page")
+    header_cells[1].text = i18n.t("table_header_title")
+    header_cells[2].text = i18n.t("table_header_summary")
+    header_cells[3].text = i18n.t("table_header_url")
+
+    # Style header row
+    for cell in header_cells:
+        cell.text_frame.paragraphs[0].font.bold = True
+        cell.text_frame.paragraphs[0].font.size = font_size
+        # Reduce cell margins for more compact layout
+        cell.text_frame.margin_top = Pt(2)
+        cell.text_frame.margin_bottom = Pt(2)
+        cell.text_frame.margin_left = Pt(5)
+        cell.text_frame.margin_right = Pt(5)
+
+    # Fill data rows
+    for idx, update_data in enumerate(updates_data_chunk):
+        row_idx = idx + 1  # Skip header row
+        page_number = start_page_number + idx
+
+        cells = table.rows[row_idx].cells
+
+        # Page number
+        cells[0].text = str(page_number)
+        cells[0].text_frame.paragraphs[0].font.size = font_size
+        cells[0].text_frame.margin_top = Pt(2)
+        cells[0].text_frame.margin_bottom = Pt(2)
+        cells[0].text_frame.margin_left = Pt(5)
+        cells[0].text_frame.margin_right = Pt(5)
+
+        # Title
+        cells[1].text = update_data['title']
+        cells[1].text_frame.paragraphs[0].font.size = font_size
+        cells[1].text_frame.margin_top = Pt(2)
+        cells[1].text_frame.margin_bottom = Pt(2)
+        cells[1].text_frame.margin_left = Pt(5)
+        cells[1].text_frame.margin_right = Pt(5)
+
+        # Summary - use AI-generated one-sentence summary if available, otherwise fallback
+        if update_data.get('table_summary'):
+            # Use AI-generated one-sentence summary
+            summary_text = update_data['table_summary']
+            logging.debug(f"Using AI-generated table summary for: {update_data['title']}")
+        else:
+            # Fallback: truncate at first 。 (Japanese period)
+            summary = update_data['summary']
+            # Take only the first line
+            first_line = summary.split('\n')[0] if summary else ""
+            # Find the first 。 and truncate there (one sentence only)
+            if '。' in first_line:
+                first_period_idx = first_line.find('。')
+                summary_text = first_line[:first_period_idx + 1]  # Include the 。
+            else:
+                # If no 。, limit to 100 characters
+                summary_text = first_line[:100] + "..." if len(first_line) > 100 else first_line
+            logging.debug(f"Using fallback truncation for table summary: {update_data['title']}")
+        cells[2].text = summary_text
+        cells[2].text_frame.paragraphs[0].font.size = font_size
+        cells[2].text_frame.margin_top = Pt(2)
+        cells[2].text_frame.margin_bottom = Pt(2)
+        cells[2].text_frame.margin_left = Pt(5)
+        cells[2].text_frame.margin_right = Pt(5)
+
+        # URL with hyperlink
+        url = update_data['url']
+        url_cell = cells[3]
+        url_cell.text_frame.clear()
+        url_cell.text_frame.margin_top = Pt(2)
+        url_cell.text_frame.margin_bottom = Pt(2)
+        url_cell.text_frame.margin_left = Pt(5)
+        url_cell.text_frame.margin_right = Pt(5)
+        p = url_cell.text_frame.paragraphs[0]
+        run = p.add_run()
+        # Display shortened URL text but link to full URL
+        display_text = url if len(url) <= 45 else url[:42] + "..."
+        run.text = display_text
+        run.hyperlink.address = url
+        run.font.size = font_size
+
+
 # Display Azure Updates information
 def display_update_info(title, url, published_date, summary, ref_label, ref_links):
     st.write('')
