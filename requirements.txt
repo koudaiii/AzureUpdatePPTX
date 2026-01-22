@@ -3,7 +3,7 @@ altgraph==0.17.4
 annotated-types==0.7.0
 anyio==4.6.2.post1
 attrs==24.2.0
-azure-core==1.32.0
+azure-core==1.38.0
 azure-identity==1.19.0
 azure-storage-blob==12.24.0
 beautifulsoup4==4.12.2
