@@ -421,6 +421,30 @@ def fetch_update_data(url, client, deployment_name, system_prompt):
         logging.info("%s : %s", key, value)
     logging.info("***** End of Record *****")
 
+    # Generate one-sentence summary for table display
+    table_summary = None
+    try:
+        # Get table summary prompt for current language
+        table_summary_prompt = i18n.get_table_summary_prompt()
+
+        # Fetch article data again for table summary generation
+        article_response = azup.get_article(url)
+        if article_response is not None:
+            article_data = article_response.json()
+            # Generate one-sentence summary
+            table_summary = azup.summarize_article_for_table(
+                client, deployment_name, article_data, table_summary_prompt
+            )
+            if table_summary:
+                logging.debug(f"Generated table summary: {table_summary}")
+            else:
+                logging.warning(f"Failed to generate table summary for {url}")
+        else:
+            logging.warning(f"Failed to fetch article data for table summary: {url}")
+    except Exception as e:
+        logging.warning(f"Error generating table summary for {url}: {e}")
+        table_summary = None
+
     # Extract update data from the result
     (
         azure_update_title,
