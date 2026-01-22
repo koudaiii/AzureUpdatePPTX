@@ -181,6 +181,43 @@ def summarize_article(client, deployment_name, article, system_prompt=None):
         return None
 
 
+# Summarize article for table display (one sentence)
+def summarize_article_for_table(client, deployment_name, article, system_prompt):
+    """
+    Generate a one-sentence summary of an article for table display.
+
+    Args:
+        client: Azure OpenAI client
+        deployment_name: Model deployment name
+        article: Article data (dict with 'title', 'products', 'description')
+        system_prompt: System prompt for one-sentence summary (required)
+
+    Returns:
+        str: One-sentence summary, or None if generation fails
+    """
+    try:
+        link = ", ".join(get_unique_a_href_from_html(article['description']))
+        content = (
+            "Title: " + article['title'] + "\n"
+            + "Product: " + ", ".join(article['products']) + "\n"
+            + "Description: " + remove_html_tags(article['description']) + "\n"
+            + "Links in description: " + link
+        )
+
+        # Generate one-sentence summary with Azure OpenAI
+        summary_response = client.chat.completions.create(
+            model=deployment_name,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": content}
+            ]
+        )
+        return summary_response.choices[0].message.content
+    except Exception as e:
+        logging.error("An error occurred during table summary generation: %s", e)
+        return None
+
+
 # Generate Azure Updates API URL
 def target_url(id):
     if id is None or id == '':
