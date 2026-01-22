@@ -455,13 +455,58 @@ def fetch_update_data(url, client, deployment_name, system_prompt):
         reference_links,
     ) = extract_update_data(result)
 
+    # Return the data as a dictionary
+    return {
+        'url': azure_update_url,
+        'title': azure_update_title,
+        'published_date_text': published_date_text,
+        'summary': azure_update_summary,
+        'table_summary': table_summary,
+        'reference_link_label': reference_link_label,
+        'reference_links': reference_links
+    }
+
+
+# Create Azure Updates slide from fetched data
+def create_update_content_slide(prs, data, page_number):
+    """
+    Creates a slide for an Azure Updates from pre-fetched data.
+
+    Args:
+        prs: The Presentation object.
+        data: Dictionary containing update data (from fetch_update_data).
+        page_number: The page number for this slide (for display purposes).
+    """
     # Display update information via Streamlit
-    display_update_info(azure_update_title, azure_update_url, published_date_text,
-                        azure_update_summary, reference_link_label, reference_links)
+    display_update_info(
+        data['title'],
+        data['url'],
+        data['published_date_text'],
+        data['summary'],
+        data['reference_link_label'],
+        data['reference_links']
+    )
 
     # Create and add the update slide to the presentation
-    create_update_slide(prs, azure_update_title, published_date_text, azure_update_url,
-                        azure_update_summary, reference_link_label, reference_links)
+    create_update_slide(
+        prs,
+        data['title'],
+        data['published_date_text'],
+        data['url'],
+        data['summary'],
+        data['reference_link_label'],
+        data['reference_links']
+    )
+
+
+# Create Azure Updates (legacy function, kept for backwards compatibility)
+def process_update(url, client, deployment_name, prs, system_prompt):
+    """
+    Legacy function that combines fetch_update_data and create_update_content_slide.
+    Kept for backwards compatibility.
+    """
+    data = fetch_update_data(url, client, deployment_name, system_prompt)
+    create_update_content_slide(prs, data, None)
 
 
 # Title slide title
