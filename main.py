@@ -391,8 +391,28 @@ def extract_update_data(result):
     return title, published_date_text, url, summary, ref_label, ref_links
 
 
-# Create Azure Updates
-def process_update(url, client, deployment_name, prs, system_prompt):
+# Fetch Azure Updates data (separated from process_update for summary table feature)
+def fetch_update_data(url, client, deployment_name, system_prompt):
+    """
+    Fetches and processes Azure Updates data from a given URL.
+
+    Args:
+        url: URL of the Azure Updates article.
+        client: Azure OpenAI client.
+        deployment_name: Name of the Azure OpenAI deployment.
+        system_prompt: System prompt for Azure OpenAI.
+
+    Returns:
+        A dictionary containing the update data:
+        {
+            'url': str,
+            'title': str,
+            'published_date_text': str,
+            'summary': str,
+            'reference_link_label': str,
+            'reference_links': list[str]
+        }
+    """
     # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
     result = azup.read_and_summary(client, deployment_name, url, system_prompt)
