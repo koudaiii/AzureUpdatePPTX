@@ -287,6 +287,45 @@ def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, fon
         run.font.size = font_size
 
 
+# Add summary tables to presentation (with pagination support)
+def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
+    """
+    Adds summary table(s) to the presentation using layout 28 (blank), splitting into multiple slides if needed.
+    The section_slide parameter is kept for compatibility but not used (all tables use layout 28).
+
+    Args:
+        prs: The Presentation object.
+        section_slide: The section title slide (kept for compatibility, not used for tables).
+        updates_data: List of all update data dictionaries.
+        max_rows_per_page: Maximum number of data rows per page (default: 8).
+
+    Returns:
+        Number of table slides created.
+    """
+    if not updates_data:
+        return 0
+
+    total_updates = len(updates_data)
+    pages_needed = (total_updates + max_rows_per_page - 1) // max_rows_per_page
+
+    for page_idx in range(pages_needed):
+        start_idx = page_idx * max_rows_per_page
+        end_idx = min(start_idx + max_rows_per_page, total_updates)
+        chunk = updates_data[start_idx:end_idx]
+        # Page numbers for detail slides: Title(1) + Section(2) + Table pages + offset
+        start_page_number = 3 + pages_needed + start_idx
+
+        # All table pages use layout 28 (blank layout for table only)
+        layout = prs.slide_layouts[28]
+        new_slide = prs.slides.add_slide(layout)
+        logging.info(f"Creating table slide {page_idx + 1} of {pages_needed} using layout 28 (blank)")
+
+        # No title needed - table only
+        add_summary_table_to_slide(new_slide, chunk, start_page_number)
+
+    return pages_needed
+
+
 # Display Azure Updates information
 def display_update_info(title, url, published_date, summary, ref_label, ref_links):
     st.write('')
