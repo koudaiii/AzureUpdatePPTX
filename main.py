@@ -376,7 +376,7 @@ def create_update_slide(prs, title, published_date, url, summary, ref_label, ref
 
 # Generate Azure Updates content
 def extract_update_data(result):
-    title = result.get("title", "No Title")
+    title = result.get("title", "No Title") or "No Title"  # Handle empty string
     published_date_raw = result.get("publishedDate", "")
     published_date_str = published_date_raw.split(".")[0] if published_date_raw else ""
     try:
