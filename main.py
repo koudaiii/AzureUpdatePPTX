@@ -572,9 +572,24 @@ if st.button(i18n.t("button_text")):
     # system prompt for Azure OpenAI
     system_prompt = i18n.get_system_prompt()
 
-    # Get Azure Updates information and create slides
-    for url in urls:
-        process_update(url, client, deployment_name, prs, system_prompt)
+    # Step 1: Fetch all updates data
+    st.write(i18n.t("fetching_all_updates"))
+    updates_data = []
+    for i, url in enumerate(urls):
+        st.write(i18n.t("fetching_update_progress", current=i+1, total=len(urls)))
+        data = fetch_update_data(url, client, deployment_name, system_prompt)
+        updates_data.append(data)
+
+    # Step 2: Add summary table slides (using layout 2)
+    st.write(i18n.t("adding_summary_table"))
+    table_pages = add_summary_table(prs, slide, updates_data)
+
+    # Step 3: Create individual update slides
+    st.write(i18n.t("creating_update_slides"))
+    for i, data in enumerate(updates_data):
+        # Page number: Title(1) + Section(2) + Table pages + current index
+        page_number = 3 + table_pages + i
+        create_update_content_slide(prs, data, page_number)
 
     # Save PPTX
     prs.save(pptx_file.name)
