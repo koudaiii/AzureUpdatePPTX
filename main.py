@@ -160,6 +160,172 @@ def create_section_title_slide(prs, update_count):
     return slide, slide.placeholders[0]
 
 
+# Add summary table to a single slide
+def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, font_size=Pt(12)):
+    """
+    Adds a summary table to a slide.
+
+    Args:
+        slide: The slide object to add the table to.
+        updates_data_chunk: List of update data dictionaries (subset for this page).
+        start_page_number: The starting page number for this chunk.
+        font_size: Font size for table content (default: Pt(12)).
+
+    The table contains:
+    - Column 1: Page number (starting from 3)
+    - Column 2: Title
+    - Column 3: Summary (truncated at first 。)
+    - Column 4: URL (as hyperlink)
+    """
+    if not updates_data_chunk:
+        return
+
+    # Header row + data rows
+    rows = 1 + len(updates_data_chunk)
+    cols = 4  # Page, Title, Summary, URL
+
+    # Position the table: 1cm from top (1cm ≈ 28.35pt)
+    # More compact layout with smaller font
+    left = Pt(40)
+    top = Pt(28)
+    width = Pt(880)
+    height = Pt(540)  # Increased height for more rows
+
+    # Create the table
+    table_shape = slide.shapes.add_table(rows, cols, left, top, width, height)
+    table = table_shape.table
+
+    # Set column widths
+    table.columns[0].width = Pt(50)   # Page number - narrow
+    table.columns[1].width = Pt(220)  # Title - medium
+    table.columns[2].width = Pt(380)  # Summary - wide
+    table.columns[3].width = Pt(230)  # URL - medium
+
+    # Set row heights to make table more compact
+    for row in table.rows:
+        row.height = Pt(30)  # Compact row height
+
+    # Set header row with unified font size
+    header_cells = table.rows[0].cells
+    header_cells[0].text = i18n.t("table_header_page")
+    header_cells[1].text = i18n.t("table_header_title")
+    header_cells[2].text = i18n.t("table_header_summary")
+    header_cells[3].text = i18n.t("table_header_url")
+
+    # Style header row
+    for cell in header_cells:
+        cell.text_frame.paragraphs[0].font.bold = True
+        cell.text_frame.paragraphs[0].font.size = font_size
+        # Reduce cell margins for more compact layout
+        cell.text_frame.margin_top = Pt(2)
+        cell.text_frame.margin_bottom = Pt(2)
+        cell.text_frame.margin_left = Pt(5)
+        cell.text_frame.margin_right = Pt(5)
+
+    # Fill data rows
+    for idx, update_data in enumerate(updates_data_chunk):
+        row_idx = idx + 1  # Skip header row
+        page_number = start_page_number + idx
+
+        cells = table.rows[row_idx].cells
+
+        # Page number
+        cells[0].text = str(page_number)
+        cells[0].text_frame.paragraphs[0].font.size = font_size
+        cells[0].text_frame.margin_top = Pt(2)
+        cells[0].text_frame.margin_bottom = Pt(2)
+        cells[0].text_frame.margin_left = Pt(5)
+        cells[0].text_frame.margin_right = Pt(5)
+
+        # Title
+        cells[1].text = update_data['title']
+        cells[1].text_frame.paragraphs[0].font.size = font_size
+        cells[1].text_frame.margin_top = Pt(2)
+        cells[1].text_frame.margin_bottom = Pt(2)
+        cells[1].text_frame.margin_left = Pt(5)
+        cells[1].text_frame.margin_right = Pt(5)
+
+        # Summary - use AI-generated one-sentence summary if available, otherwise fallback
+        if update_data.get('table_summary'):
+            # Use AI-generated one-sentence summary
+            summary_text = update_data['table_summary']
+            logging.debug(f"Using AI-generated table summary for: {update_data['title']}")
+        else:
+            # Fallback: truncate at first 。 (Japanese period)
+            summary = update_data['summary']
+            # Take only the first line
+            first_line = summary.split('\n')[0] if summary else ""
+            # Find the first 。 and truncate there (one sentence only)
+            if '。' in first_line:
+                first_period_idx = first_line.find('。')
+                summary_text = first_line[:first_period_idx + 1]  # Include the 。
+            else:
+                # If no 。, limit to 100 characters
+                summary_text = first_line[:100] + "..." if len(first_line) > 100 else first_line
+            logging.debug(f"Using fallback truncation for table summary: {update_data['title']}")
+        cells[2].text = summary_text
+        cells[2].text_frame.paragraphs[0].font.size = font_size
+        cells[2].text_frame.margin_top = Pt(2)
+        cells[2].text_frame.margin_bottom = Pt(2)
+        cells[2].text_frame.margin_left = Pt(5)
+        cells[2].text_frame.margin_right = Pt(5)
+
+        # URL with hyperlink
+        url = update_data['url']
+        url_cell = cells[3]
+        url_cell.text_frame.clear()
+        url_cell.text_frame.margin_top = Pt(2)
+        url_cell.text_frame.margin_bottom = Pt(2)
+        url_cell.text_frame.margin_left = Pt(5)
+        url_cell.text_frame.margin_right = Pt(5)
+        p = url_cell.text_frame.paragraphs[0]
+        run = p.add_run()
+        # Display shortened URL text but link to full URL
+        display_text = url if len(url) <= 45 else url[:42] + "..."
+        run.text = display_text
+        run.hyperlink.address = url
+        run.font.size = font_size
+
+
+# Add summary tables to presentation (with pagination support)
+def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
+    """
+    Adds summary table(s) to the presentation using layout 28 (blank), splitting into multiple slides if needed.
+    The section_slide parameter is kept for compatibility but not used (all tables use layout 28).
+
+    Args:
+        prs: The Presentation object.
+        section_slide: The section title slide (kept for compatibility, not used for tables).
+        updates_data: List of all update data dictionaries.
+        max_rows_per_page: Maximum number of data rows per page (default: 8).
+
+    Returns:
+        Number of table slides created.
+    """
+    if not updates_data:
+        return 0
+
+    total_updates = len(updates_data)
+    pages_needed = (total_updates + max_rows_per_page - 1) // max_rows_per_page
+
+    for page_idx in range(pages_needed):
+        start_idx = page_idx * max_rows_per_page
+        end_idx = min(start_idx + max_rows_per_page, total_updates)
+        chunk = updates_data[start_idx:end_idx]
+        # Page numbers for detail slides: Title(1) + Section(2) + Table pages + offset
+        start_page_number = 3 + pages_needed + start_idx
+
+        # All table pages use layout 28 (blank layout for table only)
+        layout = prs.slide_layouts[28]
+        new_slide = prs.slides.add_slide(layout)
+        logging.info(f"Creating table slide {page_idx + 1} of {pages_needed} using layout 28 (blank)")
+
+        # No title needed - table only
+        add_summary_table_to_slide(new_slide, chunk, start_page_number)
+
+    return pages_needed
+
+
 # Display Azure Updates information
 def display_update_info(title, url, published_date, summary, ref_label, ref_links):
     st.write('')
@@ -210,7 +376,7 @@ def create_update_slide(prs, title, published_date, url, summary, ref_label, ref
 
 # Generate Azure Updates content
 def extract_update_data(result):
-    title = result.get("title", "No Title")
+    title = result.get("title", "No Title") or "No Title"  # Handle empty string
     published_date_raw = result.get("publishedDate", "")
     published_date_str = published_date_raw.split(".")[0] if published_date_raw else ""
     try:
@@ -225,8 +391,28 @@ def extract_update_data(result):
     return title, published_date_text, url, summary, ref_label, ref_links
 
 
-# Create Azure Updates
-def process_update(url, client, deployment_name, prs, system_prompt):
+# Fetch Azure Updates data (separated from process_update for summary table feature)
+def fetch_update_data(url, client, deployment_name, system_prompt):
+    """
+    Fetches and processes Azure Updates data from a given URL.
+
+    Args:
+        url: URL of the Azure Updates article.
+        client: Azure OpenAI client.
+        deployment_name: Name of the Azure OpenAI deployment.
+        system_prompt: System prompt for Azure OpenAI.
+
+    Returns:
+        A dictionary containing the update data:
+        {
+            'url': str,
+            'title': str,
+            'published_date_text': str,
+            'summary': str,
+            'reference_link_label': str,
+            'reference_links': list[str]
+        }
+    """
     # Process and log Azure Updates information
     logging.info("***** Begin of Record *****")
     result = azup.read_and_summary(client, deployment_name, url, system_prompt)
@@ -234,6 +420,30 @@ def process_update(url, client, deployment_name, prs, system_prompt):
     for key, value in result.items():
         logging.info("%s : %s", key, value)
     logging.info("***** End of Record *****")
+
+    # Generate one-sentence summary for table display
+    table_summary = None
+    try:
+        # Get table summary prompt for current language
+        table_summary_prompt = i18n.get_table_summary_prompt()
+
+        # Fetch article data again for table summary generation
+        article_response = azup.get_article(url)
+        if article_response is not None:
+            article_data = article_response.json()
+            # Generate one-sentence summary
+            table_summary = azup.summarize_article_for_table(
+                client, deployment_name, article_data, table_summary_prompt
+            )
+            if table_summary:
+                logging.debug(f"Generated table summary: {table_summary}")
+            else:
+                logging.warning(f"Failed to generate table summary for {url}")
+        else:
+            logging.warning(f"Failed to fetch article data for table summary: {url}")
+    except Exception as e:
+        logging.warning(f"Error generating table summary for {url}: {e}")
+        table_summary = None
 
     # Extract update data from the result
     (
@@ -245,13 +455,58 @@ def process_update(url, client, deployment_name, prs, system_prompt):
         reference_links,
     ) = extract_update_data(result)
 
+    # Return the data as a dictionary
+    return {
+        'url': azure_update_url,
+        'title': azure_update_title,
+        'published_date_text': published_date_text,
+        'summary': azure_update_summary,
+        'table_summary': table_summary,
+        'reference_link_label': reference_link_label,
+        'reference_links': reference_links
+    }
+
+
+# Create Azure Updates slide from fetched data
+def create_update_content_slide(prs, data, page_number):
+    """
+    Creates a slide for an Azure Updates from pre-fetched data.
+
+    Args:
+        prs: The Presentation object.
+        data: Dictionary containing update data (from fetch_update_data).
+        page_number: The page number for this slide (for display purposes).
+    """
     # Display update information via Streamlit
-    display_update_info(azure_update_title, azure_update_url, published_date_text,
-                        azure_update_summary, reference_link_label, reference_links)
+    display_update_info(
+        data['title'],
+        data['url'],
+        data['published_date_text'],
+        data['summary'],
+        data['reference_link_label'],
+        data['reference_links']
+    )
 
     # Create and add the update slide to the presentation
-    create_update_slide(prs, azure_update_title, published_date_text, azure_update_url,
-                        azure_update_summary, reference_link_label, reference_links)
+    create_update_slide(
+        prs,
+        data['title'],
+        data['published_date_text'],
+        data['url'],
+        data['summary'],
+        data['reference_link_label'],
+        data['reference_links']
+    )
+
+
+# Create Azure Updates (legacy function, kept for backwards compatibility)
+def process_update(url, client, deployment_name, prs, system_prompt):
+    """
+    Legacy function that combines fetch_update_data and create_update_content_slide.
+    Kept for backwards compatibility.
+    """
+    data = fetch_update_data(url, client, deployment_name, system_prompt)
+    create_update_content_slide(prs, data, None)
 
 
 # Title slide title
@@ -317,9 +572,24 @@ if st.button(i18n.t("button_text")):
     # system prompt for Azure OpenAI
     system_prompt = i18n.get_system_prompt()
 
-    # Get Azure Updates information and create slides
-    for url in urls:
-        process_update(url, client, deployment_name, prs, system_prompt)
+    # Step 1: Fetch all updates data
+    st.write(i18n.t("fetching_all_updates"))
+    updates_data = []
+    for i, url in enumerate(urls):
+        st.write(i18n.t("fetching_update_progress", current=i+1, total=len(urls)))
+        data = fetch_update_data(url, client, deployment_name, system_prompt)
+        updates_data.append(data)
+
+    # Step 2: Add summary table slides (using layout 2)
+    st.write(i18n.t("adding_summary_table"))
+    table_pages = add_summary_table(prs, slide, updates_data)
+
+    # Step 3: Create individual update slides
+    st.write(i18n.t("creating_update_slides"))
+    for i, data in enumerate(updates_data):
+        # Page number: Title(1) + Section(2) + Table pages + current index
+        page_number = 3 + table_pages + i
+        create_update_content_slide(prs, data, page_number)
 
     # Save PPTX
     prs.save(pptx_file.name)
