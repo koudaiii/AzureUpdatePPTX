@@ -6,8 +6,16 @@ if ! docker images azureupdatepptx | grep azureupdatepptx > /dev/null; then
   exit 1
 fi
 
+LOG_LEVEL_ENV=""
+
+## Check for --debug flag
+if [ "$1" = "--debug" ]; then
+  echo "Starting container in DEBUG mode..."
+  LOG_LEVEL_ENV="--env LOG_LEVEL=debug"
+fi
+
 ## display web url
 echo "Open http://localhost:8000"
 
 ## run azureupdatepptx docker container with port 8000
-docker run --rm --env-file .env -d -p 8000:8000 --name azureupdatepptx azureupdatepptx
+docker run --rm --env-file .env ${LOG_LEVEL_ENV} -d -p 8000:8000 --name azureupdatepptx azureupdatepptx
