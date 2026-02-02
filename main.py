@@ -1,14 +1,23 @@
 import streamlit as st
-import azureupdatehelper as azup
 import os
 import tempfile
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables first
+load_dotenv()
+
+# Log level configuration (for entire application)
+log_level_str = os.getenv('LOG_LEVEL', 'CRITICAL')
+log_level = getattr(logging, log_level_str, logging.CRITICAL)
+logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Import other modules after logging is configured
+import azureupdatehelper as azup
 from pptx import Presentation
 from pptx.util import Pt
 from datetime import datetime, timedelta
 from i18n_helper import i18n, initialize_language_from_query_params
-from dotenv import load_dotenv
-load_dotenv()
 
 # Initialize language from query parameters before st.set_page_config
 initialize_language_from_query_params()

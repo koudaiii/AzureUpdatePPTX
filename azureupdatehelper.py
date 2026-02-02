@@ -9,11 +9,6 @@ from datetime import datetime, timedelta
 from openai import AzureOpenAI
 from bs4 import BeautifulSoup
 
-# Log level configuration
-log_level_str = os.getenv('LOG_LEVEL', 'CRITICAL')
-log_level = getattr(logging, log_level_str, logging.CRITICAL)
-logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
-
 # How many days back to include updates in slides
 DAYS = 7
 
