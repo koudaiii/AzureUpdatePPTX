@@ -1,14 +1,23 @@
 import streamlit as st
-import azureupdatehelper as azup
 import os
 import tempfile
 import logging
-from pptx import Presentation
-from pptx.util import Pt
-from datetime import datetime, timedelta
-from i18n_helper import i18n, initialize_language_from_query_params
 from dotenv import load_dotenv
+
+# Load environment variables first
 load_dotenv()
+
+# Log level configuration (for entire application)
+log_level_str = os.getenv('LOG_LEVEL', 'CRITICAL')
+log_level = getattr(logging, log_level_str, logging.CRITICAL)
+logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Import other modules after logging is configured
+import azureupdatehelper as azup  # noqa: E402
+from pptx import Presentation  # noqa: E402
+from pptx.util import Pt  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
+from i18n_helper import i18n, initialize_language_from_query_params  # noqa: E402
 
 # Initialize language from query parameters before st.set_page_config
 initialize_language_from_query_params()
@@ -288,7 +297,7 @@ def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, fon
 
 
 # Add summary tables to presentation (with pagination support)
-def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
+def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=7):
     """
     Adds summary table(s) to the presentation using layout 28 (blank), splitting into multiple slides if needed.
     The section_slide parameter is kept for compatibility but not used (all tables use layout 28).
@@ -297,7 +306,7 @@ def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
         prs: The Presentation object.
         section_slide: The section title slide (kept for compatibility, not used for tables).
         updates_data: List of all update data dictionaries.
-        max_rows_per_page: Maximum number of data rows per page (default: 8).
+        max_rows_per_page: Maximum number of data rows per page (default: 7).
 
     Returns:
         Number of table slides created.
