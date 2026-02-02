@@ -11,7 +11,7 @@ LOG_LEVEL_OPTION=""
 ## Check for --debug flag
 if [ "$1" = "--debug" ]; then
   echo "Starting server in DEBUG mode..."
-  LOG_LEVEL_OPTION="--log_level debug"
+  LOG_LEVEL_OPTION="--logger.level debug"
 fi
 
 ## Start the server
