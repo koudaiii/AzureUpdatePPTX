@@ -288,7 +288,7 @@ def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, fon
 
 
 # Add summary tables to presentation (with pagination support)
-def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
+def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=7):
     """
     Adds summary table(s) to the presentation using layout 28 (blank), splitting into multiple slides if needed.
     The section_slide parameter is kept for compatibility but not used (all tables use layout 28).
@@ -297,7 +297,7 @@ def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=8):
         prs: The Presentation object.
         section_slide: The section title slide (kept for compatibility, not used for tables).
         updates_data: List of all update data dictionaries.
-        max_rows_per_page: Maximum number of data rows per page (default: 8).
+        max_rows_per_page: Maximum number of data rows per page (default: 7).
 
     Returns:
         Number of table slides created.
