@@ -10,7 +10,9 @@ from openai import AzureOpenAI
 from bs4 import BeautifulSoup
 
 # Log level configuration
-logging.basicConfig(level=logging.CRITICAL)
+log_level_str = os.getenv('LOG_LEVEL', 'CRITICAL')
+log_level = getattr(logging, log_level_str, logging.CRITICAL)
+logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # How many days back to include updates in slides
 DAYS = 7
@@ -158,16 +160,26 @@ def get_article(url):
 # Summarize article
 def summarize_article(client, deployment_name, article, system_prompt=None):
     try:
+        logging.debug("Starting article summarization...")
+        logging.debug("Article keys: %s", article.keys() if article else 'Article is None')
+
         link = ", ".join(get_unique_a_href_from_html(article['description']))
+        logging.debug("Extracted links: %s", link)
+
         content = (
             "Title: " + article['title'] + "\n"
             + "Product: " + ", ".join(article['products']) + "\n"
             + "Description: " + remove_html_tags(article['description']) + "\n"
             + "Links in description: " + link
         )
+        logging.debug("Content to summarize (first 200 chars): %s...", content[:200])
+
         # Summarize downloaded data with Azure OpenAI
         # Use default systemprompt if system_prompt is not specified
         prompt_to_use = system_prompt if system_prompt is not None else systemprompt
+        logging.debug("Using system prompt (first 100 chars): %s...", prompt_to_use[:100])
+        logging.debug("Calling Azure OpenAI with deployment: %s", deployment_name)
+
         summary_list = client.chat.completions.create(
             model=deployment_name,
             messages=[
@@ -175,9 +187,16 @@ def summarize_article(client, deployment_name, article, system_prompt=None):
                 {"role": "user", "content": content}
             ]
         )
-        return summary_list.choices[0].message.content, link
+        summary = summary_list.choices[0].message.content
+        logging.debug("Generated summary (first 100 chars): %s...", summary[:100] if summary else 'Summary is None')
+
+        return summary, link
     except Exception as e:
         logging.error("An error occurred during summary generation: %s", e)
+        logging.error("Exception type: %s", type(e).__name__)
+        logging.error("Article title: %s", article.get('title', 'N/A') if article else 'Article is None')
+        import traceback
+        logging.error("Traceback: %s", traceback.format_exc())
         return None
 
 

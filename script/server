@@ -6,5 +6,13 @@ if ! command -v streamlit > /dev/null; then
   exit 1
 fi
 
+## Check for --debug flag
+if [ "$1" = "--debug" ]; then
+  echo "Starting server in DEBUG mode..."
+  export LOG_LEVEL=DEBUG
+else
+  export LOG_LEVEL=CRITICAL
+fi
+
 ## Start the server
 exec streamlit run main.py --server.port=8000 --server.enableCORS=false
