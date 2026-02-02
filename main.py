@@ -13,11 +13,11 @@ log_level = getattr(logging, log_level_str, logging.CRITICAL)
 logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Import other modules after logging is configured
-import azureupdatehelper as azup
-from pptx import Presentation
-from pptx.util import Pt
-from datetime import datetime, timedelta
-from i18n_helper import i18n, initialize_language_from_query_params
+import azureupdatehelper as azup  # noqa: E402
+from pptx import Presentation  # noqa: E402
+from pptx.util import Pt  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
+from i18n_helper import i18n, initialize_language_from_query_params  # noqa: E402
 
 # Initialize language from query parameters before st.set_page_config
 initialize_language_from_query_params()
