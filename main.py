@@ -297,7 +297,7 @@ def add_summary_table_to_slide(slide, updates_data_chunk, start_page_number, fon
 
 
 # Add summary tables to presentation (with pagination support)
-def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=7):
+def add_summary_table(prs, section_slide, updates_data, max_rows_per_page=5):
     """
     Adds summary table(s) to the presentation using layout 28 (blank), splitting into multiple slides if needed.
     The section_slide parameter is kept for compatibility but not used (all tables use layout 28).

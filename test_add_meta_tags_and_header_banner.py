@@ -153,6 +153,11 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
 
         soup = BeautifulSoup(modified_html, 'html.parser')
 
+        # Verify title tag has been set correctly
+        title_tag = soup.find('title')
+        self.assertIsNotNone(title_tag)
+        self.assertEqual(title_tag.string, 'Azure Updates Summary')
+
         # Verify meta tags have been added
         meta_tags = soup.find_all('meta')
         self.assertTrue(len(meta_tags) > 0)
@@ -166,6 +171,22 @@ class TestAddMetaTagsAndHeaderBanner(unittest.TestCase):
         banner = soup.find('div', {'class': 'header-banner'})
         self.assertIsNotNone(banner)
         self.assertEqual(banner.text, "Public Preview")
+
+        # Verify title protector script has been added
+        script_tags = soup.find_all('script', {'nonce': True})
+        self.assertTrue(len(script_tags) >= 2)  # At least title protector and language detector
+
+        # Check for title protector script content
+        title_protector_found = False
+        language_detector_found = False
+        for script in script_tags:
+            if script.string and 'titleObserver' in script.string:
+                title_protector_found = True
+            if script.string and 'detectBrowserLanguage' in script.string:
+                language_detector_found = True
+
+        self.assertTrue(title_protector_found, "Title protector script not found")
+        self.assertTrue(language_detector_found, "Language detector script not found")
 
         # Test with non-existent file
         non_existent_file_path = os.path.join(self.test_dir, 'non_existent.html')
