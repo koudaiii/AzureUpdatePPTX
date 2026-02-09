@@ -161,6 +161,26 @@ def get_banner_style():
     """)
 
 
+def get_title_protector_script():
+    """Return title protector JavaScript code to prevent Streamlit from overwriting the page title"""
+    return textwrap.dedent("""
+    // Set and protect page title from being overwritten by Streamlit
+    document.title = 'Azure Updates Summary';
+
+    // Monitor and prevent title changes
+    const titleObserver = new MutationObserver(function(mutations) {
+        if (document.title !== 'Azure Updates Summary') {
+            document.title = 'Azure Updates Summary';
+        }
+    });
+
+    titleObserver.observe(
+        document.querySelector('title'),
+        { childList: true }
+    );
+    """)
+
+
 def get_language_detector_script():
     """Return language detector JavaScript code"""
     return textwrap.dedent("""
@@ -235,6 +255,15 @@ def modify_html(file_path):
 
         soup = BeautifulSoup(html_content, 'html.parser')
 
+        # Set page title to prevent title flickering
+        title_tag = soup.find('title')
+        if title_tag:
+            title_tag.string = 'Azure Updates Summary'
+        else:
+            title_tag = soup.new_tag('title')
+            title_tag.string = 'Azure Updates Summary'
+            soup.head.append(title_tag)
+
         # Add meta tags
         for tag in get_meta_tags():
             meta = soup.new_tag('meta')
@@ -246,6 +275,11 @@ def modify_html(file_path):
         style_tag = soup.new_tag('style')
         style_tag.string = get_banner_style()
         soup.head.append(style_tag)
+
+        # Add title protector script
+        title_script_tag = soup.new_tag('script', nonce=APP_NONCE)
+        title_script_tag.string = get_title_protector_script()
+        soup.head.append(title_script_tag)
 
         # Add language detector script
         script_tag = soup.new_tag('script', nonce=APP_NONCE)
