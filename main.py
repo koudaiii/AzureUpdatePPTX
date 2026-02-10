@@ -22,9 +22,9 @@ from i18n_helper import i18n, initialize_language_from_query_params  # noqa: E40
 # Initialize language from query parameters before st.set_page_config
 initialize_language_from_query_params()
 
-# Set the browser page title
+# Set the browser page title (hardcoded for SEO consistency)
 st.set_page_config(
-    page_title=i18n.t("page_title"),
+    page_title="Azure Updates Summary",
     page_icon=":cloud:",
     initial_sidebar_state="auto",
     layout="centered",
