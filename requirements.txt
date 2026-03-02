@@ -41,7 +41,7 @@ openai==1.55.2
 packaging==24.2
 pandas==2.2.3
 pefile==2023.2.7
-pillow==11.0.0
+pillow==12.1.1
 portalocker==2.10.1
 protobuf==5.29.6
 pyarrow==18.1.0
