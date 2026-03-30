@@ -49,7 +49,7 @@ pycparser==2.22
 pydantic==2.10.2
 pydantic_core==2.27.1
 pydeck==0.9.1
-Pygments==2.18.0
+Pygments==2.20.0
 pyinstaller==6.11.1
 pyinstaller-hooks-contrib==2024.10
 PyJWT==2.10.1
